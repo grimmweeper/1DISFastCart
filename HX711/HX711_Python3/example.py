@@ -81,7 +81,7 @@ try:
     running_weight = hx.get_weight_mean(20)
 
     while is_unlocked:
-        start_scanning = True # get from java app
+        start_scanning = trolley['start_scanning']
         print(hx.get_weight_mean(20), 'g')
         if start_scanning:
             print("start_scanning signal received! Scanning now...")

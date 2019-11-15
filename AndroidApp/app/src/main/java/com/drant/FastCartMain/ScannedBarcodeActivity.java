@@ -22,30 +22,33 @@ import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.io.IOException;
 
 public class ScannedBarcodeActivity extends AppCompatActivity {
-
-
     SurfaceView surfaceView;
     TextView txtBarcodeValue;
+    TextView welcomeMsg;
     private BarcodeDetector barcodeDetector;
     private CameraSource cameraSource;
     private static final int REQUEST_CAMERA_PERMISSION = 201;
     String intentData = "";
-
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_barcode);
-
-        initViews();
-    }
-
-    private void initViews() {
         txtBarcodeValue = findViewById(R.id.txtBarcodeValue);
         surfaceView = findViewById(R.id.surfaceView);
+
+        mAuth=FirebaseAuth.getInstance();
+        String mName = mAuth.getCurrentUser().getDisplayName();
+        welcomeMsg=findViewById(R.id.welcomeMsg);
+        welcomeMsg.setText("Welcome " + mName);
+
     }
 
     private void initialiseDetectorsAndSources() {
@@ -135,7 +138,11 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         initialiseDetectorsAndSources();
+    }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mAuth.signOut();
     }
 }

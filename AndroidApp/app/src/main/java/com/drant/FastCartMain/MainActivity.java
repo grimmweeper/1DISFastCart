@@ -12,7 +12,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
-
         Intent authIntent;
 
         // go straight to main if a token is stored
@@ -24,11 +23,5 @@ public class MainActivity extends AppCompatActivity {
         startActivity(authIntent);
         finish();
 
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mAuth.signOut();
     }
 }

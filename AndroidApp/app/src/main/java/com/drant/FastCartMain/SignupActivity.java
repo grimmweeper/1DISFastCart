@@ -2,6 +2,7 @@ package com.drant.FastCartMain;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
@@ -15,18 +16,16 @@ import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.AuthResult;
 
-import java.util.HashMap;
-
 public class SignupActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
+
     private static final String TAG = "SignupActivity";
 
     @BindView(R.id.input_user) EditText _userText;
@@ -34,10 +33,12 @@ public class SignupActivity extends AppCompatActivity {
     @BindView(R.id.input_reEnterPassword) EditText _reEnterPasswordText;
     @BindView(R.id.btn_signup) Button _signupButton;
     @BindView(R.id.link_login) TextView _loginLink;
+    @BindView(R.id.input_name) EditText _nameText;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        // Initialize Firebase Auth
+        // Initialize Firebase
+
         mAuth = FirebaseAuth.getInstance();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
@@ -65,9 +66,16 @@ public class SignupActivity extends AppCompatActivity {
     public void signup() {
         Log.d(TAG, "Signup Sequence");
 
+        final String name = _nameText.getText().toString();
         String email = _userText.getText().toString();
         String password = _passwordText.getText().toString();
         String reEnterPassword = _reEnterPasswordText.getText().toString();
+
+        if (name.isEmpty() || name.length() > 13) {
+            _nameText.setError("Please enter valid name shorter than or equal to 12 characters");
+            _nameText.requestFocus();
+            return;
+        } else { _userText.setError(null); }
 
         if (email.length() <3 || !email.contains(".com") || !email.contains("@")) {
             _userText.setError("Please enter a valid email address");
@@ -101,13 +109,29 @@ public class SignupActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
-                        // Sign up success, move to login and pass back data
+                        // Sign up success, login
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+                        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                .setDisplayName(name)
+                                .build();
+
+                        user.updateProfile(profileUpdates)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Log.d(TAG, "User profile updated.");
+                                        }
+                                    }
+                                });
+
                         Log.d(TAG, "createUserWithEmail:success");
-                        Intent intent = new Intent(SignupActivity.this,LoginActivity.class);
+                        Intent intent = new Intent(SignupActivity.this,MainActivity.class);
                         startActivity(intent);
                         overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
 //                        setResult(RESULT_OK, null);
-                        Toast.makeText(getBaseContext(), "Account created. Please login to continue", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(), "Account created. Please enjoy your shopping!", Toast.LENGTH_SHORT).show();
                         _signupButton.setEnabled(true);
                         progressDialog.dismiss();
                     } else {

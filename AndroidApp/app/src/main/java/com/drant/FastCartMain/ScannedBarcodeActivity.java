@@ -4,18 +4,13 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
@@ -37,6 +32,8 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
     String intentData = "";
     private FirebaseAuth mAuth;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +46,10 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         welcomeMsg=findViewById(R.id.welcomeMsg);
         welcomeMsg.setText("Welcome " + mName);
 
+
     }
+
+
 
     private void initialiseDetectorsAndSources() {
 
@@ -60,8 +60,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
                 .build();
 
         cameraSource = new CameraSource.Builder(this, barcodeDetector)
-                //.setRequestedPreviewSize(1920, 1080)
-                .setRequestedPreviewSize(300, 250)
+                .setRequestedPreviewSize(1920, 1080)
                 .setAutoFocusEnabled(true) //you should add this feature
                 .build();
 

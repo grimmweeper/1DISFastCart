@@ -3,39 +3,32 @@ package com.drant.FastCartMain;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
-
+    private FirebaseAuth mAuth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
 
+        Intent authIntent;
 
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
+        // go straight to main if a token is stored
+        if (mAuth.getCurrentUser() != null) {
+            authIntent = new Intent(this, ScannedBarcodeActivity.class);
+        } else {
+            authIntent = new Intent(this, LoginActivity.class);
+        }
+        startActivity(authIntent);
+        finish();
+
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mAuth.signOut();
+    }
 }

@@ -15,84 +15,18 @@
       },
       "oauth_client": [
         {
+          "client_id": "933991335141-srbaopteg915umedih0klq68emkqp43v.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.drant.FastCartMain",
+            "certificate_hash": "be0ff1c6caa7177b186ed2fcec4b328997e31bc8"
+          }
+        },
+        {
           "client_id": "933991335141-qmaeaht84ljithrctianonhg8dqq97pf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.drant.FastCartMain",
-            "certificate_hash": "ce6a7ddf3ad8bfb4236f50a7fb10dc8d3f8cafa2"
-          }
-        },
-        {
-          "client_id": "933991335141-mgb2fshu0hldu9qvgulq101p2uvfupih.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBUdlVLpYced6imleJxwU16ECs1Zev0cko"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "933991335141-mgb2fshu0hldu9qvgulq101p2uvfupih.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:933991335141:android:83882e9ed88991b85d800c",
-        "android_client_info": {
-          "package_name": "com.drant.fastcart"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "933991335141-04oqiuamm621a5l3unlu47kqii06cu7n.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.drant.fastcart",
-            "certificate_hash": "ce6a7ddf3ad8bfb4236f50a7fb10dc8d3f8cafa2"
-          }
-        },
-        {
-          "client_id": "933991335141-mgb2fshu0hldu9qvgulq101p2uvfupih.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBUdlVLpYced6imleJxwU16ECs1Zev0cko"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "933991335141-mgb2fshu0hldu9qvgulq101p2uvfupih.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:933991335141:android:4efbb08e78d9cf3f5d800c",
-        "android_client_info": {
-          "package_name": "com.sourcey.materialloginexample"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "933991335141-kkp7hkaav0sre2uf1loce4dqkk6e7oci.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.sourcey.materialloginexample",
             "certificate_hash": "ce6a7ddf3ad8bfb4236f50a7fb10dc8d3f8cafa2"
           }
         },

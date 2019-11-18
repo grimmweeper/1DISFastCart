@@ -69,7 +69,7 @@ try:
     trolley_id = "0000"
     trolleys = db.collection(u'trolleys')
     trolley = trolleys.document(trolley_id).get().to_dict()
-    is_unlocked = trolley['unlocked']
+    user = trolley['user']
 
     # Read data several times and return mean value
     # subtracted by offset and converted by scale ratio to
@@ -80,7 +80,7 @@ try:
 
     running_weight = hx.get_weight_mean(20)
 
-    while is_unlocked:
+    while user is not None:
         start_scanning = trolley['start_scanning']
         print(hx.get_weight_mean(20), 'g')
         if start_scanning:

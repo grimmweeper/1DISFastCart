@@ -55,7 +55,7 @@
         android:layout_marginRight="16dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/roundedbutton"
-        android:text="Continue"
+        android:text="@string/remove_product"
         android:textColor="@color/accent"
         android:textSize="24sp" />
 

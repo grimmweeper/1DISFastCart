@@ -2,4 +2,6 @@
     <string name="app_name">Material Login Example</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="remove_product">\u2716 CANCEL</string>
+
 </resources>

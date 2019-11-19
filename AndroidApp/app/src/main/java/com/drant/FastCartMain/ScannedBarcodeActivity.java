@@ -10,6 +10,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.os.Vibrator;
+import android.widget.Toast;
 
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
@@ -41,7 +43,10 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
     private CameraSource cameraSource;
     private static final int REQUEST_CAMERA_PERMISSION = 201;
     String intentData = "";
+
+    private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth mAuth;
+
     private String product_label="PRODUCT_LABEL";
     private String product_desc="PRODUCT_DESC";
 
@@ -56,21 +61,34 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
 
         surfaceView = findViewById(R.id.surfaceView);
 
-        mAuth=FirebaseAuth.getInstance();
+        // Initialize Firebase + Auth Listeners
+        mAuth = FirebaseAuth.getInstance();
+        authListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (firebaseAuth.getCurrentUser() == null) {
+                    startActivity(new Intent(ScannedBarcodeActivity.this, LoginActivity.class));
+                    finish();
+                }
+            }
+        };
+
+        //Profile Filling
         String mName = mAuth.getCurrentUser().getDisplayName();
         welcomeMsg.setText("Welcome " + mName);
-
     }
 
     public void showAlertDialog(int layout) {
         //Builds and inflates the dialog into view
         dialogBuilder = new AlertDialog.Builder(this);
         View layoutView = getLayoutInflater().inflate(layout, null);
-        Button productButton = layoutView.findViewById(R.id.productButton);
 
-        //Observe string changes
+        //Binds
+        Button productButton = layoutView.findViewById(R.id.productButton);
         TextView productLabel = layoutView.findViewById(R.id.productLabel);
         TextView productDesc = layoutView.findViewById(R.id.productDesc);
+
+        //Observe string changes
         productLabel.setText(product_label);
         productDesc.setText(product_desc);
 
@@ -88,6 +106,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 alertDialog.dismiss();
+                Toast.makeText(getBaseContext(), "Removed Item From Cart", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -107,6 +126,8 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
             @Override
             public void onDismiss(DialogInterface dialog) {
                 handler.removeCallbacks(closeDialog);
+                product_desc="";
+
             }
         });
         handler.postDelayed(closeDialog, 2000);
@@ -179,12 +200,18 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        if (authListener != null) {
+            mAuth.removeAuthStateListener(authListener);
+        }
         cameraSource.release();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (authListener != null) {
+            mAuth.addAuthStateListener(authListener);
+        }
         initialiseDetectorsAndSources();
     }
 
@@ -193,4 +220,6 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         super.onDestroy();
         mAuth.signOut();
     }
+
+
 }

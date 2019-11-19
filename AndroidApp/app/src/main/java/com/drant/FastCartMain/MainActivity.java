@@ -2,26 +2,49 @@ package com.drant.FastCartMain;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
+    private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Initialize Firebase Auth
+
+        // Initialize Firebase + Auth Listeners
         mAuth = FirebaseAuth.getInstance();
-        Intent authIntent;
+        authListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user == null) {
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    finish();
+                }
+                else {
+                    startActivity(new Intent(MainActivity.this, ScannedBarcodeActivity.class));
+                    finish();
+                }
+            }
+        };
 
-        // go straight to main if a token is stored
-        if (mAuth.getCurrentUser() != null) {
-            authIntent = new Intent(this, ScannedBarcodeActivity.class);
-        } else {
-            authIntent = new Intent(this, LoginActivity.class);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(authListener);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (authListener != null) {
+            mAuth.removeAuthStateListener(authListener);
         }
-        startActivity(authIntent);
-        finish();
-
     }
 }

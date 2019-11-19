@@ -42,8 +42,9 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
     private static final int REQUEST_CAMERA_PERMISSION = 201;
     String intentData = "";
     private FirebaseAuth mAuth;
+    private String product_label="PRODUCT_LABEL";
+    private String product_desc="PRODUCT_DESC";
 
-    @BindView(R.id.showPopup) Button showPopup;
     @BindView(R.id.welcomeMsg) TextView welcomeMsg;
     @BindView(R.id.txtBarcodeValue) TextView txtBarcodeValue;
 
@@ -59,13 +60,6 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         String mName = mAuth.getCurrentUser().getDisplayName();
         welcomeMsg.setText("Welcome " + mName);
 
-        //Manual Testing Purposes
-        showPopup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showAlertDialog(R.layout.product_dialog);
-            }
-        });
     }
 
     public void showAlertDialog(int layout) {
@@ -73,6 +67,13 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         dialogBuilder = new AlertDialog.Builder(this);
         View layoutView = getLayoutInflater().inflate(layout, null);
         Button productButton = layoutView.findViewById(R.id.productButton);
+
+        //Observe string changes
+        TextView productLabel = layoutView.findViewById(R.id.productLabel);
+        TextView productDesc = layoutView.findViewById(R.id.productDesc);
+        productLabel.setText(product_label);
+        productDesc.setText(product_desc);
+
         dialogBuilder.setView(layoutView);
         alertDialog = dialogBuilder.create();
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -80,7 +81,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
 
         //Vibrate on show
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        v.vibrate(400);
+        v.vibrate(200);
 
         //TODO: Make productButton cancel current addition to cart
         productButton.setOnClickListener(new View.OnClickListener() {
@@ -108,14 +109,11 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
                 handler.removeCallbacks(closeDialog);
             }
         });
-        handler.postDelayed(closeDialog, 3000);
+        handler.postDelayed(closeDialog, 2000);
     }
 
 
     private void initialiseDetectorsAndSources() {
-
-        //Toast.makeText(getApplicationContext(), "Barcode scanner started", Toast.LENGTH_SHORT).show();
-
         barcodeDetector = new BarcodeDetector.Builder(this)
                 .setBarcodeFormats(Barcode.ALL_FORMATS)
                 .build();
@@ -135,12 +133,9 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
                         ActivityCompat.requestPermissions(ScannedBarcodeActivity.this, new
                                 String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
                     }
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-
             }
 
             @Override
@@ -157,32 +152,24 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
             @Override
             public void release() {
-
             }
 
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
                 if (barcodes.size() != 0) {
+                    if (!product_desc.equals(barcodes.valueAt(0).displayValue)) {
+                        txtBarcodeValue.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //TODO: Need to lookup firebase product data and change data prior to inflating dialog view
+                                product_desc = barcodes.valueAt(0).displayValue;
 
-                    //TODO: Need to lookup firebase product data and change data prior to inflating dialog view
-                    showAlertDialog(R.layout.product_dialog);
-
-                    //Testing Feedback
-                    txtBarcodeValue.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            intentData = barcodes.valueAt(0).displayValue;
-                            txtBarcodeValue.setText(intentData);
-
-                            // Hi weeping wtf is this - aaron
-                            if (intentData.contains("http://en.m.wikipedia.org")) {
-                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(intentData)));
+                                //Build and view
+                                showAlertDialog(R.layout.product_dialog);
                             }
-
-                            //TODO: Possible intent to push into other activities
-                        }
-                    });
+                        });
+                    }
                 }
             }
         });

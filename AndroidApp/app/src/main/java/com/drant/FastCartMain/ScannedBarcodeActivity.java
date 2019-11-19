@@ -1,16 +1,25 @@
 package com.drant.FastCartMain;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.os.Vibrator;
 
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
@@ -18,37 +27,89 @@ import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.io.IOException;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class ScannedBarcodeActivity extends AppCompatActivity {
+    AlertDialog.Builder dialogBuilder;
+    AlertDialog alertDialog;
     SurfaceView surfaceView;
-    TextView txtBarcodeValue;
-    TextView welcomeMsg;
     private BarcodeDetector barcodeDetector;
     private CameraSource cameraSource;
     private static final int REQUEST_CAMERA_PERMISSION = 201;
     String intentData = "";
     private FirebaseAuth mAuth;
 
-
+    @BindView(R.id.showPopup) Button showPopup;
+    @BindView(R.id.welcomeMsg) TextView welcomeMsg;
+    @BindView(R.id.txtBarcodeValue) TextView txtBarcodeValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_barcode);
-        txtBarcodeValue = findViewById(R.id.txtBarcodeValue);
+        ButterKnife.bind(this);
+
         surfaceView = findViewById(R.id.surfaceView);
 
         mAuth=FirebaseAuth.getInstance();
         String mName = mAuth.getCurrentUser().getDisplayName();
-        welcomeMsg=findViewById(R.id.welcomeMsg);
         welcomeMsg.setText("Welcome " + mName);
 
-
+        //Manual Testing Purposes
+        showPopup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showAlertDialog(R.layout.product_dialog);
+            }
+        });
     }
 
+    public void showAlertDialog(int layout) {
+        //Builds and inflates the dialog into view
+        dialogBuilder = new AlertDialog.Builder(this);
+        View layoutView = getLayoutInflater().inflate(layout, null);
+        Button productButton = layoutView.findViewById(R.id.productButton);
+        dialogBuilder.setView(layoutView);
+        alertDialog = dialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        alertDialog.show();
+
+        //Vibrate on show
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(400);
+
+        //TODO: Make productButton cancel current addition to cart
+        productButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+            }
+        });
+
+        //Runnable to dismiss alert dialog
+        final Runnable closeDialog = new Runnable() {
+            @Override
+            public void run() {
+                if (alertDialog.isShowing()) {
+                    alertDialog.dismiss();
+                }
+            }
+        };
+
+        //Handler to execute ^runnable after delay, closes further thread callbacks
+        final Handler handler  = new Handler();
+        alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                handler.removeCallbacks(closeDialog);
+            }
+        });
+        handler.postDelayed(closeDialog, 3000);
+    }
 
 
     private void initialiseDetectorsAndSources() {
@@ -104,23 +165,24 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
                 if (barcodes.size() != 0) {
 
+                    //TODO: Need to lookup firebase product data and change data prior to inflating dialog view
+                    showAlertDialog(R.layout.product_dialog);
 
+                    //Testing Feedback
                     txtBarcodeValue.post(new Runnable() {
-
                         @Override
                         public void run() {
-
-
                             intentData = barcodes.valueAt(0).displayValue;
                             txtBarcodeValue.setText(intentData);
+
+                            // Hi weeping wtf is this - aaron
                             if (intentData.contains("http://en.m.wikipedia.org")) {
                                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(intentData)));
                             }
 
-
+                            //TODO: Possible intent to push into other activities
                         }
                     });
-
                 }
             }
         });

@@ -3,4 +3,7 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="product_label">PRODUCT_LABEL</string>
+    <string name="product_desc">PRODUCT_DESC</string>
+
 </resources>

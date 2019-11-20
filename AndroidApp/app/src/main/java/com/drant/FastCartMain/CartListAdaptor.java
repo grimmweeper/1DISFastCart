@@ -1,6 +1,5 @@
 package com.drant.FastCartMain;
 
-import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,13 +11,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class CartListAdaptor extends ArrayAdapter {
-    private final Activity context;
+    private final CartActivity context;
     private final ArrayList<String> itemArray;
     private final ArrayList<BigDecimal> priceArray;
     private final ArrayList<Integer> imageIDarray;
 
 
-    public CartListAdaptor(Activity context,
+    public CartListAdaptor(CartActivity context,
                            ArrayList<String> itemsAdded,
                            ArrayList<BigDecimal> priceAdded,
                            ArrayList<Integer> imageIDarray){

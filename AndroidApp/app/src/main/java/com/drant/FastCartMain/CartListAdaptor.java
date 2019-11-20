@@ -40,7 +40,7 @@ public class CartListAdaptor extends ArrayAdapter {
 
         //sets the values of the objects to values from the arrays
         nameTextField.setText(itemArray.get(position));
-        infoTextField.setText(priceArray.get(position).toString());
+        infoTextField.setText("$" + priceArray.get(position).toString());
         imageView.setImageResource(imageIDarray.get(position));
 
         return rowView;

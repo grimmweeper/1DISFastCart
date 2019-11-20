@@ -20,23 +20,29 @@ public class CartActivity extends ListActivity {
     Button buttonAdd;
     TextView cartTotal;
 
-    BigDecimal price1 = new BigDecimal(1.60);
-    BigDecimal price2 = new BigDecimal(2.95);
-    BigDecimal price3 = new BigDecimal(4.60);
+    Items item1 = new Items("Apple", "1.60", "fries");
+    Items item2 = new Items("Orange", "2.95", "fries");
+    Items item3 = new Items("Pear", "4.60", "fries");
 
-    ArrayList<String> itemArray = new ArrayList<String>(Arrays.asList("Apple", "Orange", "Pear"));
-    ArrayList<BigDecimal> priceArray = new ArrayList<BigDecimal>(Arrays.asList(price1, price2, price3));
-    ArrayList<Integer> imageArray = new ArrayList<>(Arrays.asList(R.drawable.fries, R.drawable.fries, R.drawable.fries));
+    ArrayList<Items> allItems = new ArrayList<>(Arrays.asList(item1, item2, item3));
+
+
+//    BigDecimal price1 = new BigDecimal("1.60");
+//    BigDecimal price2 = new BigDecimal("2.95");
+//    BigDecimal price3 = new BigDecimal("4.60");
+//
+//    ArrayList<String> itemArray = new ArrayList<String>(Arrays.asList("Apple", "Orange", "Pear"));
+//    ArrayList<BigDecimal> priceArray = new ArrayList<BigDecimal>(Arrays.asList(price1, price2, price3));
+//    ArrayList<Integer> imageArray = new ArrayList<>(Arrays.asList(R.drawable.fries, R.drawable.fries, R.drawable.fries));
 
 
     ArrayList<String> cartItem = new ArrayList<>();
     ArrayList<BigDecimal> cartPrice = new ArrayList<>();
     ArrayList<Integer> cartImage = new ArrayList<>();
 
-    ListView listView;
     CartListAdaptor adapter;
 
-    int clickCounter=0;
+    int clickCounter = 0;
 
     protected void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -52,20 +58,19 @@ public class CartActivity extends ListActivity {
 
         // todo LUOQI: change to compile cart when View Cart button is pressed
         buttonAdd = findViewById(R.id.addBtn);
-
-
         cartTotal = (TextView) findViewById(R.id.cartTotal);
-
 
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (clickCounter < 3) {
-                    adapter.add(itemArray.get(clickCounter), priceArray.get(clickCounter));
+                if (clickCounter < 3){
+                    Items currentItem = allItems.get(clickCounter);
+                    System.out.println(allItems.get(clickCounter).getName());
+//                    adapter.add(itemArray.get(clickCounter), priceArray.get(clickCounter));
+                    adapter.add(currentItem.getName(), currentItem.getPrice());
                     clickCounter += 1;
                 }else{
                     clickCounter = 0;
-                    adapter.add(itemArray.get(clickCounter), priceArray.get(clickCounter));
                 }
 
                 BigDecimal sum = new BigDecimal(0);

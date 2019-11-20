@@ -19,7 +19,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.drant.FastCartMain.MainActivity"
+            android:name="com.drant.FastCartMain.CartActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,7 +30,7 @@
         <activity android:name="com.drant.FastCartMain.LoginActivity" android:theme="@style/AppTheme.Dark" />
         <activity android:name="com.drant.FastCartMain.SignupActivity" android:theme="@style/AppTheme.Dark" />
         <activity android:name="com.drant.FastCartMain.ScannedBarcodeActivity" android:theme="@style/AppTheme.Dark" />
-        <activity android:name="com.drant.FastCartMain.CartActivity" android:theme="@style/AppTheme.Dark"/>
+<!--        <activity android:name="com.drant.FastCartMain.CartActivity" android:theme="@style/AppTheme.Dark"/>-->
 
         <meta-data
             android:name="com.google.android.gms.vision.DEPENDENCIES"

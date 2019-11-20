@@ -3,7 +3,6 @@ package com.drant.FastCartMain;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,11 +19,11 @@ public class CartActivity extends ListActivity {
     Button buttonAdd;
     TextView cartTotal;
 
-    Items item1 = new Items("Apple", "1.60", "fries");
-    Items item2 = new Items("Orange", "2.95", "fries");
-    Items item3 = new Items("Pear", "4.60", "fries");
+    Item item1 = new Item("Apple", "1.60", "fries", "0");
+    Item item2 = new Item("Orange", "2.95", "fries", "0");
+    Item item3 = new Item("Pear", "4.60", "fries", "0");
 
-    ArrayList<Items> allItems = new ArrayList<>(Arrays.asList(item1, item2, item3));
+    ArrayList<Item> allItems = new ArrayList<>(Arrays.asList(item1, item2, item3));
 
 
 //    BigDecimal price1 = new BigDecimal("1.60");
@@ -64,7 +63,7 @@ public class CartActivity extends ListActivity {
             @Override
             public void onClick(View view) {
                 if (clickCounter < 3){
-                    Items currentItem = allItems.get(clickCounter);
+                    Item currentItem = allItems.get(clickCounter);
                     System.out.println(allItems.get(clickCounter).getName());
 //                    adapter.add(itemArray.get(clickCounter), priceArray.get(clickCounter));
                     adapter.add(currentItem.getName(), currentItem.getPrice());

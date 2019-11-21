@@ -1,8 +1,10 @@
 package com.drant.FastCartMain;
 
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +16,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class CartActivity extends ListActivity {
+//interface FirestoreCallback{
+//    void onCallback(Item item);
+//}
+
+public class CartActivity extends ListActivity {//implements FirestoreCallback {
 
     Button buttonAdd;
     TextView cartTotal;
@@ -43,9 +49,19 @@ public class CartActivity extends ListActivity {
 
     int clickCounter = 0;
 
+//    public void onCallback(Item item) {
+//        Log.i("console", "I've been called back");
+//    }
+
     protected void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
+
+        DatabaseHandler dbHandler = DatabaseHandler.getInstance();
+        Context thisActivityContext = getApplicationContext();
+//        dbHandler.Read("users");
+        dbHandler.getProductDetails(thisActivityContext, "OcKH4TaO3BOo8NNYoEyD");
+
 
         // get footer
         ListView listView = findViewById(android.R.id.list);

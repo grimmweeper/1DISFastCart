@@ -13,6 +13,7 @@ import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -59,6 +60,12 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         mAuth=FirebaseAuth.getInstance();
         String mName = mAuth.getCurrentUser().getDisplayName();
         welcomeMsg.setText("Welcome " + mName);
+//        DatabaseHandler dbHandler = DatabaseHandler.getInstance();
+//        Context thisActivityContext = getApplicationContext();
+////        dbHandler.Read("users");
+//        dbHandler.getProductDetails(thisActivityContext, "OcKH4TaO3BOo8NNYoEyD");
+
+//        dbHandler.FirestoreCallback
 
     }
 
@@ -175,6 +182,11 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         });
     }
 
+    private OnFirebaseRetrieveListener dbListener;
+
+    public interface OnFirebaseRetrieveListener{
+
+    }
 
     @Override
     protected void onPause() {

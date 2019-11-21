@@ -1,9 +1,7 @@
 package com.drant.FastCartMain;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -16,7 +14,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
+
 import static android.content.ContentValues.TAG;
+
+interface FirestoreCallback{
+//    void onItemCallback(Item item);
+    void onItemsCallback(ArrayList<Item> allItems);
+//    void onUserInfoCallback();
+}
 
 public class DatabaseHandler {
     private static DatabaseHandler instance = null;
@@ -36,27 +42,20 @@ public class DatabaseHandler {
     }
 
     // Product Functions
-    void getProductDetails(final CartActivity cartActivity, String barcode){
+    void getProductDetails(final FirestoreCallback firestoreCallback, String barcode){
         productDocRef = db.collection("products").document(barcode);
-        readData(cartActivity);
-    }
-
-    private void readData(final CartActivity cartActivity) {
         productDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-//                        Item item = document.toObject(Item.class);
                         String name = document.getString("name");
                         String price = document.getDouble("price").toString();
                         String weight = document.getDouble("weight").toString();
                         String imageRef = document.getString("imageRef");
                         Item item = new Item(name, price, imageRef, weight);
-//                        Log.d(TAG, productDetails.toString());
-                        cartActivity.onCallback(item);
-//                        firestoreCallback.onCallback(item);
+//                        firestoreCallback.onItemCallback(item);
                     } else {
                         Log.d(TAG, "No such document");
                     }
@@ -65,11 +64,53 @@ public class DatabaseHandler {
                 }
             }
         });
+//        readData(firestoreCallback);
     }
 
-//    private interface FirestoreCallback{
-//        void onCallback(Item item);
-//    }
+    void getAllProductsDetails(final FirestoreCallback firestoreCallback){
+        Log.i("console", "I've been called back");
+        final ArrayList<Item> allItems = new ArrayList();
+        CollectionReference docRef = db.collection("products");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String name = document.getString("name");
+                        String price = document.getDouble("price").toString();
+                        String weight = document.getDouble("weight").toString();
+                        String imageRef = document.getString("imageRef");
+                        Item item = new Item(name, price, imageRef, weight);
+                        allItems.add(item);
+//                        Log.d(TAG, document.getId() + " => " + document.getData());
+                    }
+                    firestoreCallback.onItemsCallback(allItems);
+                } else {
+                    Log.d(TAG, "Error getting documents: ", task.getException());
+                }
+            }
+        });
+//        productDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                if (task.isSuccessful()) {
+//                    DocumentSnapshot document = task.getResult();
+//                    if (document.exists()) {
+//                        String name = document.getString("name");
+//                        String price = document.getDouble("price").toString();
+//                        String weight = document.getDouble("weight").toString();
+//                        String imageRef = document.getString("imageRef");
+//                        Item item = new Item(name, price, imageRef, weight);
+////                        firestoreCallback.onCallback(item);
+//                    } else {
+//                        Log.d(TAG, "No such document");
+//                    }
+//                } else {
+//                    Log.d(TAG, "get failed with ", task.getException());
+//                }
+//            }
+//        });
+    }
 
     // User Functions
     void linkTrolleyToUser(String userId, String trolleyId){

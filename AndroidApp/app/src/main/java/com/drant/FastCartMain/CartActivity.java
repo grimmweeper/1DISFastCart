@@ -16,30 +16,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-interface FirestoreCallback{
-    void onCallback(Item item);
-}
+
 
 public class CartActivity extends ListActivity implements FirestoreCallback {
 
-    Button buttonAdd;
     TextView cartTotal;
-
-//    Item item1 = new Item("Apple", "1.60", "fries", "0");
-//    Item item2 = new Item("Orange", "2.95", "fries", "0");
-//    Item item3 = new Item("Pear", "4.60", "fries", "0");
-//
-//    ArrayList<Item> allItems = new ArrayList<>(Arrays.asList(item1, item2, item3));
-
-
-//    BigDecimal price1 = new BigDecimal("1.60");
-//    BigDecimal price2 = new BigDecimal("2.95");
-//    BigDecimal price3 = new BigDecimal("4.60");
-//
-//    ArrayList<String> itemArray = new ArrayList<String>(Arrays.asList("Apple", "Orange", "Pear"));
-//    ArrayList<BigDecimal> priceArray = new ArrayList<BigDecimal>(Arrays.asList(price1, price2, price3));
-//    ArrayList<Integer> imageArray = new ArrayList<>(Arrays.asList(R.drawable.fries, R.drawable.fries, R.drawable.fries));
-
 
     ArrayList<String> cartItem = new ArrayList<>();
     ArrayList<BigDecimal> cartPrice = new ArrayList<>();
@@ -47,13 +28,11 @@ public class CartActivity extends ListActivity implements FirestoreCallback {
 
     CartListAdaptor adapter;
 
-    int clickCounter = 0;
+//    int clickCounter = 0;
 
     @Override
-    public void onCallback(Item item) {
+    public void onItemsCallback(ArrayList<Item> allItems) {
         Log.i("console", "I've been called back");
-
-        ArrayList<Item> allItems = new ArrayList<>(Arrays.asList(item));
 
         // get footer
         ListView listView = findViewById(android.R.id.list);
@@ -64,19 +43,19 @@ public class CartActivity extends ListActivity implements FirestoreCallback {
         adapter = new CartListAdaptor(this, cartItem, cartPrice, cartImage);
 
         // todo LUOQI: change to compile cart when View Cart button is pressed
-//        buttonAdd = findViewById(R.id.addBtn);
         cartTotal = (TextView) findViewById(R.id.cartTotal);
 
-        Item currentItem = allItems.get(clickCounter);
-        System.out.println(allItems.get(clickCounter).getName());
-        adapter.add(currentItem.getName(), currentItem.getPrice());
+        for (Item currentItem : allItems) {
+            adapter.add(currentItem.getName(), currentItem.getPrice());
+            BigDecimal sum = new BigDecimal(0);
+            Intent intent = getIntent();
+            String message = intent.getStringExtra(sum.toString());
+            cartTotal.setText(message);
 
-        BigDecimal sum = new BigDecimal(0);
-        Intent intent = getIntent();
-        String message = intent.getStringExtra(sum.toString());
-        cartTotal.setText(message);
-
+        }
         setListAdapter(adapter);
+
+
     }
 
     protected void onCreate (Bundle savedInstanceState){
@@ -86,7 +65,8 @@ public class CartActivity extends ListActivity implements FirestoreCallback {
         DatabaseHandler dbHandler = DatabaseHandler.getInstance();
         Context thisActivityContext = getApplicationContext();
 //        dbHandler.Read("users");
-        dbHandler.getProductDetails(this, "OcKH4TaO3BOo8NNYoEyD");
+//        dbHandler.getProductDetails(this, "OcKH4TaO3BOo8NNYoEyD");
+        dbHandler.getAllProductsDetails(this);
 
 
 //        // get footer

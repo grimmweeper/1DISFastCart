@@ -36,20 +36,12 @@ public class DatabaseHandler {
     }
 
     // Product Functions
-    void getProductDetails(final Context originContext, String barcode){
-        System.out.println(0);
+    void getProductDetails(final CartActivity cartActivity, String barcode){
         productDocRef = db.collection("products").document(barcode);
-        readData(new FirestoreCallback() {
-            @Override
-            public void onCallback(Item item) {
-                Toast toast = Toast.makeText(originContext, item.toString(), Toast.LENGTH_SHORT);
-                toast.show();
-                Log.i("console", item.toString());
-            }
-        });
+        readData(cartActivity);
     }
 
-    private void readData(final FirestoreCallback firestoreCallback) {
+    private void readData(final CartActivity cartActivity) {
         productDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -63,7 +55,8 @@ public class DatabaseHandler {
                         String imageRef = document.getString("imageRef");
                         Item item = new Item(name, price, imageRef, weight);
 //                        Log.d(TAG, productDetails.toString());
-                        firestoreCallback.onCallback(item);
+                        cartActivity.onCallback(item);
+//                        firestoreCallback.onCallback(item);
                     } else {
                         Log.d(TAG, "No such document");
                     }
@@ -74,9 +67,9 @@ public class DatabaseHandler {
         });
     }
 
-    private interface FirestoreCallback{
-        void onCallback(Item item);
-    }
+//    private interface FirestoreCallback{
+//        void onCallback(Item item);
+//    }
 
     // User Functions
     void linkTrolleyToUser(String userId, String trolleyId){

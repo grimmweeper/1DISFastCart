@@ -28,6 +28,8 @@ public class SignupActivity extends AppCompatActivity {
 
     private static final String TAG = "SignupActivity";
 
+    DatabaseHandler dbHandler = DatabaseHandler.getInstance();
+
     @BindView(R.id.input_user) EditText _userText;
     @BindView(R.id.input_password) EditText _passwordText;
     @BindView(R.id.input_reEnterPassword) EditText _reEnterPasswordText;
@@ -131,6 +133,8 @@ public class SignupActivity extends AppCompatActivity {
                         startActivity(intent);
                         overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
 //                        setResult(RESULT_OK, null);
+                        String uid = user.getUid();
+                        dbHandler.registeringNewUser(uid); // registers user in database
                         Toast.makeText(getBaseContext(), "Account created. Please enjoy your shopping!", Toast.LENGTH_SHORT).show();
                         _signupButton.setEnabled(true);
                         progressDialog.dismiss();

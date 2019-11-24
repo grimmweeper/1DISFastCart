@@ -14,12 +14,13 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         Intent authIntent;
 
+        authIntent = new Intent(this, LoginActivity.class);
         // go straight to main if a token is stored
-        if (mAuth.getCurrentUser() != null) {
-            authIntent = new Intent(this, ScannedBarcodeActivity.class);
-        } else {
-            authIntent = new Intent(this, LoginActivity.class);
-        }
+//        if (mAuth.getCurrentUser() != null) {
+//            authIntent = new Intent(this, ScannedBarcodeActivity.class);
+//        } else {
+//            authIntent = new Intent(this, LoginActivity.class);
+//        }
         startActivity(authIntent);
         finish();
 

@@ -1,59 +1,91 @@
 package com.drant.FastCartMain;
 
+import com.google.firebase.firestore.DocumentReference;
+
+import java.lang.annotation.Documented;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class User {
-    private String user_id;
-    private String trolley_id;
+    private String userId;
+    private DocumentReference userDocRef;
+    private String trolleyId;
+    private DocumentReference trolleyDocRef;
     private ArrayList<Item> items;
+    private ArrayList<DocumentReference> itemDocuments;
 
-    private void setUser_id(String user_id) {
-        this.user_id = user_id;
+    DatabaseHandler dbHandler = DatabaseHandler.getInstance();
+
+    private void setUserId(String userId) {
+        this.userId = userId;
+        this.setUserDoc();
     }
 
-    private String getUser_id() {
-        return user_id;
+    String getUserId() {
+        return this.userId;
     }
 
-    private void setTrolley_id(String trolley_id) {
-        this.trolley_id = trolley_id;
+    private void setUserDoc() {
+        this.userDocRef = dbHandler.saveUserDocument(this.userId);
     }
 
-    private String getTrolley_id() {
-        return trolley_id;
+    DocumentReference getUserDoc() {
+        return this.userDocRef;
     }
 
-    private void setItems(ArrayList<Item> items) {
+    void setTrolleyId(String trolleyId) {
+        this.trolleyId = trolleyId;
+        this.setTrolleyDoc();
+    }
+
+    String getTrolleyId() {
+        return this.trolleyId;
+    }
+
+    private void setTrolleyDoc() {
+        this.trolleyDocRef = dbHandler.saveTrolleyDocument(this.trolleyId);
+    }
+
+    DocumentReference getTrolleyDoc() {
+        return this.trolleyDocRef;
+    }
+
+    void setItems(ArrayList<Item> items) {
         this.items = items;
     }
 
-    private ArrayList<Item> getItems() {
-        return items;
+    ArrayList<Item> getItems() {
+        return this.items;
     }
 
-    User(String user_id){
-        this.setUser_id(user_id);
-        this.setTrolley_id(trolley_id);
-        this.items = getItemsFromDB();
+    public void setItemDocuments(ArrayList<DocumentReference> itemDocuments) {
+        this.itemDocuments = itemDocuments;
     }
 
-    User(String user_id, String trolley_id){
-        this.setUser_id(user_id);
-        this.setTrolley_id(trolley_id);
-        this.items = getItemsFromDB();
+    public ArrayList<DocumentReference> getItemDocuments() {
+        return this.itemDocuments;
     }
 
-    User(String user_id, String trolley_id, ArrayList<Item> items){
-        this.setUser_id(user_id);
-        this.setTrolley_id(trolley_id);
-        this.setItems(items);
+    User(String userId){
+        this.setUserId(userId);
     }
 
-    ArrayList getItemsFromDB(){
-        ArrayList itemsList = new ArrayList<Item>();
-        return itemsList;
-    }
+//    User(String user_id, String trolley_id){
+//        this.setUser_id(user_id);
+//        this.setTrolley_id(trolley_id);
+//        this.items = getItemsFromDB();
+//    }
+//
+//    User(String user_id, String trolley_id, ArrayList<Item> items){
+//        this.setUser_id(user_id);
+//        this.setTrolley_id(trolley_id);
+//        this.setItems(items);
+//    }
+
+//    ArrayList getItemsFromDB(){
+//        ArrayList itemsList = new ArrayList<Item>();
+//        return this.itemsList;
+//    }
 
     public BigDecimal getCartTotal(){
         BigDecimal total = new BigDecimal("0.00");

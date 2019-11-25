@@ -32,6 +32,7 @@
         <activity android:name="com.drant.FastCartMain.SignupActivity" android:theme="@style/AppTheme.Dark" />
         <activity android:name="com.drant.FastCartMain.ScannedBarcodeActivity" android:theme="@style/AppTheme.Dark" />
         <activity android:name="com.drant.FastCartMain.CartActivity" android:theme="@style/AppTheme.Dark"/>
+        <activity android:name="com.drant.FastCartMain.NavActivity" android:theme="@style/AppTheme.Dark"/>
 
         <meta-data
             android:name="com.google.android.gms.vision.DEPENDENCIES"

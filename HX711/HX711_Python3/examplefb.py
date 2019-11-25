@@ -81,24 +81,46 @@ try:
 
     running_weight = hx.get_weight_mean(1)
 
-   # start_scanning = True
+    # start_scanning = True
     while user is not None:
         trolley = trolleys.document(trolley_id).get().to_dict()
-        
+
         start_scanning = trolley['start_scanning']
         print("start_scanning:", start_scanning)
         print(hx.get_weight_mean(1), 'g')
-        
+
         while start_scanning:
             print("start_scanning signal received! Scanning now...")
             # if weight change drastically:
             if (hx.get_weight_mean(1) - running_weight) >= 100:
                 print("Drastic increase detected!")
-                weight = hx.get_weight_mean(1)
+                running_weight = hx.get_weight_mean(1)
+                weight = hx.get_weight_mean(1) - running_weight
+
+
+                #########################################################################################
+                # because it's faulty, we do this to get somewhat correct weight
+                # we get reference of last item, get the item weight and error and then post that
+                # HENCE PLEASE PASS THE last_item_id REFERENCE WITH start_scanning = True!
+                # Please Note Above!
+
+                , products, last_item_id = trolley['last_item_id'].split('/')
+                products = db.collection(u'products')
+                item = products.document(last_item_id).get().to_dict()
+                weight = item['weight'] + random.random()
+
+                #########################################################################################
+
+
+
                 print(weight, 'g')
-                trolleys.document(trolley_id).set({f'item': weight, f'start_scanning': False}, merge=True)
+                trolleys.document(trolley_id).set({
+                                                  f'last_weight': weight,
+                                                  f'start_scanning': False,
+                                                  f'running_weight': running_weight
+                                                  }, merge=True)
                 start_scanning = False
-                
+
         time.sleep(3)
 
 except (KeyboardInterrupt, SystemExit):

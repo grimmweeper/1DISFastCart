@@ -9,13 +9,13 @@
         android:id="@+id/navigation_profile"
         android:name="com.drant.FastCartMain.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/activity_profile" />
 
     <fragment
         android:id="@+id/navigation_scanitem"
         android:name="com.drant.FastCartMain.ui.scanitem.ScanItemFragment"
         android:label="@string/title_scanitem"
-        tools:layout="@layout/fragment_scanitem" />
+        tools:layout="@layout/activity_scan_barcode" />
 
     <fragment
         android:id="@+id/navigation_checkout"

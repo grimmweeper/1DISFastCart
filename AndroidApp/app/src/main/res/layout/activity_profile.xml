@@ -11,7 +11,6 @@
         android:background="@drawable/grad"
         android:id="@+id/header">
 
-
         <RelativeLayout
             android:id="@+id/imgUser"
             android:layout_width="wrap_content"
@@ -61,17 +60,68 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:paddingTop="20dp"
         android:layout_below="@id/header"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:id="@+id/features"
+        android:paddingBottom="100dp">
+
         <Button
             android:id="@+id/purchasehistory"
-            android:layout_width="wrap_content"
+            android:layout_width="350dp"
             android:layout_height="wrap_content"
+            android:text="Purchase History"
+            android:layout_centerHorizontal="true"
             >
+        </Button>
+        <Button
+            android:id="@+id/paymentmethod"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:text="Payment Method"
+            android:layout_weight="1"
+            android:layout_below="@+id/purchasehistory"
+            android:layout_centerHorizontal="true"
+            >
+        </Button>
+        <Button
+            android:id="@+id/myvouchers"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:text="My Vouchers"
+            android:layout_weight="1"
+            android:layout_below="@+id/paymentmethod"
+            android:layout_centerHorizontal="true">
 
         </Button>
 
+        <Button
+            android:id="@+id/settings"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/myvouchers"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="0dp"
+            android:layout_weight="1"
+            android:text="Settings"></Button>
+
     </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/features"
+        android:layout_centerHorizontal="true">
+        <Button
+            android:id="@+id/logout_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Logout"
+            ></Button>
+
+    </RelativeLayout>
+
 
 </RelativeLayout>

@@ -83,7 +83,7 @@ public class DatabaseHandler {
 
     // linking trolley and user
     void linkTrolleyAndUser(String userId, String trolleyId){
-        userObject.setTrolleyId(trolleyId);
+//        userObject.setTrolleyId(trolleyId);
         // get document references based on user id and trolley id
         DocumentReference trolleyDocRef = this.db.collection("trolleys").document(trolleyId);
         DocumentReference userDocRef = this.db.collection("users").document(userId);
@@ -94,7 +94,7 @@ public class DatabaseHandler {
 
     // unlink trolley and user
     void unlinkTrolleyAndUser(String userId, String trolleyId) {
-        userObject.setTrolleyId(null);
+//        userObject.setTrolleyId(null);
         // get document references based on user id and trolley id
         DocumentReference trolleyDocRef = this.db.collection("trolleys").document(trolleyId);
         DocumentReference userDocRef = this.db.collection("users").document(userId);
@@ -109,7 +109,7 @@ public class DatabaseHandler {
     void addItemToCart(final FirestoreCallback firestoreCallback, String barcode){
         // get product document reference to
         DocumentReference productDocRef = db.collection("products").document(barcode);
-        addItemToCart(firestoreCallback, userObject.getTrolleyDoc(), productDocRef);
+//        addItemToCart(firestoreCallback, userObject.getTrolleyDoc(), productDocRef);
         productDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -118,8 +118,9 @@ public class DatabaseHandler {
                     if (document.exists()) {
                         String name = document.getString("name");
                         String price = document.getDouble("price").toString();
-                        String weight = document.getDouble("weight").toString();
-                        String imageRef = document.getString("imageRef");
+                        String weight = "0.0";
+//                        String weight = document.getDouble("weight").toString();
+                        String imageRef = document.getString("img");
                         Item item = new Item(name, price, imageRef, weight);
                         firestoreCallback.onItemCallback(item);
                     } else {
@@ -142,7 +143,7 @@ public class DatabaseHandler {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) document.get("items");
-                        userObject.setItemDocuments(itemDocuments);
+//                        userObject.setItemDocuments(itemDocuments);
                         Log.i("console", itemDocuments.toString());
                         itemDocuments.add(itemToAdd);
                         trolleyDocRef
@@ -176,6 +177,8 @@ public class DatabaseHandler {
 
     // get all items in cart
     void getProductDetails(final FirestoreCallback firestoreCallback, DocumentReference itemDocument){
+        Log.i("console", "hi");
+//        String trolleyId = userObject.getTrolleyId();
         String trolleyId = userObject.getTrolleyId();
         DocumentReference trolleyDocRef = db.collection("trolleys").document(trolleyId);
         itemDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -183,7 +186,7 @@ public class DatabaseHandler {
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
+                    if (document.exists() && document.contains("name") && document.contains("price") && document.contains("img")) {
                         String name = document.getString("name");
                         String price = document.getDouble("price").toString();
                         String weight = document.getDouble("weight").toString();
@@ -208,7 +211,7 @@ public class DatabaseHandler {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) document.get("items");
-                        userObject.setItemDocuments(itemDocuments);
+//                        userObject.setItemDocuments(itemDocuments);
                         Log.i("console", itemDocuments.toString());
                         for (DocumentReference itemDocument : itemDocuments) {
                             getProductDetails(firestoreCallback, itemDocument);

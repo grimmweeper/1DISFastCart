@@ -15,8 +15,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:src="@drawable/rice" />
+        android:layout_marginRight="8dp"/>
 
     <TextView
         android:id="@+id/productLabel"
@@ -55,7 +54,7 @@
         android:layout_marginRight="16dp"
         android:layout_marginBottom="8dp"
         android:background="@drawable/roundedbutton"
-        android:text="Continue"
+        android:text="@string/remove_product"
         android:textColor="@color/accent"
         android:textSize="24sp" />
 

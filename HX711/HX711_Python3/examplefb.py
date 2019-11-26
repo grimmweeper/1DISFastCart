@@ -5,7 +5,6 @@ from hx711 import HX711  # import the class HX711
 # Firebase Imports
 from firebase_admin import credentials, firestore
 import firebase_admin
-import random
 import time
 
 #########################################################################################################
@@ -67,10 +66,11 @@ try:
     db = firestore.client()
 
     # trolley ID - hardcoded for now
-    trolley_id = "0000"
+    trolley_id = "ZZafaKzVTvmlreT99wBL"
     trolleys = db.collection(u'trolleys')
     trolley = trolleys.document(trolley_id).get().to_dict()
     user = trolley['user']
+    removed_item = trolley['removed_item']
 
     # Read data several times and return mean value
     # subtracted by offset and converted by scale ratio to
@@ -79,47 +79,75 @@ try:
     input('Press Enter to begin reading')
     print('Current weight on the scale in grams is: ')
 
-    running_weight = hx.get_weight_mean(1)
+    running_weight = 0
 
-    # start_scanning = True
     while user is not None:
         trolley = trolleys.document(trolley_id).get().to_dict()
 
-        start_scanning = trolley['start_scanning']
-        print("start_scanning:", start_scanning)
+        scanning = trolley['scanning']
+        print("start_scanning:", scanning)
         print(hx.get_weight_mean(1), 'g')
 
-        while start_scanning:
+        while scanning:
             print("start_scanning signal received! Scanning now...")
+            print(hx.get_weight_mean(1), 'g')
             # if weight change drastically:
-            if (hx.get_weight_mean(1) - running_weight) >= 100:
+            if (hx.get_weight_mean(1) - running_weight) >= 50:
                 print("Drastic increase detected!")
-                weight = hx.get_weight_mean(1) - running_weight
+                actual_weight = hx.get_weight_mean(1) - running_weight
 
                 #########################################################################################
-                # because it's faulty, we do this to get somewhat correct weight
-                # we get reference of last item, get the item weight and error and then post that
                 # HENCE PLEASE PASS THE last_item_id REFERENCE WITH start_scanning = True!
                 # Please Note Above!
 
                 last_item = trolley['last_item_id']
                 last_item = last_item.get().to_dict()
                 print(last_item)
-                weight = last_item['weight'] + random.random()
+                item_weight = last_item['weight']
+                print("Actual Weight: ",actual_weight, 'g')
+                print("Product Weight: ",item_weight, 'g')
 
                 #########################################################################################
-                running_weight += weight
+                
+                if abs(actual_weight - item_weight) <= 10:
+                    running_weight += actual_weight
+    
+                    print("Actual Weight: ",actual_weight, 'g')
+                    print("Product Weight: ",item_weight, 'g')
+                    trolleys.document(trolley_id).set({
+                                                      f'scanning': False,
+                                                      f'running_weight': running_weight,
+                                                      f'correct_item': True
+                                                      }, merge=True)
+                    scanning = False
+            time.sleep(3)
+            
+        #To test it out next time    
+        #Update existing weight on the trolley cart when item is being removed and setting it to null
+        while removed_item is not None:
+            
+            print("I'm in this loop")
+            if (running_weight- hx.get_weight_mean(1)) >= 50:
+                print("Drastic decrease detected!")
+                actual_weight = running_weight - hx.get_weight_mean(1)
+                
+                product_rm = removed_item.get().to_dict()
+                item_weight = product_rm['weight']
+                
+                print("Actual Weight: ",actual_weight, 'g')
+                print("Product Weight: ",item_weight, 'g')                
+                
+                if abs(actual_weight - item_weight) <= 10:
+                    running_weight -= actual_weight
+                    trolleys.document(trolley_id).set({
+                                                      f'removed_item': None,
+                                                      f'running_weight': running_weight,
+                                                      f'correct_item': True
+                                                      }, merge=True)                
+                
+                
 
-                print(weight, 'g')
-                trolleys.document(trolley_id).set({
-                                                  f'last_weight': weight,
-                                                  f'start_scanning': False,
-                                                  f'running_weight': running_weight,
-                                                  f'finish_scanning': True
-                                                  }, merge=True)
-                start_scanning = False
 
-        time.sleep(3)
 
 except (KeyboardInterrupt, SystemExit):
     print('Bye :)')

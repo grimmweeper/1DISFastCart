@@ -114,7 +114,8 @@ try:
                 trolleys.document(trolley_id).set({
                                                   f'last_weight': weight,
                                                   f'start_scanning': False,
-                                                  f'running_weight': running_weight
+                                                  f'running_weight': running_weight,
+                                                  f'finish_scanning': True
                                                   }, merge=True)
                 start_scanning = False
 

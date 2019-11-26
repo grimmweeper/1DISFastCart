@@ -102,10 +102,10 @@ try:
                 # HENCE PLEASE PASS THE last_item_id REFERENCE WITH start_scanning = True!
                 # Please Note Above!
 
-                , products, last_item_id = trolley['last_item_id'].split('/')
-                products = db.collection(u'products')
-                item = products.document(last_item_id).get().to_dict()
-                weight = item['weight'] + random.random()
+                last_item = trolley['last_item_id']
+                last_item = last_item.get().to_dict()
+                print(last_item)
+                weight = last_item['weight'] + random.random()
 
                 #########################################################################################
                 running_weight += weight

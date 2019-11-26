@@ -1,10 +1,13 @@
 package com.drant.FastCartMain;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -37,12 +40,12 @@ public class SignupActivity extends AppCompatActivity {
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        // Initialize Firebase
-
-        mAuth = FirebaseAuth.getInstance();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
         ButterKnife.bind(this);
+
+        // Initialize Firebase
+        mAuth = FirebaseAuth.getInstance();
 
         _signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -96,12 +99,18 @@ public class SignupActivity extends AppCompatActivity {
         } else { _reEnterPasswordText.setError(null); }
 
 
-        //Sequence Animations
+        //Sequence Animations,hide keyboard
         _signupButton.setEnabled(false);
         final ProgressDialog progressDialog = new ProgressDialog(SignupActivity.this, R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Creating Account...");
         progressDialog.show();
+
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
 
         // Firebase Auth User Creation
         mAuth.createUserWithEmailAndPassword(email, password)

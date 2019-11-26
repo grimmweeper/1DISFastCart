@@ -20,6 +20,7 @@ public class CheckoutFragment extends Fragment {
         notificationsViewModel =
                 ViewModelProviders.of(this).get(CheckoutViewModel.class);
         View root = inflater.inflate(R.layout.activity_cart, container, false);
+
         /**final TextView textView = root.findViewById(R.id.cart);
         notificationsViewModel.getText().observe(this, new Observer<String>() {
             @Override

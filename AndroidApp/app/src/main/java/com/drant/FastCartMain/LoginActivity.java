@@ -94,7 +94,7 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         // Sign in success, move to main activity
                         Log.d(TAG, "signInWithEmail:success");
-                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         startActivity(intent);
                         Toast.makeText(getBaseContext(), "Login successful", Toast.LENGTH_SHORT).show();
                         _loginButton.setEnabled(true);

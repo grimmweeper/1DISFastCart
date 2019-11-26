@@ -94,9 +94,7 @@ try:
             # if weight change drastically:
             if (hx.get_weight_mean(1) - running_weight) >= 100:
                 print("Drastic increase detected!")
-                running_weight = hx.get_weight_mean(1)
                 weight = hx.get_weight_mean(1) - running_weight
-
 
                 #########################################################################################
                 # because it's faulty, we do this to get somewhat correct weight
@@ -110,8 +108,7 @@ try:
                 weight = item['weight'] + random.random()
 
                 #########################################################################################
-
-
+                running_weight += weight
 
                 print(weight, 'g')
                 trolleys.document(trolley_id).set({

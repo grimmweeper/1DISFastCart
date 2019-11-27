@@ -28,9 +28,9 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
-    static User userObject;
+    User userObject;
 
-    DatabaseHandler dbHandler = DatabaseHandler.getInstance();
+//    DatabaseHandler dbHandler = DatabaseHandler.getInstance();
 
     @BindView(R.id.input_user) EditText _userText;
     @BindView(R.id.input_password) EditText _passwordText;
@@ -109,7 +109,8 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d(TAG, "signInWithEmail:success");
                         FirebaseUser user = mAuth.getCurrentUser();
                         String uid = user.getUid();
-                        userObject = new User(uid);
+                        userObject = User.getInstance();
+                        userObject.setUserId(uid);
                         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                         startActivity(intent);
                         Toast.makeText(getBaseContext(), "Login successful", Toast.LENGTH_SHORT).show();

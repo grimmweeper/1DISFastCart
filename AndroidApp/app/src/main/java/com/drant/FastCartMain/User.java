@@ -1,5 +1,7 @@
 package com.drant.FastCartMain;
 
+import android.util.Log;
+
 import com.google.firebase.firestore.DocumentReference;
 
 import java.lang.annotation.Documented;
@@ -14,11 +16,27 @@ public class User {
     private ArrayList<Item> items;
     private ArrayList<DocumentReference> itemDocuments;
 
+    private static User user = new User();
+//    private User user;
+//    private DocumentReference productDocRef;
+
+//    private User(){
+//        // Access a Cloud Firestore instance from your Activity
+//        user = user.getInstance();
+//    }
+
+    public static User getInstance() {
+        return user;
+    }
+
     DatabaseHandler dbHandler = DatabaseHandler.getInstance();
 
-    private void setUserId(String userId) {
+    void setUserId(String userId) {
         this.userId = userId;
         this.setUserDoc();
+        // TODO: Hardcoded - REMOVE
+        this.setTrolleyId("gjDLnPSnMAul7MR8dBaI");
+        Log.i("console", this.trolleyId);
     }
 
     String getUserId() {
@@ -66,9 +84,9 @@ public class User {
         return this.itemDocuments;
     }
 
-    User(String userId){
-        this.setUserId(userId);
-    }
+//    User(String userId){
+//        this.setUserId(userId);
+//    }
 
 //    User(String user_id, String trolley_id){
 //        this.setUser_id(user_id);

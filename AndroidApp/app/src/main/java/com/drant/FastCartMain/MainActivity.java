@@ -12,7 +12,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth mAuth;
-    static User userObject;
+//    User userObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,17 +24,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                Log.i("console", user.getUid());
+//                Log.i("console", user.getUid());
 //                startActivity(new Intent(MainActivity.this, LoginActivity.class));
 //                finish();
                 if (user == null) {
-                    Log.i("console", user.getUid());
+//                    Log.i("console", user.getUid());
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();
                 }
                 else {
-//                    Log.i("console", user.getUid());
-                    userObject = new User(user.getUid());
+                    Log.i("console", user.getUid());
+                    User userObject = User.getInstance();
+                    userObject.setUserId(user.getUid());
                     startActivity(new Intent(MainActivity.this, ScannedBarcodeActivity.class));
                     finish();
                 }

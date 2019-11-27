@@ -39,7 +39,7 @@ public class NavActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.navigation_profile:
+                case R.id.navigation_profile:z
                     fm.beginTransaction().hide(active).show(fragment1).commit();
                     active = fragment1;
                     return true;

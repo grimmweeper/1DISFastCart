@@ -1,20 +1,16 @@
 package com.drant.FastCartMain;
 
 import android.app.ListActivity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class CartActivity extends ListActivity implements FirestoreCallback {
 
@@ -28,6 +24,7 @@ public class CartActivity extends ListActivity implements FirestoreCallback {
 
     @Override
     public void onItemCallback(Item item) {
+        Log.i("console", "calledback");
         cartTotal = (TextView) findViewById(R.id.cartTotal);
         adapter.add(item.getName(), item.getPrice());
         BigDecimal sum = new BigDecimal(0);
@@ -40,6 +37,7 @@ public class CartActivity extends ListActivity implements FirestoreCallback {
     protected void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
+        Log.i("console", "HI");
 
         // get footer
         ListView listView = findViewById(android.R.id.list);
@@ -53,6 +51,10 @@ public class CartActivity extends ListActivity implements FirestoreCallback {
 //        dbHandler.linkTrolleyAndUser("vXjgwq9nsuMkapWsnnlcl0D32N22", "gjDLnPSnMAul7MR8dBaI");
         dbHandler.getUserProductsDetails(this, "erjaotT2n0ObxrqVRfrATEmqAJN2");
     }
+
+//    public interface OnFragmentInteractionListener{
+//
+//    }
 
     /* THIS CODE BELOW IS ALTERNATIVE TO setOnClickListener
     //    public void addItems(View view) {

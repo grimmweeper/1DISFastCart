@@ -5,19 +5,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.drant.FastCartMain.R;
 
 public class CheckoutFragment extends Fragment {
 
-    private CheckoutViewModel notificationsViewModel;
+    public CheckoutFragment(){}
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
+
+    public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        notificationsViewModel =
+
+        View view = inflater.inflate(R.layout.activity_cart,container,false);
+        return view;
+
+       /** notificationsViewModel =
                 ViewModelProviders.of(this).get(CheckoutViewModel.class);
         View root = inflater.inflate(R.layout.activity_cart, container, false);
 
@@ -27,7 +30,7 @@ public class CheckoutFragment extends Fragment {
             public void onChanged(@Nullable String s) {
                 textView.setText(s);
             }
-        });*/
-        return root;
+        });
+        return root;*/
     }
 }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_profile">
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="com.drant.FastCartMain.ui.profile.ProfileFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/activity_profile" />
+
+    <fragment
+        android:id="@+id/navigation_scanitem"
+        android:name="com.drant.FastCartMain.ui.scanitem.ScanItemFragment"
+        android:label="@string/title_scanitem"
+        tools:layout="@layout/activity_scan_barcode" />
+
+    <fragment
+        android:id="@+id/navigation_checkout"
+        android:name="com.drant.FastCartMain.ui.checkout.CheckoutFragment"
+        android:label="@string/title_checkout"
+        tools:layout="@layout/activity_cart" />
+</navigation>

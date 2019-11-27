@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fillViewport="true"
+    android:orientation="vertical"
+    android:id="@+id/profile">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/grad"
+        android:id="@+id/header">
+
+        <RelativeLayout
+            android:id="@+id/imgUser"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/circle_border"
+            >
+
+            <ImageView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_margin="9dp"
+                android:adjustViewBounds="true"
+                android:background="@drawable/circle"
+                android:scaleType="centerInside"
+                android:padding="3dp"
+                android:src="@drawable/weeping"
+
+                />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/user_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imgUser"
+            android:layout_centerHorizontal="true"
+            android:text="Kuah Wee Ping"
+            android:fontFamily="sana-serif-light"
+            android:layout_marginTop="15sp"
+            android:textColor="@color/white"
+            android:textSize="32sp"
+            />
+        <TextView
+            android:id="@+id/edit_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/user_name"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10sp"
+            android:fontFamily="sans-serif"
+            android:text="edit profile"
+            android:textColor="@color/address"
+            android:textSize="14sp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:paddingTop="20dp"
+        android:layout_below="@id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/features"
+        android:paddingBottom="100dp">
+
+        <Button
+            android:id="@+id/purchasehistory"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:text="Purchase History"
+            android:layout_centerHorizontal="true"
+            >
+        </Button>
+        <Button
+            android:id="@+id/paymentmethod"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:text="Payment Method"
+            android:layout_weight="1"
+            android:layout_below="@+id/purchasehistory"
+            android:layout_centerHorizontal="true"
+            >
+        </Button>
+        <Button
+            android:id="@+id/myvouchers"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:text="My Vouchers"
+            android:layout_weight="1"
+            android:layout_below="@+id/paymentmethod"
+            android:layout_centerHorizontal="true">
+
+        </Button>
+
+        <Button
+            android:id="@+id/settings"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/myvouchers"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="0dp"
+            android:layout_weight="1"
+            android:text="Settings"></Button>
+
+        <Button
+            android:layout_marginTop="100dp"
+            android:layout_below="@id/settings"
+            android:id="@+id/logout_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Logout"
+            ></Button>
+
+    </RelativeLayout>
+
+
+
+    </LinearLayout>
+</ScrollView>

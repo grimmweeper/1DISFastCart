@@ -12,7 +12,6 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth mAuth;
-//    User userObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

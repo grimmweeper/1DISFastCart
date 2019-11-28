@@ -3,7 +3,6 @@ package com.drant.FastCartMain;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -24,7 +23,6 @@ public class CartActivity extends ListActivity implements FirestoreCallback {
 
     @Override
     public void onItemCallback(Item item) {
-        Log.i("console", "calledback");
         cartTotal = (TextView) findViewById(R.id.cartTotal);
         adapter.add(item.getName(), item.getPrice());
         BigDecimal sum = new BigDecimal(0);
@@ -34,10 +32,12 @@ public class CartActivity extends ListActivity implements FirestoreCallback {
         setListAdapter(adapter);
     }
 
+    @Override
+    public void itemValidationCallback(Boolean validItem){}
+
     protected void onCreate (Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
-        Log.i("console", "HI");
 
         // get footer
         ListView listView = findViewById(android.R.id.list);

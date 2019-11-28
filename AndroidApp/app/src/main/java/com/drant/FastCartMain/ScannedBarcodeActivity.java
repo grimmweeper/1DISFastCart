@@ -221,7 +221,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity implements Firesto
         Log.i("console", item.toString());
         progressDialog.dismiss();
         if (item == null) {
-            Toast.makeText(ScannedBarcodeActivity.this,"Product Issue",Toast.LENGTH_SHORT).show();
+            Toast.makeText(ScannedBarcodeActivity.this,"Product not registered in database",Toast.LENGTH_SHORT).show();
             scanTime = System.currentTimeMillis()-1000;
         } else {
             product_label=item.getName();
@@ -230,8 +230,21 @@ public class ScannedBarcodeActivity extends AppCompatActivity implements Firesto
             product_desc="$"+ df2.format(item.getPrice());
             product_image=item.getImageRef();
 
+            // TODO: alertDialog to only disappear when item has been validated
             //Build and view
             showAlertDialog(R.layout.product_dialog);
+        }
+    }
+
+    @Override
+    public void itemValidationCallback(Boolean validItem){
+        // TODO: Dialog box to validate that the correct item has been placed
+        if (validItem == null) {
+            Toast.makeText(ScannedBarcodeActivity.this,"Error: checking for validation",Toast.LENGTH_LONG).show();
+        } else if (validItem) {
+            Toast.makeText(ScannedBarcodeActivity.this,"Correct item placed in trolley",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(ScannedBarcodeActivity.this,"Please place correct item in trolley",Toast.LENGTH_LONG).show();
         }
     }
 

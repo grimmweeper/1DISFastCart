@@ -3,6 +3,7 @@ package com.drant.FastCartMain;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -11,9 +12,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +30,7 @@ import static android.content.ContentValues.TAG;
 interface FirestoreCallback{
     DatabaseHandler dbHandler = DatabaseHandler.getInstance();
     void onItemCallback(Item item);
+    void itemValidationCallback(Boolean validItem);
 //    void onItemsCallback(ArrayList<Item> allItems);
 //    void onUserInfoCallback();
 }
@@ -32,6 +38,9 @@ interface FirestoreCallback{
 public class DatabaseHandler {
     private static DatabaseHandler instance = null;
     private FirebaseFirestore db;
+    ListenerRegistration firebaseListener;
+    WriteBatch batch;
+
 //    private DocumentReference productDocRef;
 
     private DatabaseHandler(){
@@ -89,6 +98,7 @@ public class DatabaseHandler {
         // call functions to link user and trolley
         linkingFunction(userDocRef, trolleyDocRef, "trolley");
         linkingFunction(trolleyDocRef, userDocRef, "user");
+        // TODO: callback to correct screen for linking of trolley
     }
 
     // unlink trolley and user
@@ -100,9 +110,8 @@ public class DatabaseHandler {
         // call functions to link user and trolley
         linkingFunction(userDocRef, null, "trolley");
         linkingFunction(trolleyDocRef, null, "user");
+        // TODO: callback to correct screen for unlinking of trolley
     }
-
-    // TODO: function to remove all items from cart
 
     // add item to cart
     void addItemToCart(final FirestoreCallback firestoreCallback, String barcode){
@@ -112,7 +121,7 @@ public class DatabaseHandler {
 //        Log.i("console", userObject.getTrolleyDoc().toString());
 //        Log.i("console", userObject.getTrolleyId());
         Log.i("console", productDocRef.toString());
-        addItemToCart(firestoreCallback, User.getInstance().getTrolleyDoc(), productDocRef);
+        addItemToCart(firestoreCallback, productDocRef);
         productDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -137,7 +146,8 @@ public class DatabaseHandler {
         });
     }
 
-    void addItemToCart(final FirestoreCallback firestoreCallback, final DocumentReference trolleyDocRef, final DocumentReference itemToAdd){
+    void addItemToCart(final FirestoreCallback firestoreCallback, final DocumentReference itemToAdd){
+        DocumentReference trolleyDocRef = User.getInstance().getTrolleyDoc();
         trolleyDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -145,8 +155,6 @@ public class DatabaseHandler {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) document.get("items");
-//                        userObject.setItemDocuments(itemDocuments);
-                        Log.i("console", itemDocuments.toString());
                         itemDocuments.add(itemToAdd);
                         trolleyDocRef
                                 .update("items", itemDocuments)
@@ -154,6 +162,8 @@ public class DatabaseHandler {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Log.i("console", "Trolley has been successfully added to User!");
+                                        startScanning(trolleyDocRef);
+                                        listenForCorrectItem(firestoreCallback, trolleyDocRef);
                                     }
                                 })
                                 .addOnFailureListener(new OnFailureListener() {
@@ -172,6 +182,9 @@ public class DatabaseHandler {
                 }
             }
         });
+    }
+
+    void startScanning(DocumentReference trolleyDocRef) {
         trolleyDocRef
                 .update("scanning", true)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -186,59 +199,96 @@ public class DatabaseHandler {
                         Log.i("console", "Error updating scanning status.", e);
                     }
                 });
-        // TODO: listen for correct item == true
-        // TODO: set correct item back to false
-//        trolleyDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    DocumentSnapshot document = task.getResult();
-//                    if (document.exists()) {
-//                        ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) document.get("items");
-////                        userObject.setItemDocuments(itemDocuments);
-//                        Log.i("console", itemDocuments.toString());
-//                        itemDocuments.add(itemToAdd);
-//                        trolleyDocRef
-//                                .update("items", itemDocuments)
-//                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                    @Override
-//                                    public void onSuccess(Void aVoid) {
-//                                        Log.i("console", "Trolley has been successfully added to User!");
-//                                    }
-//                                })
-//                                .addOnFailureListener(new OnFailureListener() {
-//                                    @Override
-//                                    public void onFailure(@NonNull Exception e) {
-//                                        Log.i("console", "Error adding trolley to user.", e);
-//                                    }
-//                                });
-//                    } else {
-//                        Log.d(TAG, "No such document");
-//                        firestoreCallback.onItemCallback(null);
-//                    }
-//                } else {
-//                    Log.d(TAG, "get failed with ", task.getException());
-//                    firestoreCallback.onItemCallback(null);
-//                }
-//            }
-//        });
     }
 
-    // TODO: function to listen for weight change in cart
+    void listenForCorrectItem(final FirestoreCallback firestoreCallback, DocumentReference trolleyDocRef) {
+        firebaseListener = trolleyDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    firestoreCallback.itemValidationCallback(null);
+//                    Log.i("console", "Listen failed.", e);
+                    return;
+                }
+                if (snapshot != null && snapshot.exists()) {
+//                    Log.i("console", "Current data: " + snapshot.getData());
+                    Boolean itemValidationStatus = snapshot.getBoolean("correct_item");
+                    firestoreCallback.itemValidationCallback(itemValidationStatus);
+                    if (itemValidationStatus) {
+                        firebaseListener.remove();
+                        resetTrolleyScanningStatus(trolleyDocRef);
+                    }
+                } else {
+//                    Log.i("console", "Current data: null");
+                    firestoreCallback.itemValidationCallback(null);
+                }
+            }
+        });
+    }
+
+    void resetTrolleyScanningStatus(DocumentReference trolleyDocRef) {
+        batch = db.batch();
+        batch.update(trolleyDocRef, "scanning", false);
+        batch.update(trolleyDocRef, "correct_item", false);
+        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                Log.i("console", "Successfully reset");
+            }
+        });
+    }
+
     // TODO: function to remove item from cart
+    void removeItemToCart(final FirestoreCallback firestoreCallback, final DocumentReference trolleyDocRef, final DocumentReference itemToAdd){
+        trolleyDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) document.get("items");
+                        itemDocuments.remove(itemToAdd);
+                        trolleyDocRef
+                                .update("items", itemDocuments)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.i("console", "Trolley has been successfully added to User!");
+                                        startScanning(trolleyDocRef);
+                                        listenForCorrectItem(firestoreCallback, trolleyDocRef);
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.i("console", "Error adding trolley to user.", e);
+                                    }
+                                });
+                    } else {
+                        Log.d(TAG, "No such document");
+                        firestoreCallback.onItemCallback(null);
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                    firestoreCallback.onItemCallback(null);
+                }
+            }
+        });
+    }
 
     // get all items in cart
+    // TODO: make use of User Class
     void getProductDetails(final FirestoreCallback firestoreCallback, DocumentReference itemDocument){
-        Log.i("console", "hi");
 //        String trolleyId = userObject.getTrolleyId();
-        String trolleyId = User.getInstance().getTrolleyId();
-        DocumentReference trolleyDocRef = db.collection("trolleys").document(trolleyId);
+//        String trolleyId = User.getInstance().getTrolleyId();
+//        DocumentReference trolleyDocRef = db.collection("trolleys").document(trolleyId);
         itemDocument.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
-                    if (document.exists() && document.contains("name") && document.contains("price") && document.contains("img")) {
+                    if (document.exists()) {
                         String name = document.getString("name");
                         String price = document.getDouble("price").toString();
                         String weight = document.getDouble("weight").toString();
@@ -266,6 +316,7 @@ public class DatabaseHandler {
 //                        userObject.setItemDocuments(itemDocuments);
                         Log.i("console", itemDocuments.toString());
                         for (DocumentReference itemDocument : itemDocuments) {
+                            Log.i("console", itemDocument.toString());
                             getProductDetails(firestoreCallback, itemDocument);
                         }
                     } else {
@@ -302,7 +353,7 @@ public class DatabaseHandler {
         });
     }
 
-
+    // TODO: remove all items in cart when checkout
 
     //function to read ALL documents in a collection
     void Read(String collection) {

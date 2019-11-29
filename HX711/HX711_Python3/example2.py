@@ -6,7 +6,8 @@ try:
     GPIO.setmode(GPIO.BCM)  # set GPIO pin mode to BCM numbering
     # Create an object hx which represents your real hx711 chip
     # Required input parameters are only 'dout_pin' and 'pd_sck_pin'
-    hx = HX711(dout_pin=17, pd_sck_pin=27)
+    hx = HX711(dout_pin=9, pd_sck_pin=11)
+    hx2 = HX711(dout_pin=17, pd_sck_pin=27)
     # measure tare and save the value as offset for current channel
     # and gain selected. That means channel A and gain 128
     err = hx.zero()
@@ -15,6 +16,7 @@ try:
         raise ValueError('Tare is unsuccessful.')
 
     reading = hx.get_raw_data_mean()
+    reading2 = hx2.get_raw_data_mean()
     if reading:  # always check if you get correct value or only False
         # now the value is close to 0
         print('Data subtracted by offset but still not converted to units:',
@@ -26,6 +28,7 @@ try:
     # you must have known weight.
     input('Put known weight on the scale and then press Enter')
     reading = hx.get_data_mean()
+    reading2 = hx2.get_data_mean()
     if reading:
         print('Mean value from HX711 subtracted by offset:', reading)
         known_weight_grams = input(
@@ -42,7 +45,9 @@ try:
         # scale ratio. Without arguments 'channel' and 'gain_A' it sets
         # the ratio for current channel and gain.
         ratio = reading / value  # calculate the ratio for channel A and gain 128
+        ratio2 = reading2 / value
         hx.set_scale_ratio(ratio)  # set ratio for current channel
+        hx2.set_scale_ratio(ratio2)
         print('Ratio is set.')
     else:
         raise ValueError('Cannot calculate mean value. Try debug mode. Variable reading:', reading)
@@ -54,10 +59,15 @@ try:
     input('Press Enter to begin reading')
     print('Current weight on the scale in grams is: ')
     while True:
-        print(hx.get_weight_mean(1), 'g')
+        
+        print(hx.get_weight_mean(20), 'g',"------First")
+        print(hx2.get_weight_mean(20), 'g', "------2nd")
+        mean = (hx.get_weight_mean(20)+hx2.get_weight_mean(20))/2
+        print(mean,'g','------------MEAN')
 
 except (KeyboardInterrupt, SystemExit):
     print('Bye :)')
 
 finally:
     GPIO.cleanup()
+

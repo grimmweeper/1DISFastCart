@@ -38,5 +38,6 @@ allprojects {
         maven {
             url "https://maven.google.com"
         }
+        google()
     }
 }

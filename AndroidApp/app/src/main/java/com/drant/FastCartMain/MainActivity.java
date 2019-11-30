@@ -15,6 +15,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth mAuth;
+    static User userObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else {
                     Log.i("console", user.getUid());
-                    User userObject = User.getInstance();
+                    userObject = User.getInstance();
                     userObject.setUserId(user.getUid());
                     startActivity(new Intent(MainActivity.this, ScannedBarcodeActivity.class));
                     finish();

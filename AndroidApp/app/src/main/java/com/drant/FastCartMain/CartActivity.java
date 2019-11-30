@@ -49,7 +49,8 @@ public class CartActivity extends ListActivity implements FirestoreCallback {
 //        dbHandler.Read("users");
 //        dbHandler.getProductDetails(this, "OcKH4TaO3BOo8NNYoEyD");
 //        dbHandler.linkTrolleyAndUser("vXjgwq9nsuMkapWsnnlcl0D32N22", "gjDLnPSnMAul7MR8dBaI");
-        dbHandler.getUserProductsDetails(this, "erjaotT2n0ObxrqVRfrATEmqAJN2");
+//        dbHandler.getUserProductsDetails(this, "erjaotT2n0ObxrqVRfrATEmqAJN2");
+        dbHandler.removeItemFromCart(this);
     }
 
 //    public interface OnFragmentInteractionListener{

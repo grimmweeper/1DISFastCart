@@ -71,6 +71,8 @@ public class ScannedBarcodeActivity extends AppCompatActivity implements Firesto
 
         surfaceView = findViewById(R.id.surfaceView);
 
+        dbHandler.removeItemFromCart(this);
+
         // Initialize Firebase + Auth Listeners
         mAuth = FirebaseAuth.getInstance();
         authListener = new FirebaseAuth.AuthStateListener() {

@@ -1,17 +1,21 @@
 package com.drant.FastCartMain;
 
+import com.google.firebase.firestore.DocumentReference;
+
 import java.math.BigDecimal;
 
 public class Item {
     private String name;
     private BigDecimal price;
     private String imageRef;
-    private BigDecimal weight;
+//    private BigDecimal weight;
+    private DocumentReference itemDocRef;
 
-    Item(String name, String price, String imageRef, String weight){
+    Item(String name, String price, String imageRef, DocumentReference itemDocRef){
         this.name = name;
         this.price = new BigDecimal(price);
         this.imageRef = imageRef;
+        this.itemDocRef = itemDocRef;
     }
 
     public String getName() {
@@ -26,7 +30,11 @@ public class Item {
         return imageRef;
     }
 
-    public BigDecimal getWeight() {
-        return weight;
+    public DocumentReference getItemDocRef() {
+        return itemDocRef;
     }
+
+    //    public BigDecimal getWeight() {
+//        return weight;
+//    }
 }

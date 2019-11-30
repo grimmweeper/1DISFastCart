@@ -1,5 +1,6 @@
-package com.drant.FastCartMain.ui.profile;
+package com.drant.FastCartMain;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,10 +10,11 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.drant.FastCartMain.R;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class ProfileFragment extends Fragment {
     Button logout;
+    private FirebaseAuth firebaseAuth;
 
     public ProfileFragment() {
     }
@@ -24,20 +26,24 @@ public class ProfileFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.activity_profile, container, false);
         return view;
+    }
 
-        /*homeViewModel =
-                ViewModelProviders.of(this).get(ProfileViewModel.class);
-        View root = inflater.inflate(R.layout.activity_profile, container, false);
+    public void onViewCreated(View view, Bundle savedInstanceState){
+        super.onViewCreated(view, savedInstanceState);
 
+        firebaseAuth = FirebaseAuth.getInstance();
+        logout = (Button) view.findViewById(R.id.logout_button);
 
-        /**final TextView textView = root.findViewById(R.id.text_profile);
-        homeViewModel.getText().observe(this, new Observer<String>() {
+        logout.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
+            public void onClick(View v) {
+                firebaseAuth.signOut();
+                getActivity().finish();
+                startActivity(new Intent(getActivity(), LoginActivity.class));
             }
         });
-        return root; */
+
 
     }
+
 }

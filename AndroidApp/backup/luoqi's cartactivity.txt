@@ -48,6 +48,7 @@ public class CartActivity extends ListActivity {
         listView.addFooterView(footer);
 
         adapter = new CartListAdaptor(this, cartItem, cartPrice, cartImage);
+
         // todo LUOQI: change to compile cart when View Cart button is pressed
         buttonAdd = findViewById(R.id.addBtn);
 

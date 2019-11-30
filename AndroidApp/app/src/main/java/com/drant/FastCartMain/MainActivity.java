@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
 
         // go straight to main if a token is stored
         if (mAuth.getCurrentUser() != null) {
-            authIntent = new Intent(this, ScannedBarcodeActivity.class);
+            authIntent = new Intent(this, NavActivity.class);
         } else {
             authIntent = new Intent(this, LoginActivity.class);
         }

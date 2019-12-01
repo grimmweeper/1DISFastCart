@@ -10,10 +10,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
@@ -24,6 +20,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.os.Vibrator;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -86,7 +87,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         };
 
         // Initialize Firestore
-         db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
 
 
         //Profile Filling
@@ -185,8 +186,6 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
 
 
         barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
-
-
             @Override
             public void release() {
             }
@@ -273,6 +272,5 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         super.onDestroy();
         mAuth.signOut();
     }
-
 
 }

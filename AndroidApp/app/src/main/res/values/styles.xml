@@ -30,13 +30,13 @@
         <item name="android:textColorHint">@color/iron</item>
 
         <item name="colorButtonNormal">@color/primary_darker</item>
-        <item name="android:colorButtonNormal">@color/primary_darker</item>
+        <item name="colorButtonNormal">@color/primary_darker</item>
     </style>
 
     <style name="AppTheme.Dark.Dialog" parent="Theme.AppCompat.Dialog">
         <item name="colorAccent">@color/white</item>
-        <item name="android:textColor">@color/iron</item>
-        <item name="android:background">@color/primary</item>
+        <item name="android:textColorPrimary">@color/iron</item>
+        <item name="background">@color/primary</item>
     </style>
 
     <style name="AppTheme.Light.Dialog" parent="Theme.AppCompat.Dialog">
@@ -44,5 +44,16 @@
         <item name="android:textColor">@color/primary</item>
         <item name="android:background">@color/white</item>
     </style>
+
+    <!-- Base application theme. -->
+    <style name="NavBarTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/lightgreen</item>
+        <item name="colorPrimaryDark">@color/darkgreen</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
 
 </resources>

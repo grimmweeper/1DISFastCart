@@ -1,6 +1,5 @@
 package com.drant.FastCartMain;
 
-import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,17 +7,19 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class CartListAdaptor extends ArrayAdapter {
-    private final Activity context;
+    private final CartActivity context;
     private final ArrayList<String> itemArray;
     private final ArrayList<BigDecimal> priceArray;
     private final ArrayList<Integer> imageIDarray;
 
 
-    public CartListAdaptor(Activity context,
+    public CartListAdaptor(CartActivity context,
                            ArrayList<String> itemsAdded,
                            ArrayList<BigDecimal> priceAdded,
                            ArrayList<Integer> imageIDarray){
@@ -27,6 +28,12 @@ public class CartListAdaptor extends ArrayAdapter {
         this.imageIDarray = imageIDarray;
         this.itemArray = itemsAdded;
         this.priceArray = priceAdded;
+    }
+
+    @NonNull
+    @Override
+    public CartActivity getContext() {
+        return context;
     }
 
     public View getView(int position, View view, ViewGroup parent) {
@@ -40,7 +47,7 @@ public class CartListAdaptor extends ArrayAdapter {
 
         //sets the values of the objects to values from the arrays
         nameTextField.setText(itemArray.get(position));
-        infoTextField.setText("$" + priceArray.get(position).toString());
+        infoTextField.setText(priceArray.get(position).toString());
         imageView.setImageResource(imageIDarray.get(position));
 
         return rowView;

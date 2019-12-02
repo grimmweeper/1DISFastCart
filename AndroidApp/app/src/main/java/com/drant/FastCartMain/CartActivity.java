@@ -109,6 +109,9 @@ public class CartActivity extends Fragment {
                 alertCheckout.setMessage("Thank you for shopping with us.");
                 alertCheckout.show();
 
+                mAdapter.clearCart();
+                cartTotal.setText(getCartTotal(cart));
+
 
             }
         });

@@ -65,6 +65,11 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.Exampl
         notifyDataSetChanged();
     }
 
+    public void clearCart(){
+        mCart.clear();
+        notifyDataSetChanged();
+    }
+
 
 
 }

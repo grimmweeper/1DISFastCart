@@ -67,6 +67,7 @@ public class ScanItemFragment extends Fragment {
 
     private BarcodeDetector barcodeDetector;
     private BarcodeDetector qrDetector;
+    private BarcodeDetector currentDetector;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_scan_barcode, container, false);
@@ -204,8 +205,9 @@ public class ScanItemFragment extends Fragment {
                     if (snapshot.getData().get("trolley")==null){
                         Log.d("Firestore", "No Trolley Detected");
                         welcomeMsg.setText("Scanning for Trolley QR");
+                        currentDetector=qrDetector;
 
-                        cameraSource = new CameraSource.Builder(getActivity(), qrDetector)
+                        cameraSource = new CameraSource.Builder(getActivity(), currentDetector)
                                 .setRequestedPreviewSize(1920, 1080)
                                 .setAutoFocusEnabled(true) //you should add this feature
                                 .build();
@@ -240,8 +242,9 @@ public class ScanItemFragment extends Fragment {
                     else {
                         Log.d("Firestore", "Trolley " + snapshot.getData().get("trolley"));
                         welcomeMsg.setText("Scanning for Item Barcodes");
+                        currentDetector=barcodeDetector;
 
-                        cameraSource = new CameraSource.Builder(getActivity(), barcodeDetector)
+                        cameraSource = new CameraSource.Builder(getActivity(), currentDetector)
                                 .setRequestedPreviewSize(1920, 1080)
                                 .setAutoFocusEnabled(true) //you should add this feature
                                 .build();
@@ -271,21 +274,19 @@ public class ScanItemFragment extends Fragment {
                             }
                         });
                     }
-
-                    //Create a new camera
-                    try {
-                        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                            cameraSource.start(surfaceView.getHolder());
-                        } else {
-                            ActivityCompat.requestPermissions(getActivity(), new
-                                    String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-                        }
-                    } catch (IOException ex) { ex.printStackTrace(); }
                 }
             }
         });
     }
 
+//    private void initialiseScanner() {
+//
+//    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
     private void showAlertDialog(int layout) {
         //Builds and inflates the dialog into view

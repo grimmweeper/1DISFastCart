@@ -5,10 +5,9 @@ import java.math.BigDecimal;
 public class Item {
     private String name;
     private BigDecimal price;
-    private String imageRef;
-    private BigDecimal weight;
+    private int imageRef;
 
-    Item(String name, String price, String imageRef, String weight){
+    Item(String name, String price, int imageRef){
         this.name = name;
         this.price = new BigDecimal(price);
         this.imageRef = imageRef;
@@ -22,11 +21,8 @@ public class Item {
         return price;
     }
 
-    public String getImageRef() {
+    public int getImageRef() {
         return imageRef;
     }
 
-    public BigDecimal getWeight() {
-        return weight;
-    }
 }

@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/navigation_checkout"
-        android:name="com.drant.FastCartMain.ui.checkout.CheckoutFragment"
+        android:name="com.drant.FastCartMain.CartActivity"
         android:label="@string/title_checkout"
         tools:layout="@layout/activity_cart" />
 </navigation>

@@ -29,8 +29,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.drant.FastCartMain.DownloadImageTask;
+import com.drant.FastCartMain.FirebaseCallback;
+import com.drant.FastCartMain.Item;
 import com.drant.FastCartMain.LoginActivity;
 import com.drant.FastCartMain.R;
+import com.drant.FastCartMain.ScannedBarcodeActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.vision.CameraSource;
@@ -45,12 +48,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
-public class ScanItemFragment extends Fragment {
+public class ScanItemFragment extends Fragment implements FirebaseCallback {
     AlertDialog.Builder dialogBuilder;
     AlertDialog alertDialog;
     SurfaceView surfaceView;
     private Long scanTime;
     private CameraSource cameraSource;
+    ProgressDialog progressDialog;
 
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth mAuth;
@@ -62,8 +66,86 @@ public class ScanItemFragment extends Fragment {
     private String product_image="PRODUCT_IMAGE";
     private static final int REQUEST_CAMERA_PERMISSION = 201;
 
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_scan_barcode, container, false);
+    @Override
+    public void itemValidationCallback(Boolean correctItem){}
+
+    View view;
+    ViewGroup container;
+
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup containerGroup, Bundle savedInstanceState) {
+        container = containerGroup;
+        view = inflater.inflate(R.layout.activity_scan_barcode, container, false);
+
+        return view;
+    }
+
+    public void showAlertDialog(int layout) {
+        //Builds and inflates the dialog into view
+        dialogBuilder = new AlertDialog.Builder(getActivity());
+        View layoutView = getLayoutInflater().inflate(layout, null);
+
+        //Binds
+        ImageView productImage = layoutView.findViewById(R.id.productImage);
+        TextView productLabel = layoutView.findViewById(R.id.productLabel);
+        TextView productDesc = layoutView.findViewById(R.id.productDesc);
+        Button productButton = layoutView.findViewById(R.id.productButton);
+
+        //Set data
+        productLabel.setText(product_label);
+        productDesc.setText(product_desc);
+        new DownloadImageTask(productImage).execute(product_image);
+
+        dialogBuilder.setView(layoutView);
+        alertDialog = dialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        scanTime = System.currentTimeMillis();
+        alertDialog.show();
+
+        //TODO: Make productButton cancel current addition to cart
+        productButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+                Toast.makeText(getActivity(), "Removed Item From Cart", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        //Runnable to dismiss alert dialog
+        final Runnable closeDialog = new Runnable() {
+            @Override
+            public void run() {
+                if (alertDialog.isShowing()) {
+                    alertDialog.dismiss();
+                }
+            }
+        };
+
+        //Handler to execute ^runnable after delay, closes further thread callbacks
+        final Handler handler = new Handler();
+        alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                handler.removeCallbacks(closeDialog);
+                scanTime = System.currentTimeMillis()-2500;
+            }
+        });
+        handler.postDelayed(closeDialog, 2000);
+    }
+
+
+    //TODO Shift all auth to navactivity
+    @Override
+    public void onPause() {
+        super.onPause();
+//        if (authListener != null) {
+//            mAuth.removeAuthStateListener(authListener);
+//        }
+        cameraSource.release();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         SurfaceView surfaceView=view.findViewById(R.id.surfaceView);
         TextView welcomeMsg= view.findViewById(R.id.welcomeMsg);
         TextView txtBarcodeValue=view.findViewById(R.id.txtBarcodeValue);
@@ -165,121 +247,69 @@ public class ScanItemFragment extends Fragment {
                             v.vibrate(200);
 
                             //Progress
-                            final ProgressDialog progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Light_Dialog);
+                            progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Light_Dialog);
                             progressDialog.setIndeterminate(true);
                             progressDialog.setMessage("Finding Product...");
                             progressDialog.show();
 
 
                             //Get Firestore Data
-                            DocumentReference docRef = db.collection("products").document(product_id);
-                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot document = task.getResult();
-                                        if (document.exists() && document.contains("name") && document.contains("price") && document.contains("img")) {
-                                            product_label=document.getData().get("name").toString();
-
-                                            DecimalFormat df2 = new DecimalFormat("#.00");
-                                            product_desc="$"+ df2.format(document.getData().get("price"));
-                                            product_image=document.getData().get("img").toString();
-
-                                            //Build and view
-                                            progressDialog.dismiss();
-                                            showAlertDialog(R.layout.product_dialog);
-                                        } else {
-                                            progressDialog.dismiss();
-                                            Toast.makeText(getActivity(),"Product Issue",Toast.LENGTH_SHORT).show();
-                                            scanTime = System.currentTimeMillis()-1000;
-                                        }
-                                    } else {
-                                        progressDialog.dismiss();
-                                        Log.d("Firebase", "get failed with ", task.getException());
-                                        scanTime = System.currentTimeMillis()-1000;
-                                    }
-                                }
-                            });
+                            dbHandler.addItemToCart(ScanItemFragment.this, product_id);
+//                            DocumentReference docRef = db.collection("products").document(product_id);
+//                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                                    if (task.isSuccessful()) {
+//                                        DocumentSnapshot document = task.getResult();
+//                                        if (document.exists() && document.contains("name") && document.contains("price") && document.contains("img")) {
+//                                            product_label=document.getData().get("name").toString();
+//
+//                                            DecimalFormat df2 = new DecimalFormat("#.00");
+//                                            product_desc="$"+ df2.format(document.getData().get("price"));
+//                                            product_image=document.getData().get("img").toString();
+//
+//                                            //Build and view
+//                                            progressDialog.dismiss();
+//                                            showAlertDialog(R.layout.product_dialog);
+//                                        } else {
+//                                            progressDialog.dismiss();
+//                                            Toast.makeText(getActivity(),"Product Issue",Toast.LENGTH_SHORT).show();
+//                                            scanTime = System.currentTimeMillis()-1000;
+//                                        }
+//                                    } else {
+//                                        progressDialog.dismiss();
+//                                        Log.d("Firebase", "get failed with ", task.getException());
+//                                        scanTime = System.currentTimeMillis()-1000;
+//                                    }
+//                                }
+//                            });
                         }
                     });
                 }
             }
         });
-
-        return view;
     }
 
-    public void showAlertDialog(int layout) {
-        //Builds and inflates the dialog into view
-        dialogBuilder = new AlertDialog.Builder(getActivity());
-        View layoutView = getLayoutInflater().inflate(layout, null);
-
-        //Binds
-        ImageView productImage = layoutView.findViewById(R.id.productImage);
-        TextView productLabel = layoutView.findViewById(R.id.productLabel);
-        TextView productDesc = layoutView.findViewById(R.id.productDesc);
-        Button productButton = layoutView.findViewById(R.id.productButton);
-
-        //Set data
-        productLabel.setText(product_label);
-        productDesc.setText(product_desc);
-        new DownloadImageTask(productImage).execute(product_image);
-
-        dialogBuilder.setView(layoutView);
-        alertDialog = dialogBuilder.create();
-        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        scanTime = System.currentTimeMillis();
-        alertDialog.show();
-
-        //TODO: Make productButton cancel current addition to cart
-        productButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                alertDialog.dismiss();
-                Toast.makeText(getActivity(), "Removed Item From Cart", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        //Runnable to dismiss alert dialog
-        final Runnable closeDialog = new Runnable() {
-            @Override
-            public void run() {
-                if (alertDialog.isShowing()) {
-                    alertDialog.dismiss();
-                }
-            }
-        };
-
-        //Handler to execute ^runnable after delay, closes further thread callbacks
-        final Handler handler = new Handler();
-        alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                handler.removeCallbacks(closeDialog);
-                scanTime = System.currentTimeMillis()-2500;
-            }
-        });
-        handler.postDelayed(closeDialog, 2000);
-    }
-
-
-    //TODO Shift all auth to navactivity
     @Override
-    public void onPause() {
-        super.onPause();
-//        if (authListener != null) {
-//            mAuth.removeAuthStateListener(authListener);
-//        }
-        cameraSource.release();
-    }
+    public void onItemCallback(Item item) {
+        Log.i("console", item.toString());
+        progressDialog.dismiss();
+        if (item == null) {
+            Toast.makeText(getContext(), "Product not registered in database", Toast.LENGTH_SHORT).show();
+            scanTime = System.currentTimeMillis() - 1000;
+        } else {
+            product_label = item.getName();
 
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        if (authListener != null) {
-//            mAuth.addAuthStateListener(authListener);
-//        }
-//    }
+            DecimalFormat df2 = new DecimalFormat("#.00");
+            product_desc = "$" + df2.format(item.getPrice());
+            product_image = item.getImageRef();
+            Log.i("console", "????");
+
+            // TODO: alertDialog to only disappear when item has been validated
+            //Build and view
+//            showAlertDialog(R.layout.product_dialog);
+        }
+    }
 //
 //    @Override
 //    public void onDestroy() {

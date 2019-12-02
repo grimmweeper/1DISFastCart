@@ -1,6 +1,5 @@
 package com.drant.FastCartMain;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -9,18 +8,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.drant.FastCartMain.ui.checkout.CheckoutFragment;
 import com.drant.FastCartMain.ui.scanitem.ScanItemFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationView;
 
 public class NavActivity extends AppCompatActivity {
 
-    NavigationView navigation;
 
     final Fragment fragment1 = new ProfileFragment();
     final Fragment fragment2 = new ScanItemFragment();
-    final Fragment fragment3 = new CheckoutFragment();
+    final Fragment fragment3 = new CartActivity();
     final FragmentManager fm = getSupportFragmentManager();
     Fragment active = fragment1;
 
@@ -64,11 +60,12 @@ public class NavActivity extends AppCompatActivity {
 
 
 
-    /**@Override
+
+   /** @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.nav_activity_main);
-        BottomNavigationView navView = findViewById(R.id.nav_view);
+        BottomNavigationView navView = findViewById(R.id.navigation);
 
         navView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -76,9 +73,7 @@ public class NavActivity extends AppCompatActivity {
                 int id = menuItem.getItemId();
                 switch(id){
                     case R.id.navigation_scanitem:
-                        Intent i = new Intent(NavActivity.this, ScannedBarcodeActivity.class);
-                        startActivity(i);
-                        break;
+
                     case R.id.navigation_checkout:
                         Intent j = new Intent(NavActivity.this, CartActivity.class);
                         startActivity(j);
@@ -94,7 +89,7 @@ public class NavActivity extends AppCompatActivity {
 
 
     }*/
-    private void initInstances(){
+    /**private void initInstances(){
 
         navigation = (NavigationView) findViewById(R.id.navigation);
         navigation.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -113,8 +108,8 @@ public class NavActivity extends AppCompatActivity {
                 }
                 return false;
             }
-        });
+        });*/
 
     }
 
-}
+

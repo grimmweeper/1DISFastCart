@@ -45,7 +45,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
-
 public class ScanItemFragment extends Fragment {
     AlertDialog.Builder dialogBuilder;
     AlertDialog alertDialog;
@@ -138,9 +137,6 @@ public class ScanItemFragment extends Fragment {
                             public void run() {
                                 //TODO: Need to lookup firebase product data and change data prior to inflating dialog view
                                 product_desc = barcodes.valueAt(0).displayValue;
-
-//                                //Build and view
-//                                showAlertDialog(R.layout.product_dialog);
                             }
                         });
                     }

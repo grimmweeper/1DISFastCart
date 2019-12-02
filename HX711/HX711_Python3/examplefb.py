@@ -65,7 +65,7 @@ try:
     firebase_admin.initialize_app(cred)
     db = firestore.client()
 
-    # trolley ID - hardcoded for now
+    # trolley ID - hardcoded to each trolley
     trolley_id = "ZZafaKzVTvmlreT99wBL"
     trolleys = db.collection(u'trolleys')
     trolley = trolleys.document(trolley_id).get().to_dict()
@@ -81,9 +81,17 @@ try:
 
     running_weight = 0
 
-    while user is not None:
-        trolley = trolleys.document(trolley_id).get().to_dict()
+    # unlock the cart when there is user
+    while user is None:
+        print("This cart is still locked!")
+        break
 
+    # once unlocked, goes in this while loop
+    # start checking when scanning == True
+    while user is not None:
+        # retrieve information about this trolley
+        print("This cart is unlocked!")
+        trolley = trolleys.document(trolley_id).get().to_dict()
         scanning = trolley['scanning']
         print("start_scanning:", scanning)
         print(hx.get_weight_mean(1), 'g')
@@ -91,6 +99,7 @@ try:
         while scanning:
             print("start_scanning signal received! Scanning now...")
             print(hx.get_weight_mean(1), 'g')
+
             # if weight change drastically:
             if (hx.get_weight_mean(1) - running_weight) >= 50:
                 print("Drastic increase detected!")
@@ -100,18 +109,20 @@ try:
                 # HENCE PLEASE PASS THE last_item_id REFERENCE WITH start_scanning = True!
                 # Please Note Above!
 
+                # gets the item information from reference
                 last_item = trolley['last_item_id']
                 last_item = last_item.get().to_dict()
-                print(last_item)
                 item_weight = last_item['weight']
-                print("Actual Weight: ",actual_weight, 'g')
-                print("Product Weight: ",item_weight, 'g')
+                print(last_item)
+                print("Actual Weight: ", actual_weight, 'g')
+                print("Product Weight: ", item_weight, 'g')
 
                 #########################################################################################
-                
+
+                # if the weight difference is acceptable, add item
                 if abs(actual_weight - item_weight) <= 10:
                     running_weight += actual_weight
-    
+
                     print("Actual Weight: ",actual_weight, 'g')
                     print("Product Weight: ",item_weight, 'g')
                     trolleys.document(trolley_id).set({
@@ -120,32 +131,34 @@ try:
                                                       f'correct_item': True
                                                       }, merge=True)
                     scanning = False
-            time.sleep(3)
-            
-        #To test it out next time    
+
+
+        #To test it out next time
         #Update existing weight on the trolley cart when item is being removed and setting it to null
         while removed_item is not None:
-            
-            print("I'm in this loop")
+
+            print("There's a removed_item signal deteced...")
             if (running_weight- hx.get_weight_mean(1)) >= 50:
                 print("Drastic decrease detected!")
                 actual_weight = running_weight - hx.get_weight_mean(1)
-                
+
                 product_rm = removed_item.get().to_dict()
                 item_weight = product_rm['weight']
-                
-                print("Actual Weight: ",actual_weight, 'g')
-                print("Product Weight: ",item_weight, 'g')                
-                
+                print(product_rm)
+                print("Actual Weight: ", actual_weight, 'g')
+                print("Product Weight: ", item_weight, 'g')
+
+                # if the weight difference is acceptable, remove item
                 if abs(actual_weight - item_weight) <= 10:
                     running_weight -= actual_weight
+                    print("Actual Weight: ",actual_weight, 'g')
+                    print("Product Weight: ",item_weight, 'g')
                     trolleys.document(trolley_id).set({
                                                       f'removed_item': None,
                                                       f'running_weight': running_weight,
                                                       f'correct_item': True
-                                                      }, merge=True)                
-                
-                
+                                                      }, merge=True)
+                    removed_item = None
 
 
 

@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,6 +33,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
     private RecyclerView.LayoutManager mLayoutManager;
     TextView cartTotal;
     Button buttonAdd;
+    Button buttonCheckout;
 
     //start w empty cart to fill
     ArrayList<Item> cart = new ArrayList<Item>();
@@ -81,9 +83,9 @@ public class CartActivity extends Fragment implements FirebaseCallback {
                         cartTotal.setText(getCartTotal(cart));
 
                         Toast.makeText(getActivity(), "Item removed from cart", Toast.LENGTH_SHORT).show();
-
                     }
                 };
+
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
 

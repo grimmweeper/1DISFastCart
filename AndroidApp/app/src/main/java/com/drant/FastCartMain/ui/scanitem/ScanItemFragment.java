@@ -199,9 +199,16 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
             }
 
+//            @Override
+//            public void surfaceDestroyed(SurfaceHolder holder) {
+//                cameraSource.stop();
+//            }
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
-                cameraSource.stop();
+                if (cameraSource != null) {
+                    cameraSource.release();
+                    cameraSource = null;
+                }
             }
         });
 

@@ -1,9 +1,11 @@
 package com.drant.FastCartMain.ui.scanitem;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.drant.FastCartMain.DownloadImageTask;
@@ -57,6 +60,7 @@ public class ScanItemFragment extends Fragment {
     private String product_desc="PRODUCT_DESC";
     private String product_id="PRODUCT_ID";
     private String product_image="PRODUCT_IMAGE";
+    private static final int REQUEST_CAMERA_PERMISSION = 201;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_scan_barcode, container, false);
@@ -96,11 +100,15 @@ public class ScanItemFragment extends Fragment {
         surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
-
                 try {
-                    cameraSource.start(surfaceView.getHolder());
-                } catch (IOException ie) {
-                    Log.e("CAMERA SOURCE", ie.getMessage());
+                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                        cameraSource.start(surfaceView.getHolder());
+                    } else {
+                        ActivityCompat.requestPermissions(getActivity(), new
+                                String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -129,9 +137,6 @@ public class ScanItemFragment extends Fragment {
                             public void run() {
                                 //TODO: Need to lookup firebase product data and change data prior to inflating dialog view
                                 product_desc = barcodes.valueAt(0).displayValue;
-
-//                                //Build and view
-//                                showAlertDialog(R.layout.product_dialog);
                             }
                         });
                     }
@@ -257,17 +262,19 @@ public class ScanItemFragment extends Fragment {
         handler.postDelayed(closeDialog, 2000);
     }
 
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
+
+    //TODO Shift all auth to navactivity
+    @Override
+    public void onPause() {
+        super.onPause();
 //        if (authListener != null) {
 //            mAuth.removeAuthStateListener(authListener);
 //        }
-//        cameraSource.release();
-//    }
-//
+        cameraSource.release();
+    }
+
 //    @Override
-//    protected void onResume() {
+//    public void onResume() {
 //        super.onResume();
 //        if (authListener != null) {
 //            mAuth.addAuthStateListener(authListener);

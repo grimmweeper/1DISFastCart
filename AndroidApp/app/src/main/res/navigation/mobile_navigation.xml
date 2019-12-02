@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/navigation_profile"
-        android:name="com.drant.FastCartMain.ui.profile.ProfileFragment"
+        android:name="com.drant.FastCartMain.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/activity_profile" />
 
@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/navigation_checkout"
-        android:name="com.drant.FastCartMain.ui.checkout.CheckoutFragment"
+        android:name="com.drant.FastCartMain.CartActivity"
         android:label="@string/title_checkout"
         tools:layout="@layout/activity_cart" />
 </navigation>

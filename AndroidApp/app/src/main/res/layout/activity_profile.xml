@@ -4,9 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:fillViewport="true"
     android:orientation="vertical"
-    android:id="@+id/profile">
+    android:id="@+id/profile"
+    tools:context=".ProfileFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -62,7 +64,7 @@
             android:layout_marginTop="10sp"
             android:fontFamily="sans-serif"
             android:text="edit profile"
-            android:textColor="@color/address"
+            android:textColor="@color/black"
             android:textSize="14sp" />
 
     </RelativeLayout>

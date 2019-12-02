@@ -4,22 +4,43 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 
-public class CartActivity extends ListActivity implements FirestoreCallback {
+public class CartActivity extends Fragment implements FirestoreCallback {
 
+    private static final String TAG = "CartActivityFragment";
+
+    private RecyclerView mRecyclerView;
+    private recyclerAdapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
     TextView cartTotal;
+    Button buttonAdd;
 
-    ArrayList<String> cartItem = new ArrayList<>();
-    ArrayList<BigDecimal> cartPrice = new ArrayList<>();
-    ArrayList<Integer> cartImage = new ArrayList<>();
+    //hardcoded array to get items from (button accesses these items)
+//    Item item1 = new Item("Apple", "1.50", R.drawable.ic_android);
+//    Item item2 = new Item("Orange", "0.90", R.drawable.ic_android);
+//    Item item3 = new Item("Grapes", "4.75", R.drawable.ic_android);
+//    ArrayList<Item> items = new ArrayList<>(Arrays.asList(item1, item2, item3));
 
-    CartListAdaptor adapter;
+    //start w empty cart to fill
+    ArrayList<Item> cart = new ArrayList<Item>();
+
 
     @Override
     public void onItemCallback(Item item) {
@@ -35,43 +56,76 @@ public class CartActivity extends ListActivity implements FirestoreCallback {
     @Override
     public void itemValidationCallback(Boolean validItem){}
 
-    protected void onCreate (Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cart);
 
-        // get footer
-        ListView listView = findViewById(android.R.id.list);
-        LayoutInflater layoutinflater = getLayoutInflater();
-        ViewGroup footer = (ViewGroup)layoutinflater.inflate(R.layout.listview_footer, listView, false);
-        listView.addFooterView(footer);
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.activity_cart, container, false);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview);
+        mLayoutManager = new LinearLayoutManager(getActivity());
+        mAdapter = new recyclerAdapter(cart);
 
-        adapter = new CartListAdaptor(this, cartItem, cartPrice, cartImage);
-//        dbHandler.Read("users");
-//        dbHandler.getProductDetails(this, "OcKH4TaO3BOo8NNYoEyD");
-//        dbHandler.linkTrolleyAndUser("vXjgwq9nsuMkapWsnnlcl0D32N22", "gjDLnPSnMAul7MR8dBaI");
-//        dbHandler.getUserProductsDetails(this, "erjaotT2n0ObxrqVRfrATEmqAJN2");
-        dbHandler.removeItemFromCart(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mAdapter);
+
+
+
+        ItemTouchHelper.SimpleCallback simpleCallback =
+                new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+                    @Override
+                    public boolean onMove(@NonNull RecyclerView recyclerView,
+                                          @NonNull RecyclerView.ViewHolder viewHolder,
+                                          @NonNull RecyclerView.ViewHolder target) {
+                        return false;
+                    }
+
+                    @Override
+                    public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+                        recyclerAdapter.ExampleViewHolder itemViewHolder = (recyclerAdapter.ExampleViewHolder) viewHolder;
+                        int position = itemViewHolder.getAdapterPosition();
+                        mAdapter.removeItem(position);
+                        cartTotal.setText(getCartTotal(cart));
+
+                        Toast.makeText(getActivity(), "Item removed from cart", Toast.LENGTH_SHORT).show();
+
+                    }
+                };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(mRecyclerView);
+
+        cartTotal = view.findViewById(R.id.cartTotal);
+        buttonAdd =(Button) view.findViewById(R.id.addBtn);
+
+        buttonAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+//                if (clickCounter < 3) {
+//                    mAdapter.addItem(items.get(clickCounter));
+//                    clickCounter += 1;
+//                } else {
+//                    clickCounter = 0;
+//                    mAdapter.addItem(items.get(clickCounter));
+//                    clickCounter += 1;
+//                }
+//
+//                // setting cart total to footer
+//                cartTotal.setText(getCartTotal(cart));
+            }
+        });
+
+
+
+        return view;
     }
 
-//    public interface OnFragmentInteractionListener{
-//
-//    }
+    public String getCartTotal(ArrayList<Item> cart){
+        BigDecimal sum = new BigDecimal(0);
+        for (Item i: cart){
+            sum = sum.add(i.getPrice());
+        }
 
-    /* THIS CODE BELOW IS ALTERNATIVE TO setOnClickListener
-    //    public void addItems(View view) {
-    //        adapter.add(itemArray.get(clickCounter),
-    //                priceArray.get(clickCounter));
-    //        clickCounter += 1;
-    //    }
-
-     */
-//    public Double getCartTotal(ArrayList<Double> prices){
-//        double sum = 0;
-//        for(Double d : prices)
-//            sum += d;
-//        return sum;
-//    }
-
+        return "Cart Total: $" + sum.toString();
+    }
 }
 
 

@@ -4,6 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:id="@+id/touchFrame2"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:fitsSystemWindows="true">
 
     <LinearLayout
@@ -16,9 +20,9 @@
         android:paddingLeft="24dp"
         android:paddingRight="24dp">
 
-        <ImageView app:srcCompat="@drawable/fastcartlogo"
+        <ImageView android:src="@drawable/logo"
             android:layout_width="wrap_content"
-            android:layout_height="72dp"
+            android:layout_height="100dp"
             android:layout_marginBottom="24dp"
             android:layout_gravity="center_horizontal" />
 
@@ -84,7 +88,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Signup Button -->
-        <android.support.v7.widget.AppCompatButton
+        <Button
             android:id="@+id/btn_signup"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

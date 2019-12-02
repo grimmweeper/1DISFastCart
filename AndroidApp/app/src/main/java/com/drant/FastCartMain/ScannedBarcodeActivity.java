@@ -26,11 +26,16 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.gms.vision.barcode.BarcodeDetector;
+
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.IOException;
@@ -71,8 +76,6 @@ public class ScannedBarcodeActivity extends AppCompatActivity implements Firesto
 
         surfaceView = findViewById(R.id.surfaceView);
 
-        dbHandler.removeItemFromCart(this);
-
         // Initialize Firebase + Auth Listeners
         mAuth = FirebaseAuth.getInstance();
         authListener = new FirebaseAuth.AuthStateListener() {
@@ -86,7 +89,7 @@ public class ScannedBarcodeActivity extends AppCompatActivity implements Firesto
         };
 
         // Initialize Firestore
-         db = FirebaseFirestore.getInstance();
+        db = FirebaseFirestore.getInstance();
 
 
         //Profile Filling
@@ -115,6 +118,10 @@ public class ScannedBarcodeActivity extends AppCompatActivity implements Firesto
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         scanTime = System.currentTimeMillis();
         alertDialog.show();
+
+        //Vibrate on show
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(200);
 
         //TODO: Make productButton cancel current addition to cart
         productButton.setOnClickListener(new View.OnClickListener() {
@@ -205,12 +212,41 @@ public class ScannedBarcodeActivity extends AppCompatActivity implements Firesto
                             v.vibrate(200);
 
                             //Progress
-                            progressDialog = new ProgressDialog(ScannedBarcodeActivity.this, R.style.AppTheme_Light_Dialog);
+                            final ProgressDialog progressDialog = new ProgressDialog(ScannedBarcodeActivity.this, R.style.AppTheme_Light_Dialog);
                             progressDialog.setIndeterminate(true);
                             progressDialog.setMessage("Finding Product...");
                             progressDialog.show();
 
-                            dbHandler.addItemToCart(ScannedBarcodeActivity.this, product_id);
+
+                            //Get Firestore Data
+                            DocumentReference docRef = db.collection("products").document(product_id);
+                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot document = task.getResult();
+                                        if (document.exists() && document.contains("name") && document.contains("price") && document.contains("img")) {
+                                            product_label=document.getData().get("name").toString();
+
+                                            DecimalFormat df2 = new DecimalFormat("#.00");
+                                            product_desc="$"+ df2.format(document.getData().get("price"));
+                                            product_image=document.getData().get("img").toString();
+
+                                            //Build and view
+                                            progressDialog.dismiss();
+                                            showAlertDialog(R.layout.product_dialog);
+                                        } else {
+                                            progressDialog.dismiss();
+                                            Toast.makeText(ScannedBarcodeActivity.this,"Product Issue",Toast.LENGTH_SHORT).show();
+                                            scanTime = System.currentTimeMillis()-1000;
+                                        }
+                                    } else {
+                                        progressDialog.dismiss();
+                                        Log.d("Firebase", "get failed with ", task.getException());
+                                        scanTime = System.currentTimeMillis()-1000;
+                                    }
+                                }
+                            });
                         }
                     });
                 }
@@ -218,37 +254,6 @@ public class ScannedBarcodeActivity extends AppCompatActivity implements Firesto
         });
     }
 
-    @Override
-    public void onItemCallback(Item item) {
-        Log.i("console", item.toString());
-        progressDialog.dismiss();
-        if (item == null) {
-            Toast.makeText(ScannedBarcodeActivity.this,"Product not registered in database",Toast.LENGTH_SHORT).show();
-            scanTime = System.currentTimeMillis()-1000;
-        } else {
-            product_label=item.getName();
-
-            DecimalFormat df2 = new DecimalFormat("#.00");
-            product_desc="$"+ df2.format(item.getPrice());
-            product_image=item.getImageRef();
-
-            // TODO: alertDialog to only disappear when item has been validated
-            //Build and view
-            showAlertDialog(R.layout.product_dialog);
-        }
-    }
-
-    @Override
-    public void itemValidationCallback(Boolean validItem){
-        // TODO: Dialog box to validate that the correct item has been placed
-        if (validItem == null) {
-            Toast.makeText(ScannedBarcodeActivity.this,"Error: checking for validation",Toast.LENGTH_LONG).show();
-        } else if (validItem) {
-            Toast.makeText(ScannedBarcodeActivity.this,"Correct item placed in trolley",Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(ScannedBarcodeActivity.this,"Please place correct item in trolley",Toast.LENGTH_LONG).show();
-        }
-    }
 
     @Override
     protected void onPause() {
@@ -273,6 +278,4 @@ public class ScannedBarcodeActivity extends AppCompatActivity implements Firesto
         super.onDestroy();
         mAuth.signOut();
     }
-
-
 }

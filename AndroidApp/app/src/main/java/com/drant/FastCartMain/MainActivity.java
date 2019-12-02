@@ -23,40 +23,43 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize Firebase + Auth Listeners
         mAuth = FirebaseAuth.getInstance();
+//        final Intent authIntent;
         authListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
+                Intent authIntent;
 //                Log.i("console", user.getUid());
 //                startActivity(new Intent(MainActivity.this, LoginActivity.class));
 //                finish();
                 if (user == null) {
 //                    Log.i("console", user.getUid());
-                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    authIntent = new Intent(MainActivity.this, ScannedBarcodeActivity.class);
+//                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();
                 }
                 else {
                     Log.i("console", user.getUid());
                     userObject = User.getInstance();
                     userObject.setUserId(user.getUid());
-                    startActivity(new Intent(MainActivity.this, ScannedBarcodeActivity.class));
-                    finish();
+                    authIntent = new Intent(MainActivity.this, LoginActivity.class);
+//                    startActivity(new Intent(MainActivity.this, ScannedBarcodeActivity.class));
+//                    finish();
                 }
+                startActivity(authIntent);
+                finish();
             }
         };
-    }
+//        Intent authIntent;
+//
+//        // go straight to main if a token is stored
+//        if (mAuth.getCurrentUser() != null) {
+//            authIntent = new Intent(this, ScannedBarcodeActivity.class);
+//        } else {
+//            authIntent = new Intent(this, LoginActivity.class);
+//        }
+//        startActivity(authIntent);
+//        finish();
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(authListener);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (authListener != null) {
-            mAuth.removeAuthStateListener(authListener);
-        }
     }
 }

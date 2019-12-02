@@ -1,5 +1,6 @@
 package com.drant.FastCartMain;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -10,9 +11,12 @@ import androidx.fragment.app.FragmentManager;
 
 import com.drant.FastCartMain.ui.scanitem.ScanItemFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class NavActivity extends AppCompatActivity {
 
+    private FirebaseAuth.AuthStateListener authListener;
+    private FirebaseAuth mAuth;
 
     final Fragment fragment1 = new ProfileFragment();
     final Fragment fragment2 = new ScanItemFragment();
@@ -31,6 +35,18 @@ public class NavActivity extends AppCompatActivity {
         fm.beginTransaction().add(R.id.main_container, fragment3, "3").hide(fragment3).commit();
         fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
         fm.beginTransaction().add(R.id.main_container,fragment1, "1").commit();
+
+        // Initialize Firebase + Auth Listeners
+        mAuth = FirebaseAuth.getInstance();
+        authListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (firebaseAuth.getCurrentUser() == null) {
+                    startActivity(new Intent(NavActivity.this, LoginActivity.class));
+                    finish();
+                }
+            }
+        };
 
     }
 
@@ -57,6 +73,27 @@ public class NavActivity extends AppCompatActivity {
             return false;
         }
     };
+
+    public void onPause() {
+        super.onPause();
+        if (authListener != null) {
+            mAuth.removeAuthStateListener(authListener);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (authListener != null) {
+            mAuth.addAuthStateListener(authListener);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+//        mAuth.signOut();
+    }
 
 
 

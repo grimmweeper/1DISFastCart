@@ -1,6 +1,5 @@
 package com.drant.FastCartMain;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -9,13 +8,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.drant.FastCartMain.ui.scanitem.ScanItemFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class NavActivity extends AppCompatActivity {
 
 
     final Fragment fragment1 = new ProfileFragment();
-    //final Fragment fragment2 = new ScanItemFragment();
+    final Fragment fragment2 = new ScanItemFragment();
     final Fragment fragment3 = new CartActivity();
     final FragmentManager fm = getSupportFragmentManager();
     Fragment active = fragment1;
@@ -29,7 +29,7 @@ public class NavActivity extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         fm.beginTransaction().add(R.id.main_container, fragment3, "3").hide(fragment3).commit();
-        //fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
+        fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
         fm.beginTransaction().add(R.id.main_container,fragment1, "1").commit();
 
     }
@@ -45,12 +45,9 @@ public class NavActivity extends AppCompatActivity {
                     return true;
 
                 case R.id.navigation_scanitem:
-                    Intent intent1 = new Intent(NavActivity.this,ScannedBarcodeActivity.class);
-                    startActivity(intent1);
-                    break;
-                    /**fm.beginTransaction().hide(active).show(fragment2).commit();
+                    fm.beginTransaction().hide(active).show(fragment2).commit();
                     active = fragment2;
-                    return true;*/
+                    return true;
 
                 case R.id.navigation_checkout:
                     fm.beginTransaction().hide(active).show(fragment3).commit();

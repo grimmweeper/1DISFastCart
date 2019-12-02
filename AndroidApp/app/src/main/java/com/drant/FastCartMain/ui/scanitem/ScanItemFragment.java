@@ -42,7 +42,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
-
 public class ScanItemFragment extends Fragment {
     AlertDialog.Builder dialogBuilder;
     AlertDialog alertDialog;

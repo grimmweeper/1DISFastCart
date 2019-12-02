@@ -1,10 +1,13 @@
 package com.drant.FastCartMain;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -36,9 +39,12 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
+
         _loginButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -79,40 +85,45 @@ public class LoginActivity extends AppCompatActivity {
             return;
         } else {_passwordText.setError(null); }
 
-        //Sequence Animations
+        //Sequence Animations, hide keyboard
         _loginButton.setEnabled(false);
         final ProgressDialog progressDialog = new ProgressDialog(LoginActivity.this, R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Authenticating...");
         progressDialog.show();
 
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+
         // Firebase Auth and Token Retrieval
         mAuth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
-                        // Sign in success, move to main activity
-                        Log.d(TAG, "signInWithEmail:success");
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        Toast.makeText(getBaseContext(), "Login successful", Toast.LENGTH_SHORT).show();
-                        _loginButton.setEnabled(true);
-                        progressDialog.dismiss();
-                    } else {
-                        // Sign in fails
-                        Log.w(TAG, "signInWithEmail:failure", task.getException());
-                        Toast.makeText(getBaseContext(), "Invalid username or password", Toast.LENGTH_SHORT).show();
-                        _loginButton.setEnabled(true);
-                        progressDialog.dismiss();
+                .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, move to main activity
+                            Log.d(TAG, "signInWithEmail:success");
+                            Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                            startActivity(intent);
+                            Toast.makeText(getBaseContext(), "Login successful", Toast.LENGTH_SHORT).show();
+                            _loginButton.setEnabled(true);
+                            progressDialog.dismiss();
+                        } else {
+                            // Sign in fails
+                            Log.w(TAG, "signInWithEmail:failure", task.getException());
+                            Toast.makeText(getBaseContext(), "Invalid username or password", Toast.LENGTH_SHORT).show();
+                            _loginButton.setEnabled(true);
+                            progressDialog.dismiss();
+                        }
                     }
-                }
-            });
+                });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
 

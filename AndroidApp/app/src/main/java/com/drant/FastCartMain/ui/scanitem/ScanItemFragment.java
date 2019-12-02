@@ -29,8 +29,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.drant.FastCartMain.DownloadImageTask;
+import com.drant.FastCartMain.FirebaseCallback;
+import com.drant.FastCartMain.Item;
 import com.drant.FastCartMain.LoginActivity;
 import com.drant.FastCartMain.R;
+import com.drant.FastCartMain.ScannedBarcodeActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.vision.CameraSource;
@@ -44,13 +47,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
-public class ScanItemFragment extends Fragment {
+public class ScanItemFragment extends Fragment implements FirebaseCallback {
     AlertDialog.Builder dialogBuilder;
     AlertDialog alertDialog;
     SurfaceView surfaceView;
     private Long scanTime;
     private CameraSource cameraSource;
+    ProgressDialog progressDialog;
 
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth mAuth;
@@ -62,149 +67,15 @@ public class ScanItemFragment extends Fragment {
     private String product_image="PRODUCT_IMAGE";
     private static final int REQUEST_CAMERA_PERMISSION = 201;
 
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_scan_barcode, container, false);
-        SurfaceView surfaceView=view.findViewById(R.id.surfaceView);
-        TextView welcomeMsg= view.findViewById(R.id.welcomeMsg);
-        TextView txtBarcodeValue=view.findViewById(R.id.txtBarcodeValue);
-        scanTime = System.currentTimeMillis();
+    @Override
+    public void itemValidationCallback(Boolean correctItem){}
 
-        // Initialize Firebase + Auth Listeners
-        mAuth = FirebaseAuth.getInstance();
-        authListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() == null) {
-                    startActivity(new Intent(getActivity(), LoginActivity.class));
-                    getActivity().finish();
-                }
-            }
-        };
+    View view;
+    ViewGroup container;
 
-        // Initialize Firestore
-        db = FirebaseFirestore.getInstance();
-
-        //Profile Filling
-        welcomeMsg.setText("Welcome " + mAuth.getCurrentUser().getDisplayName());
-
-        BarcodeDetector barcodeDetector =
-                new BarcodeDetector.Builder(container.getContext())
-                        .setBarcodeFormats(1|2|4|5|8|32|64|128|512|1024)//QR_CODE)
-                        .build();
-        cameraSource = new CameraSource
-                .Builder(container.getContext(), barcodeDetector)
-                .setRequestedPreviewSize(1920, 1080)
-                .setAutoFocusEnabled(true)
-                .build();
-
-        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
-            @Override
-            public void surfaceCreated(SurfaceHolder holder) {
-                try {
-                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                        cameraSource.start(surfaceView.getHolder());
-                    } else {
-                        ActivityCompat.requestPermissions(getActivity(), new
-                                String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            }
-
-            @Override
-            public void surfaceDestroyed(SurfaceHolder holder) {
-                cameraSource.stop();
-            }
-        });
-
-        barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
-            @Override
-            public void release() {
-            }
-
-            @Override
-            public void receiveDetections(Detector.Detections<Barcode> detections) {
-                final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                if (barcodes.size() != 0) {
-                    if (!product_desc.equals(barcodes.valueAt(0).displayValue)) {
-                        txtBarcodeValue.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                //TODO: Need to lookup firebase product data and change data prior to inflating dialog view
-                                product_desc = barcodes.valueAt(0).displayValue;
-                            }
-                        });
-                    }
-                }
-            }
-        });
-
-        barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
-            @Override
-            public void release() {
-            }
-
-            @Override
-            public void receiveDetections(Detector.Detections<Barcode> detections) {
-                final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                if (barcodes.size() != 0 && System.currentTimeMillis()>scanTime+2500) {
-                    txtBarcodeValue.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            product_id = barcodes.valueAt(0).displayValue;
-                            //Throttle
-                            scanTime = System.currentTimeMillis();
-
-                            //Vibrate
-                            Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-                            v.vibrate(200);
-
-                            //Progress
-                            final ProgressDialog progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Light_Dialog);
-                            progressDialog.setIndeterminate(true);
-                            progressDialog.setMessage("Finding Product...");
-                            progressDialog.show();
-
-
-                            //Get Firestore Data
-                            DocumentReference docRef = db.collection("products").document(product_id);
-                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot document = task.getResult();
-                                        if (document.exists() && document.contains("name") && document.contains("price") && document.contains("img")) {
-                                            product_label=document.getData().get("name").toString();
-
-                                            DecimalFormat df2 = new DecimalFormat("#.00");
-                                            product_desc="$"+ df2.format(document.getData().get("price"));
-                                            product_image=document.getData().get("img").toString();
-
-                                            //Build and view
-                                            progressDialog.dismiss();
-                                            showAlertDialog(R.layout.product_dialog);
-                                        } else {
-                                            progressDialog.dismiss();
-                                            Toast.makeText(getActivity(),"Product Issue",Toast.LENGTH_SHORT).show();
-                                            scanTime = System.currentTimeMillis()-1000;
-                                        }
-                                    } else {
-                                        progressDialog.dismiss();
-                                        Log.d("Firebase", "get failed with ", task.getException());
-                                        scanTime = System.currentTimeMillis()-1000;
-                                    }
-                                }
-                            });
-                        }
-                    });
-                }
-            }
-        });
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup containerGroup, Bundle savedInstanceState) {
+        container = containerGroup;
+        view = inflater.inflate(R.layout.activity_scan_barcode, container, false);
 
         return view;
     }
@@ -273,13 +144,153 @@ public class ScanItemFragment extends Fragment {
         cameraSource.release();
     }
 
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        if (authListener != null) {
-//            mAuth.addAuthStateListener(authListener);
-//        }
-//    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        SurfaceView surfaceView=view.findViewById(R.id.surfaceView);
+        TextView welcomeMsg= view.findViewById(R.id.welcomeMsg);
+        TextView txtBarcodeValue=view.findViewById(R.id.txtBarcodeValue);
+        scanTime = System.currentTimeMillis();
+
+        // Initialize Firebase + Auth Listeners
+        mAuth = FirebaseAuth.getInstance();
+        authListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if (firebaseAuth.getCurrentUser() == null) {
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
+                    getActivity().finish();
+                }
+            }
+        };
+
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
+
+        //Profile Filling
+        welcomeMsg.setText("Welcome " + mAuth.getCurrentUser().getDisplayName());
+
+        BarcodeDetector barcodeDetector =
+                new BarcodeDetector.Builder(container.getContext())
+                        .setBarcodeFormats(1|2|4|5|8|32|64|128|512|1024)//QR_CODE)
+                        .build();
+        cameraSource = new CameraSource
+                .Builder(container.getContext(), barcodeDetector)
+                .setRequestedPreviewSize(1920, 1080)
+                .setAutoFocusEnabled(true)
+                .build();
+
+        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                try {
+                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                        cameraSource.start(surfaceView.getHolder());
+                    } else {
+                        ActivityCompat.requestPermissions(getActivity(), new
+                                String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            }
+
+//            @Override
+//            public void surfaceDestroyed(SurfaceHolder holder) {
+//                cameraSource.stop();
+//            }
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                if (cameraSource != null) {
+                    cameraSource.release();
+                    cameraSource = null;
+                }
+            }
+        });
+
+        barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
+            @Override
+            public void release() {
+            }
+
+            @Override
+            public void receiveDetections(Detector.Detections<Barcode> detections) {
+                final SparseArray<Barcode> barcodes = detections.getDetectedItems();
+                if (barcodes.size() != 0) {
+                    if (!product_desc.equals(barcodes.valueAt(0).displayValue)) {
+                        txtBarcodeValue.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //TODO: Need to lookup firebase product data and change data prior to inflating dialog view
+                                product_desc = barcodes.valueAt(0).displayValue;
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
+        barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
+            @Override
+            public void release() {
+            }
+
+            @Override
+            public void receiveDetections(Detector.Detections<Barcode> detections) {
+                final SparseArray<Barcode> barcodes = detections.getDetectedItems();
+                if (barcodes.size() != 0 && System.currentTimeMillis()>scanTime+2500) {
+                    txtBarcodeValue.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            product_id = barcodes.valueAt(0).displayValue;
+                            //Throttle
+                            scanTime = System.currentTimeMillis();
+
+                            //Vibrate
+                            Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+                            v.vibrate(200);
+
+                            //Progress
+                            progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Light_Dialog);
+                            progressDialog.setIndeterminate(true);
+                            progressDialog.setMessage("Finding Product...");
+                            progressDialog.show();
+
+
+                            //Get Firestore Data
+                            dbHandler.addItemToCart(ScanItemFragment.this, product_id);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onItemCallback(Item item) {
+        progressDialog.dismiss();
+        if (item == null) {
+            Toast.makeText(getContext(), "Product not registered in database", Toast.LENGTH_SHORT).show();
+            scanTime = System.currentTimeMillis() - 1000;
+        } else {
+            product_label = item.getName();
+
+            DecimalFormat df2 = new DecimalFormat("#.00");
+            product_desc = "$" + df2.format(item.getPrice());
+            product_image = item.getImageRef();
+
+            // TODO: alertDialog to only disappear when item has been validated
+            //Build and view
+            showAlertDialog(R.layout.product_dialog);
+        }
+    }
+
+    @Override
+    public void displayItemsCallback(ArrayList<Item> items){}
 //
 //    @Override
 //    public void onDestroy() {

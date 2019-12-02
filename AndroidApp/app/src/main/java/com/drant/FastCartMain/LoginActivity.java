@@ -2,6 +2,7 @@ package com.drant.FastCartMain;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -22,6 +23,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,6 +32,9 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
+    User userObject;
+
+//    DatabaseHandler dbHandler = DatabaseHandler.getInstance();
 
     @BindView(R.id.input_user) EditText _userText;
     @BindView(R.id.input_password) EditText _passwordText;
@@ -40,7 +45,6 @@ public class LoginActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         ButterKnife.bind(this);
 
         //fullscreen
@@ -119,6 +123,10 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         // Sign in success, move to main activity
                         Log.d(TAG, "signInWithEmail:success");
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        String uid = user.getUid();
+                        userObject = User.getInstance();
+                        userObject.setUserId(uid);
                         Intent intent = new Intent(LoginActivity.this,MainActivity.class);
                         startActivity(intent);
                         Toast.makeText(getBaseContext(), "Login successful", Toast.LENGTH_SHORT).show();

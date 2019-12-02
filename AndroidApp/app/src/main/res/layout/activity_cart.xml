@@ -7,20 +7,12 @@
     tools:context=".CartActivity"
     android:layout_above="@+id/navigation">
 
-    <Button
-        android:id="@+id/addBtn"
-        android:text="Add Item"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
-
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="4dp"
         android:scrollbars="vertical"
-        android:layout_below="@+id/addBtn"
         android:layout_marginBottom="80dp"/>
 
     <TextView

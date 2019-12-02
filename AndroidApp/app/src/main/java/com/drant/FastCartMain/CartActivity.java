@@ -67,7 +67,7 @@ public class CartActivity extends Fragment {
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
                         recyclerAdapter.ExampleViewHolder itemViewHolder = (recyclerAdapter.ExampleViewHolder) viewHolder;
                         int position = itemViewHolder.getAdapterPosition();
-                        cart.remove(position);
+                        mAdapter.removeItem(position);
                         cartTotal.setText(getCartTotal(cart));
 
                         Toast.makeText(getActivity(), "Item removed from cart", Toast.LENGTH_SHORT).show();

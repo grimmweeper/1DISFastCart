@@ -48,8 +48,6 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.Exampl
         holder.mImageView.setImageResource(currentItem.getImageRef());
         holder.mTextView1.setText(currentItem.getName());
         holder.mTextView2.setText("$" + currentItem.getPrice().toString());
-
-
     }
 
     @Override
@@ -59,6 +57,11 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.Exampl
 
     public void addItem(Item item){
         mCart.add(item);
+        notifyDataSetChanged();
+    }
+
+    public void removeItem(int position){
+        mCart.remove(position);
         notifyDataSetChanged();
     }
 

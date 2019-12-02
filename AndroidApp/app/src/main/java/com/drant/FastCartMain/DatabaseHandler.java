@@ -23,13 +23,6 @@ import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 import static com.drant.FastCartMain.MainActivity.userObject;
-//import static com.drant.FastCartMain.LoginActivity.userObject;
-
-interface FirestoreCallback{
-    DatabaseHandler dbHandler = DatabaseHandler.getInstance();
-    void onItemCallback(Item item);
-    void itemValidationCallback(Boolean validItem);
-}
 
 public class DatabaseHandler {
     private static DatabaseHandler instance = null;
@@ -112,11 +105,11 @@ public class DatabaseHandler {
     }
 
     // add item to cart
-    void addItemToCart(final FirestoreCallback firestoreCallback, String barcode){
+    public void addItemToCart(final FirebaseCallback firebaseCallback, String barcode){
         // get product document reference from barcode
         DocumentReference productDocRef = db.collection("products").document(barcode);
         // call method to update firebase accordingly
-        addItemToCart(firestoreCallback, productDocRef);
+        addItemToCart(firebaseCallback, productDocRef);
         // get item information from firebase to display information
         productDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -124,29 +117,30 @@ public class DatabaseHandler {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
+                        Log.i("console", "adding1");
                         String name = document.getString("name");
                         String price = document.getDouble("price").toString();
 //                        String weight = document.getDouble("weight").toString();
                         String imageRef = document.getString("img");
                         Item item = new Item(name, price, imageRef, productDocRef);
-                        firestoreCallback.onItemCallback(item);
+                        firebaseCallback.onItemCallback(item);
                         ArrayList<Item> newItemList = userObject.getItems();
                         newItemList.add(item);
                         userObject.setItems(newItemList);
                     } else {
                         Log.d(TAG, "No such document");
-                        firestoreCallback.onItemCallback(null);
+                        firebaseCallback.onItemCallback(null);
                     }
                 } else {
                     Log.d(TAG, "get failed with ", task.getException());
-                    firestoreCallback.onItemCallback(null);
+                    firebaseCallback.onItemCallback(null);
                 }
             }
         });
     }
 
     // update trolley in firebase
-    private void addItemToCart(final FirestoreCallback firestoreCallback, final DocumentReference itemToAdd){
+    private void addItemToCart(final FirebaseCallback firebaseCallback, final DocumentReference itemToAdd){
         // get trolley document reference from userObject
         DocumentReference trolleyDocRef = User.getInstance().getTrolleyDoc();
         // update firebase accordingly
@@ -158,33 +152,33 @@ public class DatabaseHandler {
                     if (document.exists()) {
                         ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) document.get("items");
                         itemDocuments.add(itemToAdd);
-                        startScanning(firestoreCallback, trolleyDocRef, itemDocuments);
+                        startScanning(firebaseCallback, trolleyDocRef, itemDocuments);
                         userObject.setItemDocuments(itemDocuments);
                     } else {
                         Log.d(TAG, "No such document");
-                        firestoreCallback.onItemCallback(null);
+                        firebaseCallback.displayItemsCallback(null);
                     }
                 } else {
                     Log.d(TAG, "get failed with ", task.getException());
-                    firestoreCallback.onItemCallback(null);
+                    firebaseCallback.displayItemsCallback(null);
                 }
             }
         });
     }
 
     // remove item from cart
-    void removeItemFromCart(final FirestoreCallback firestoreCallback, Item itemToRemove){
+    void removeItemFromCart(final FirebaseCallback firebaseCallback, Item itemToRemove){
         // get product document reference from barcode
         DocumentReference itemDocRef = itemToRemove.getItemDocRef();
         // call method to update firebase accordingly
-        removeItemFromCart(firestoreCallback, itemDocRef);
+        removeItemFromCart(firebaseCallback, itemDocRef);
         ArrayList<Item> newItemList = userObject.getItems();
         newItemList.remove(itemToRemove);
         userObject.setItems(newItemList);
     }
 
     // update firebase respectively
-    private void removeItemFromCart(final FirestoreCallback firestoreCallback, final DocumentReference itemDocRef){
+    private void removeItemFromCart(final FirebaseCallback firebaseCallback, final DocumentReference itemDocRef){
 //        final DocumentReference itemToRemove = db.collection("products").document("8934677000358");
 //        final DocumentReference trolleyDocRef = db.collection("trolleys").document("gjDLnPSnMAul7MR8dBaI");
         DocumentReference trolleyDocRef = User.getInstance().getTrolleyDoc();
@@ -202,7 +196,7 @@ public class DatabaseHandler {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     Log.i("console", "Removing item...");
-                                    startScanning(firestoreCallback, trolleyDocRef, itemDocuments);
+                                    startScanning(firebaseCallback, trolleyDocRef, itemDocuments);
                                     userObject.setItemDocuments(itemDocuments);
                                 }
                             })
@@ -214,18 +208,18 @@ public class DatabaseHandler {
                             });
                     } else {
                         Log.d(TAG, "No such document");
-                        firestoreCallback.onItemCallback(null);
+                        firebaseCallback.displayItemsCallback(null);
                     }
                 } else {
                     Log.d(TAG, "get failed with ", task.getException());
-                    firestoreCallback.onItemCallback(null);
+                    firebaseCallback.displayItemsCallback(null);
                 }
             }
         });
     }
 
     // update firebase to start rpi weight-checking
-    private void startScanning(FirestoreCallback firestoreCallback, DocumentReference trolleyDocRef, ArrayList<DocumentReference> itemDocuments) {
+    private void startScanning(FirebaseCallback firebaseCallback, DocumentReference trolleyDocRef, ArrayList<DocumentReference> itemDocuments) {
         // create write batch to update firebase accordingly
         batch = db.batch();
         batch.update(trolleyDocRef, "items", itemDocuments);
@@ -233,28 +227,28 @@ public class DatabaseHandler {
         batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                listenForCorrectItem(firestoreCallback, trolleyDocRef);
+                listenForCorrectItem(firebaseCallback, trolleyDocRef);
                 Log.i("console", "Scanning...");
             }
         });
     }
 
     // listen for correct item status from firebase
-    private void listenForCorrectItem(final FirestoreCallback firestoreCallback, DocumentReference trolleyDocRef) {
+    private void listenForCorrectItem(final FirebaseCallback firebaseCallback, DocumentReference trolleyDocRef) {
         // attach listener to listen for change in correct_item field
         correctItemListener = trolleyDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot snapshot,
                                 @Nullable FirebaseFirestoreException e) {
                 if (e != null) {
-                    firestoreCallback.itemValidationCallback(null);
+                    firebaseCallback.itemValidationCallback(null);
 //                    Log.i("console", "Listen failed.", e);
                     return;
                 }
                 if (snapshot != null && snapshot.exists()) {
 //                    Log.i("console", "Current data: " + snapshot.getData());
                     Boolean itemValidationStatus = snapshot.getBoolean("correct_item");
-                    firestoreCallback.itemValidationCallback(itemValidationStatus);
+                    firebaseCallback.itemValidationCallback(itemValidationStatus);
                     if (itemValidationStatus) {
                         // detach listener
                         correctItemListener.remove();
@@ -263,7 +257,7 @@ public class DatabaseHandler {
                     }
                 } else {
 //                    Log.i("console", "Current data: null");
-                    firestoreCallback.itemValidationCallback(null);
+                    firebaseCallback.itemValidationCallback(null);
                 }
             }
         });
@@ -285,7 +279,7 @@ public class DatabaseHandler {
     }
 
     // cancel add/remove item
-    void cancelOperation(final FirestoreCallback firestoreCallback, Item item, Boolean cancelAdd) {
+    void cancelOperation(final FirebaseCallback firebaseCallback, Item item, Boolean cancelAdd) {
         correctItemListener.remove();
         DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
         resetTrolleyScanningStatus(trolleyDocRef);
@@ -312,10 +306,14 @@ public class DatabaseHandler {
         userObject.setItemDocuments(newItemDocuments);
     }
 
-    void getItemsInTrolley (FirestoreCallback firestoreCallback) {
-        ArrayList<Item> items = userObject.getItems();
-        for (Item item : items) {
-            firestoreCallback.onItemCallback(item);
+    public void getItemsInTrolley (final FirebaseCallback firebaseCallback) {
+        Log.i("console", "getting");
+        try{
+            ArrayList<Item> items = userObject.getItems();
+            firebaseCallback.displayItemsCallback(items);
+            Log.i("console", items.toString());
+        } catch (NullPointerException nullPointerException){
+            Log.i("console", nullPointerException.toString());
         }
     }
 

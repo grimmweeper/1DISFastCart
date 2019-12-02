@@ -13,43 +13,64 @@ import com.google.firebase.auth.FirebaseUser;
 //import android.support.annotation.NonNull;
 
 public class MainActivity extends AppCompatActivity {
-    private FirebaseAuth.AuthStateListener authListener;
+//    private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth mAuth;
     static User userObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Initialize Firebase + Auth Listeners
+        // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
-//        final Intent authIntent;
-        authListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
-                Intent authIntent;
-//                Log.i("console", user.getUid());
-//                startActivity(new Intent(MainActivity.this, LoginActivity.class));
-//                finish();
-                if (user == null) {
-//                    Log.i("console", user.getUid());
-                    authIntent = new Intent(MainActivity.this, ScannedBarcodeActivity.class);
-//                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
-                    finish();
-                }
-                else {
-                    Log.i("console", user.getUid());
-                    userObject = User.getInstance();
-                    userObject.setUserId(user.getUid());
-                    authIntent = new Intent(MainActivity.this, LoginActivity.class);
-//                    startActivity(new Intent(MainActivity.this, ScannedBarcodeActivity.class));
+        Intent authIntent;
+        FirebaseUser firebaseUser =  mAuth.getCurrentUser();
+
+        // go straight to main if a token is stored
+        if (firebaseUser != null) {
+            userObject = User.getInstance();
+            userObject.setUserId(firebaseUser.getUid());
+            authIntent = new Intent(this, NavActivity.class);
+        } else {
+            authIntent = new Intent(this, LoginActivity.class);
+        }
+        startActivity(authIntent);
+        finish();
+
+    }
+
+//    @Override
+//    protected void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//
+//        // Initialize Firebase + Auth Listeners
+//        mAuth = FirebaseAuth.getInstance();
+////        final Intent authIntent;
+//        authListener = new FirebaseAuth.AuthStateListener() {
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//                FirebaseUser user = firebaseAuth.getCurrentUser();
+//                Intent authIntent;
+////                Log.i("console", user.getUid());
+////                startActivity(new Intent(MainActivity.this, LoginActivity.class));
+////                finish();
+//                if (user == null) {
+////                    Log.i("console", user.getUid());
+//                    authIntent = new Intent(MainActivity.this, ScannedBarcodeActivity.class);
+////                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
 //                    finish();
-                }
-                startActivity(authIntent);
-                finish();
-            }
-        };
+//                }
+//                else {
+//                    Log.i("console", user.getUid());
+//                    userObject = User.getInstance();
+//                    userObject.setUserId(user.getUid());
+//                    authIntent = new Intent(MainActivity.this, LoginActivity.class);
+////                    startActivity(new Intent(MainActivity.this, ScannedBarcodeActivity.class));
+////                    finish();
+//                }
+//                startActivity(authIntent);
+//                finish();
+//            }
+//        };
 //        Intent authIntent;
 //
 //        // go straight to main if a token is stored
@@ -60,6 +81,4 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //        startActivity(authIntent);
 //        finish();
-
-    }
 }

@@ -3,6 +3,7 @@ package com.drant.FastCartMain;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +23,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class CartActivity extends Fragment implements FirestoreCallback {
+public class CartActivity extends Fragment implements FirebaseCallback {
 
     private static final String TAG = "CartActivityFragment";
 
@@ -32,29 +33,25 @@ public class CartActivity extends Fragment implements FirestoreCallback {
     TextView cartTotal;
     Button buttonAdd;
 
-    //hardcoded array to get items from (button accesses these items)
-//    Item item1 = new Item("Apple", "1.50", R.drawable.ic_android);
-//    Item item2 = new Item("Orange", "0.90", R.drawable.ic_android);
-//    Item item3 = new Item("Grapes", "4.75", R.drawable.ic_android);
-//    ArrayList<Item> items = new ArrayList<>(Arrays.asList(item1, item2, item3));
-
     //start w empty cart to fill
     ArrayList<Item> cart = new ArrayList<Item>();
 
-
     @Override
-    public void onItemCallback(Item item) {
-        cartTotal = (TextView) findViewById(R.id.cartTotal);
-        adapter.add(item.getName(), item.getPrice());
-        BigDecimal sum = new BigDecimal(0);
-        Intent intent = getIntent();
-        String message = intent.getStringExtra(sum.toString());
-        cartTotal.setText(message);
-        setListAdapter(adapter);
+    public void onItemCallback(Item item){
+        Log.i("console", "item callback");
     }
 
     @Override
-    public void itemValidationCallback(Boolean validItem){}
+    public void displayItemsCallback(ArrayList<Item> items) {
+        Log.i("console", "display callback");
+        mAdapter.displayItems(items);
+        cartTotal.setText(getCartTotal(items));
+    }
+
+    @Override
+    public void itemValidationCallback(Boolean validItem){
+        Log.i("console", "valid callback");
+    }
 
 
     @Override
@@ -66,8 +63,6 @@ public class CartActivity extends Fragment implements FirestoreCallback {
 
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
-
-
 
         ItemTouchHelper.SimpleCallback simpleCallback =
                 new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -93,27 +88,6 @@ public class CartActivity extends Fragment implements FirestoreCallback {
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
 
         cartTotal = view.findViewById(R.id.cartTotal);
-        buttonAdd =(Button) view.findViewById(R.id.addBtn);
-
-        buttonAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-//                if (clickCounter < 3) {
-//                    mAdapter.addItem(items.get(clickCounter));
-//                    clickCounter += 1;
-//                } else {
-//                    clickCounter = 0;
-//                    mAdapter.addItem(items.get(clickCounter));
-//                    clickCounter += 1;
-//                }
-//
-//                // setting cart total to footer
-//                cartTotal.setText(getCartTotal(cart));
-            }
-        });
-
-
 
         return view;
     }
@@ -125,6 +99,12 @@ public class CartActivity extends Fragment implements FirestoreCallback {
         }
 
         return "Cart Total: $" + sum.toString();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        dbHandler.getItemsInTrolley(this);
     }
 }
 

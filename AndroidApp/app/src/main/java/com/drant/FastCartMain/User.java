@@ -13,8 +13,8 @@ public class User {
     private DocumentReference userDocRef;
     private String trolleyId;
     private DocumentReference trolleyDocRef;
-    private ArrayList<Item> items;
-    private ArrayList<DocumentReference> itemDocuments;
+    private ArrayList<Item> items = new ArrayList<Item>();
+    private ArrayList<DocumentReference> itemDocuments = new ArrayList<DocumentReference>();
 
     private static User user = new User();
 //    private User user;
@@ -36,6 +36,7 @@ public class User {
         this.setUserDoc();
         // TODO: Hardcoded - REMOVE
         this.setTrolleyId("gjDLnPSnMAul7MR8dBaI");
+
         Log.i("console", this.trolleyId);
     }
 

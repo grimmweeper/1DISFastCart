@@ -47,6 +47,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 public class ScanItemFragment extends Fragment implements FirebaseCallback {
     AlertDialog.Builder dialogBuilder;
@@ -255,34 +256,6 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
 
                             //Get Firestore Data
                             dbHandler.addItemToCart(ScanItemFragment.this, product_id);
-//                            DocumentReference docRef = db.collection("products").document(product_id);
-//                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                                    if (task.isSuccessful()) {
-//                                        DocumentSnapshot document = task.getResult();
-//                                        if (document.exists() && document.contains("name") && document.contains("price") && document.contains("img")) {
-//                                            product_label=document.getData().get("name").toString();
-//
-//                                            DecimalFormat df2 = new DecimalFormat("#.00");
-//                                            product_desc="$"+ df2.format(document.getData().get("price"));
-//                                            product_image=document.getData().get("img").toString();
-//
-//                                            //Build and view
-//                                            progressDialog.dismiss();
-//                                            showAlertDialog(R.layout.product_dialog);
-//                                        } else {
-//                                            progressDialog.dismiss();
-//                                            Toast.makeText(getActivity(),"Product Issue",Toast.LENGTH_SHORT).show();
-//                                            scanTime = System.currentTimeMillis()-1000;
-//                                        }
-//                                    } else {
-//                                        progressDialog.dismiss();
-//                                        Log.d("Firebase", "get failed with ", task.getException());
-//                                        scanTime = System.currentTimeMillis()-1000;
-//                                    }
-//                                }
-//                            });
                         }
                     });
                 }
@@ -292,7 +265,6 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
 
     @Override
     public void onItemCallback(Item item) {
-        Log.i("console", item.toString());
         progressDialog.dismiss();
         if (item == null) {
             Toast.makeText(getContext(), "Product not registered in database", Toast.LENGTH_SHORT).show();
@@ -303,13 +275,15 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
             DecimalFormat df2 = new DecimalFormat("#.00");
             product_desc = "$" + df2.format(item.getPrice());
             product_image = item.getImageRef();
-            Log.i("console", "????");
 
             // TODO: alertDialog to only disappear when item has been validated
             //Build and view
-//            showAlertDialog(R.layout.product_dialog);
+            showAlertDialog(R.layout.product_dialog);
         }
     }
+
+    @Override
+    public void displayItemsCallback(ArrayList<Item> items){}
 //
 //    @Override
 //    public void onDestroy() {

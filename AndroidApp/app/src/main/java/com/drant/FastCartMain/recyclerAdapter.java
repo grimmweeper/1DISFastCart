@@ -45,7 +45,8 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.Exampl
     public void onBindViewHolder(@NonNull ExampleViewHolder holder, int position) {
         Item currentItem = mCart.get(position);
 
-        holder.mImageView.setImageResource(currentItem.getImageRef());
+        new DownloadImageTask(holder.mImageView).execute(currentItem.getImageRef());
+//        holder.mImageView.setImageResource(currentItem.getImageRef());
         holder.mTextView1.setText(currentItem.getName());
         holder.mTextView2.setText("$" + currentItem.getPrice().toString());
     }
@@ -55,8 +56,8 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.Exampl
         return mCart.size();
     }
 
-    public void addItem(Item item){
-        mCart.add(item);
+    public void displayItems(ArrayList<Item> items){
+        mCart = items;
         notifyDataSetChanged();
     }
 

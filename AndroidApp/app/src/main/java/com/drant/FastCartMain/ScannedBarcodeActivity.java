@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
@@ -18,7 +19,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.os.Vibrator;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -40,11 +40,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ScannedBarcodeActivity extends AppCompatActivity {
+public class ScannedBarcodeActivity extends AppCompatActivity implements FirebaseCallback {
     AlertDialog.Builder dialogBuilder;
     AlertDialog alertDialog;
     SurfaceView surfaceView;
@@ -62,8 +63,15 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
     private String product_id="PRODUCT_ID";
     private String product_image="PRODUCT_IMAGE";
 
+    ProgressDialog progressDialog;
+
     @BindView(R.id.welcomeMsg) TextView welcomeMsg;
     @BindView(R.id.txtBarcodeValue) TextView txtBarcodeValue;
+
+    @Override
+    public void displayItemsCallback(ArrayList<Item> items){}
+    @Override
+    public void itemValidationCallback(Boolean correctItem){}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,55 +105,59 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
 
     public void showAlertDialog(int layout) {
         //Builds and inflates the dialog into view
-        dialogBuilder = new AlertDialog.Builder(ScannedBarcodeActivity.this);
-        View layoutView = getLayoutInflater().inflate(layout, null);
+//        dialogBuilder = new AlertDialog.Builder(ScannedBarcodeActivity.this);
+//        View layoutView = getLayoutInflater().inflate(layout, null);
 
         //Binds
-        ImageView productImage = layoutView.findViewById(R.id.productImage);
-        TextView productLabel = layoutView.findViewById(R.id.productLabel);
-        TextView productDesc = layoutView.findViewById(R.id.productDesc);
-        Button productButton = layoutView.findViewById(R.id.productButton);
+//        ImageView productImage = layoutView.findViewById(R.id.productImage);
+//        TextView productLabel = layoutView.findViewById(R.id.productLabel);
+//        TextView productDesc = layoutView.findViewById(R.id.productDesc);
+//        Button productButton = layoutView.findViewById(R.id.productButton);
 
         //Set data
-        productLabel.setText(product_label);
-        productDesc.setText(product_desc);
-        new DownloadImageTask(productImage).execute(product_image);
+//        productLabel.setText(product_label);
+//        productDesc.setText(product_desc);
+//        new DownloadImageTask(productImage).execute(product_image);
 
-        dialogBuilder.setView(layoutView);
-        alertDialog = dialogBuilder.create();
-        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        scanTime = System.currentTimeMillis();
-        alertDialog.show();
-
-        //TODO: Make productButton cancel current addition to cart
-        productButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                alertDialog.dismiss();
-                Toast.makeText(getBaseContext(), "Removed Item From Cart", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        //Runnable to dismiss alert dialog
-        final Runnable closeDialog = new Runnable() {
-            @Override
-            public void run() {
-                if (alertDialog.isShowing()) {
-                    alertDialog.dismiss();
-                }
-            }
-        };
-
-        //Handler to execute ^runnable after delay, closes further thread callbacks
-        final Handler handler = new Handler();
-        alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialog) {
-                handler.removeCallbacks(closeDialog);
-                scanTime = System.currentTimeMillis()-2500;
-            }
-        });
-        handler.postDelayed(closeDialog, 2000);
+//        dialogBuilder.setView(layoutView);
+//        alertDialog = dialogBuilder.create();
+//        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//        scanTime = System.currentTimeMillis();
+//        alertDialog.show();
+//
+        //Vibrate on show
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(200);
+//
+//        //TODO: Make productButton cancel current addition to cart
+//        productButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                alertDialog.dismiss();
+//                Toast.makeText(getBaseContext(), "Removed Item From Cart", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+//
+//        //Runnable to dismiss alert dialog
+//        final Runnable closeDialog = new Runnable() {
+//            @Override
+//            public void run() {
+//                if (alertDialog.isShowing()) {
+//                    alertDialog.dismiss();
+//                }
+//            }
+//        };
+//
+//        //Handler to execute ^runnable after delay, closes further thread callbacks
+//        final Handler handler = new Handler();
+//        alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+//            @Override
+//            public void onDismiss(DialogInterface dialog) {
+//                handler.removeCallbacks(closeDialog);
+//                scanTime = System.currentTimeMillis()-2500;
+//            }
+//        });
+//        handler.postDelayed(closeDialog, 2000);
     }
 
 
@@ -213,34 +225,35 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
 
 
                             //Get Firestore Data
-                            DocumentReference docRef = db.collection("products").document(product_id);
-                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot document = task.getResult();
-                                        if (document.exists() && document.contains("name") && document.contains("price") && document.contains("img")) {
-                                            product_label=document.getData().get("name").toString();
-
-                                            DecimalFormat df2 = new DecimalFormat("#.00");
-                                            product_desc="$"+ df2.format(document.getData().get("price"));
-                                            product_image=document.getData().get("img").toString();
-
-                                            //Build and view
-                                            progressDialog.dismiss();
-                                            showAlertDialog(R.layout.product_dialog);
-                                        } else {
-                                            progressDialog.dismiss();
-                                            Toast.makeText(ScannedBarcodeActivity.this,"Product Issue",Toast.LENGTH_SHORT).show();
-                                            scanTime = System.currentTimeMillis()-1000;
-                                        }
-                                    } else {
-                                        progressDialog.dismiss();
-                                        Log.d("Firebase", "get failed with ", task.getException());
-                                        scanTime = System.currentTimeMillis()-1000;
-                                    }
-                                }
-                            });
+                            dbHandler.addItemToCart(ScannedBarcodeActivity.this, product_id);
+//                            DocumentReference docRef = db.collection("products").document(product_id);
+//                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                                    if (task.isSuccessful()) {
+//                                        DocumentSnapshot document = task.getResult();
+//                                        if (document.exists() && document.contains("name") && document.contains("price") && document.contains("img")) {
+//                                            product_label=document.getData().get("name").toString();
+//
+//                                            DecimalFormat df2 = new DecimalFormat("#.00");
+//                                            product_desc="$"+ df2.format(document.getData().get("price"));
+//                                            product_image=document.getData().get("img").toString();
+//
+//                                            //Build and view
+//                                            progressDialog.dismiss();
+//                                            showAlertDialog(R.layout.product_dialog);
+//                                        } else {
+//                                            progressDialog.dismiss();
+//                                            Toast.makeText(ScannedBarcodeActivity.this,"Product Issue",Toast.LENGTH_SHORT).show();
+//                                            scanTime = System.currentTimeMillis()-1000;
+//                                        }
+//                                    } else {
+//                                        progressDialog.dismiss();
+//                                        Log.d("Firebase", "get failed with ", task.getException());
+//                                        scanTime = System.currentTimeMillis()-1000;
+//                                    }
+//                                }
+//                            });
                         }
                     });
                 }
@@ -248,6 +261,26 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onItemCallback(Item item) {
+        Log.i("console", item.toString());
+        progressDialog.dismiss();
+        if (item == null) {
+            Toast.makeText(ScannedBarcodeActivity.this, "Product not registered in database", Toast.LENGTH_SHORT).show();
+            scanTime = System.currentTimeMillis() - 1000;
+        } else {
+            product_label = item.getName();
+
+            DecimalFormat df2 = new DecimalFormat("#.00");
+            product_desc = "$" + df2.format(item.getPrice());
+            product_image = item.getImageRef();
+            Log.i("console", "????");
+
+            // TODO: alertDialog to only disappear when item has been validated
+            //Build and view
+//            showAlertDialog(R.layout.product_dialog);
+        }
+    }
 
     @Override
     protected void onPause() {
@@ -272,5 +305,4 @@ public class ScannedBarcodeActivity extends AppCompatActivity {
         super.onDestroy();
         mAuth.signOut();
     }
-
 }

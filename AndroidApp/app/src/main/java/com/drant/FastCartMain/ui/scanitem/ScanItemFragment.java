@@ -29,9 +29,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.drant.FastCartMain.DownloadImageTask;
+import com.drant.FastCartMain.FirebaseCallback;
 import com.drant.FastCartMain.Item;
 import com.drant.FastCartMain.LoginActivity;
 import com.drant.FastCartMain.R;
+import com.drant.FastCartMain.ScannedBarcodeActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.vision.CameraSource;
@@ -45,8 +47,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 
-public class ScanItemFragment extends Fragment {
+public class ScanItemFragment extends Fragment implements FirebaseCallback {
     AlertDialog.Builder dialogBuilder;
     AlertDialog alertDialog;
     SurfaceView surfaceView;
@@ -63,6 +66,9 @@ public class ScanItemFragment extends Fragment {
     private String product_id="PRODUCT_ID";
     private String product_image="PRODUCT_IMAGE";
     private static final int REQUEST_CAMERA_PERMISSION = 201;
+
+    @Override
+    public void itemValidationCallback(Boolean correctItem){}
 
     View view;
     ViewGroup container;
@@ -256,41 +262,35 @@ public class ScanItemFragment extends Fragment {
 
 
                             //Get Firestore Data
-//                            dbHandler.addItemToCart(ScanItemFragment.this, product_id);
-                            DocumentReference docRef = db.collection("products").document(product_id);
-                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot document = task.getResult();
-                                        if (document.exists() && document.contains("name") && document.contains("price") && document.contains("img")) {
-                                            product_label=document.getData().get("name").toString();
-
-                                            DecimalFormat df2 = new DecimalFormat("#.00");
-                                            product_desc="$"+ df2.format(document.getData().get("price"));
-                                            product_image=document.getData().get("img").toString();
-
-                                            //Build and view
-                                            progressDialog.dismiss();
-                                            showAlertDialog(R.layout.product_dialog);
-                                        } else {
-                                            progressDialog.dismiss();
-                                            Toast.makeText(getActivity(),"Product Issue",Toast.LENGTH_SHORT).show();
-                                            scanTime = System.currentTimeMillis()-1000;
-                                        }
-                                    } else {
-                                        progressDialog.dismiss();
-                                        Log.d("Firebase", "get failed with ", task.getException());
-                                        scanTime = System.currentTimeMillis()-1000;
-                                    }
-                                }
-                            });
+                            dbHandler.addItemToCart(ScanItemFragment.this, product_id);
                         }
                     });
                 }
             }
         });
     }
+
+    @Override
+    public void onItemCallback(Item item) {
+        progressDialog.dismiss();
+        if (item == null) {
+            Toast.makeText(getContext(), "Product not registered in database", Toast.LENGTH_SHORT).show();
+            scanTime = System.currentTimeMillis() - 1000;
+        } else {
+            product_label = item.getName();
+
+            DecimalFormat df2 = new DecimalFormat("#.00");
+            product_desc = "$" + df2.format(item.getPrice());
+            product_image = item.getImageRef();
+
+            // TODO: alertDialog to only disappear when item has been validated
+            //Build and view
+            showAlertDialog(R.layout.product_dialog);
+        }
+    }
+
+    @Override
+    public void displayItemsCallback(ArrayList<Item> items){}
 //
 //    @Override
 //    public void onDestroy() {

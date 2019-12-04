@@ -30,6 +30,8 @@ public class DatabaseHandler {
     ListenerRegistration correctItemListener;
     WriteBatch batch;
 
+    Item currrentItem;
+
 //    private DocumentReference productDocRef;
 
     private DatabaseHandler(){
@@ -124,6 +126,7 @@ public class DatabaseHandler {
                         String imageRef = document.getString("img");
                         Item item = new Item(name, price, imageRef, productDocRef);
                         firebaseCallback.onItemCallback(item);
+                        currrentItem = item;
                         ArrayList<Item> newItemList = userObject.getItems();
                         newItemList.add(item);
                         userObject.setItems(newItemList);
@@ -151,6 +154,9 @@ public class DatabaseHandler {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) document.get("items");
+                        if (itemDocuments == null) {
+                            itemDocuments = new ArrayList<DocumentReference>();
+                        }
                         itemDocuments.add(itemToAdd);
                         startScanning(firebaseCallback, trolleyDocRef, itemDocuments);
                         userObject.setItemDocuments(itemDocuments);
@@ -279,15 +285,18 @@ public class DatabaseHandler {
     }
 
     // cancel add/remove item
-    void cancelOperation(final FirebaseCallback firebaseCallback, Item item, Boolean cancelAdd) {
+    public void cancelOperation(final FirebaseCallback firebaseCallback, Boolean cancelAdd) {
         correctItemListener.remove();
         DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
         resetTrolleyScanningStatus(trolleyDocRef);
         ArrayList<DocumentReference> newItemDocuments = userObject.getItemDocuments();
+        ArrayList<Item> newItems = userObject.getItems();
         if (cancelAdd) {
-            newItemDocuments.remove(item.getItemDocRef());
+            newItemDocuments.remove(currrentItem.getItemDocRef());
+            newItems.remove(currrentItem);
         } else {
-            newItemDocuments.add(item.getItemDocRef());
+            newItemDocuments.add(currrentItem.getItemDocRef());
+            newItems.add(currrentItem);
         }
         trolleyDocRef
                 .update("items", newItemDocuments)
@@ -303,6 +312,7 @@ public class DatabaseHandler {
                         Log.i("console", "Error updating scanning status.", e);
                     }
                 });
+        userObject.setItems(newItems);
         userObject.setItemDocuments(newItemDocuments);
     }
 

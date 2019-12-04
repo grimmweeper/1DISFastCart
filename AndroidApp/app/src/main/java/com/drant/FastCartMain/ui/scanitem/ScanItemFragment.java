@@ -68,7 +68,12 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
     private static final int REQUEST_CAMERA_PERMISSION = 201;
 
     @Override
-    public void itemValidationCallback(Boolean correctItem){}
+    public void itemValidationCallback(Boolean correctItem){
+        if (correctItem) {
+            alertDialog.dismiss();
+            Toast.makeText(getActivity(), "Added Item to Cart", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     View view;
     ViewGroup container;
@@ -102,35 +107,23 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
         scanTime = System.currentTimeMillis();
         alertDialog.show();
 
-        //TODO: Make productButton cancel current addition to cart
         productButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                dbHandler.cancelOperation(ScanItemFragment.this, true);
                 alertDialog.dismiss();
                 Toast.makeText(getActivity(), "Removed Item From Cart", Toast.LENGTH_SHORT).show();
             }
         });
-
-        //Runnable to dismiss alert dialog
-        final Runnable closeDialog = new Runnable() {
-            @Override
-            public void run() {
-                if (alertDialog.isShowing()) {
-                    alertDialog.dismiss();
-                }
-            }
-        };
 
         //Handler to execute ^runnable after delay, closes further thread callbacks
         final Handler handler = new Handler();
         alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                handler.removeCallbacks(closeDialog);
                 scanTime = System.currentTimeMillis()-2500;
             }
         });
-        handler.postDelayed(closeDialog, 2000);
     }
 
 
@@ -205,10 +198,10 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
 //            }
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
-                if (cameraSource != null) {
-                    cameraSource.release();
-                    cameraSource = null;
-                }
+//                if (cameraSource != null) {
+//                    cameraSource.release();
+//                    cameraSource = null;
+//                }
             }
         });
 

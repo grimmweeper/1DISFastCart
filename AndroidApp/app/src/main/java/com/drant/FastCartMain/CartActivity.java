@@ -35,7 +35,6 @@ public class CartActivity extends Fragment implements FirebaseCallback {
     private recyclerAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     TextView cartTotal;
-    Button buttonAdd;
     Button buttonCheckout;
 
     //start w empty cart to fill
@@ -60,7 +59,6 @@ public class CartActivity extends Fragment implements FirebaseCallback {
             Toast.makeText(getActivity(), "Item removed from cart", Toast.LENGTH_SHORT).show();
         }
     }
-
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -87,7 +85,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
                         int position = itemViewHolder.getAdapterPosition();
                         Item item = mAdapter.getItemAtPos(position);
                         dbHandler.removeItemFromCart(CartActivity.this, item);
-//                        mAdapter.removeItem(position);
+                        mAdapter.removeItem(position);
                         cartTotal.setText(getCartTotal(cart));
 
                         Toast.makeText(getActivity(), "Item removed from cart", Toast.LENGTH_SHORT).show();

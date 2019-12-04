@@ -69,7 +69,6 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.Exampl
     }
 
     public void removeItem(int position){
-        mCart.remove(position);
         notifyDataSetChanged();
     }
 

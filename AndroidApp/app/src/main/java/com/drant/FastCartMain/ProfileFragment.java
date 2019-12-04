@@ -12,6 +12,9 @@ import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import static com.drant.FastCartMain.FirebaseCallback.dbHandler;
+import static com.drant.FastCartMain.MainActivity.userObject;
+
 public class ProfileFragment extends Fragment {
     Button logout;
     private FirebaseAuth firebaseAuth;
@@ -37,6 +40,7 @@ public class ProfileFragment extends Fragment {
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                userObject = new User();
                 firebaseAuth.signOut();
                 getActivity().finish();
                 startActivity(new Intent(getActivity(), LoginActivity.class));

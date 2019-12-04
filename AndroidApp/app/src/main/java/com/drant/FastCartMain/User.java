@@ -1,14 +1,17 @@
 package com.drant.FastCartMain;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.google.firebase.firestore.DocumentReference;
 
+import java.io.InputStream;
 import java.lang.annotation.Documented;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-public class User {
+public class User implements UpdateUserCallback {
     private String userId;
     private DocumentReference userDocRef;
     private String trolleyId;
@@ -36,6 +39,7 @@ public class User {
         this.setUserDoc();
         // TODO: Hardcoded - REMOVE
         this.setTrolleyId("gjDLnPSnMAul7MR8dBaI");
+        dbHandler.getItemsInFirebaseTrolley(User.this);
 
         Log.i("console", this.trolleyId);
     }
@@ -70,6 +74,7 @@ public class User {
     }
 
     void setItems(ArrayList<Item> items) {
+        //dbHandler.getItemsInFirebaseTrolley(User.this);
         this.items = items;
     }
 
@@ -114,5 +119,11 @@ public class User {
             total = total.add(i.getPrice());
         }
         return total;
+    }
+
+    @Override
+    public void updateLocalItems(ArrayList<Item> itemList){//ArrayList<Item> Items, ArrayList<DocumentReference> ItemDocs) {
+        Log.i("console", "update local items");
+        this.setItems(itemList);
     }
 }

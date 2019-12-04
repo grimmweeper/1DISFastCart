@@ -7,10 +7,20 @@
     tools:context=".CartActivity"
     android:layout_above="@+id/navigation">
 
+    <TextView
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your Cart"
+        android:paddingLeft="8dp"
+        android:textSize="36sp"
+        android:textStyle="bold"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@id/header"
         android:padding="4dp"
         android:scrollbars="vertical"
         android:layout_marginBottom="80dp"/>
@@ -20,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginRight="0dp"
-        android:textSize="36sp"
+        android:textSize="34sp"
         android:layout_above="@id/checkoutbtn"
         android:text="Cart Total"
         android:textStyle="bold"/>

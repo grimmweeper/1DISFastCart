@@ -92,6 +92,20 @@ public class CartActivity extends Fragment implements FirebaseCallback {
 
         cartTotal = view.findViewById(R.id.cartTotal);
 
+        buttonCheckout = (Button) view.findViewById(R.id.checkoutbtn);
+        buttonCheckout.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                AlertDialog alertCheckout = new AlertDialog.Builder(getActivity()).create();
+                alertCheckout.setTitle("Checkout Success");
+                alertCheckout.setMessage("Thank you for shopping with us.");
+                alertCheckout.show();
+
+                mAdapter.clearCart();
+                cartTotal.setText(getCartTotal(cart));
+            }
+        });
+
         return view;
     }
 

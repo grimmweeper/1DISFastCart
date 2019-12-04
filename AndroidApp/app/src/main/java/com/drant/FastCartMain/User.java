@@ -2,6 +2,7 @@ package com.drant.FastCartMain;
 
 import android.util.Log;
 
+import com.drant.FastCartMain.ui.purchasehistory.HistorySession;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.lang.annotation.Documented;
@@ -15,6 +16,9 @@ public class User {
     private DocumentReference trolleyDocRef;
     private ArrayList<Item> items = new ArrayList<Item>();
     private ArrayList<DocumentReference> itemDocuments = new ArrayList<DocumentReference>();
+
+    //huiqing: Instantiating arraylist of history sessions (have not call setter and getter yet)
+    private ArrayList<HistorySession> historysessions = new ArrayList<>();
 
     private static User user = new User();
 //    private User user;

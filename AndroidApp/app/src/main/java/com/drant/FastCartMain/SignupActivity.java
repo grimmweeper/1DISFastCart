@@ -151,6 +151,7 @@ public class SignupActivity extends AppCompatActivity {
                                 });
 
                         Log.d(TAG, "createUserWithEmail:success");
+
                         Intent intent = new Intent(SignupActivity.this,MainActivity.class);
                         startActivity(intent);
                         overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);

@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.drant.FastCartMain.ui.scanitem.ScanItemFragment;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
@@ -28,7 +30,6 @@ public class CartActivity extends Fragment implements FirebaseCallback {
     private recyclerAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     TextView cartTotal;
-    Button buttonAdd;
     Button buttonCheckout;
 
     //start w empty cart to fill
@@ -48,9 +49,11 @@ public class CartActivity extends Fragment implements FirebaseCallback {
 
     @Override
     public void itemValidationCallback(Boolean validItem){
-        Log.i("console", "valid callback");
+//        Log.i("console", "valid callback");
+        if (validItem) {
+            Toast.makeText(getActivity(), "Item removed from cart", Toast.LENGTH_SHORT).show();
+        }
     }
-
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -75,8 +78,10 @@ public class CartActivity extends Fragment implements FirebaseCallback {
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
                         recyclerAdapter.ExampleViewHolder itemViewHolder = (recyclerAdapter.ExampleViewHolder) viewHolder;
                         int position = itemViewHolder.getAdapterPosition();
-                        mAdapter.removeItem(position);
+                        Item item = mAdapter.getItemAtPos(position);
+                        dbHandler.removeItemFromCart(CartActivity.this, item);
                         cartTotal.setText(getCartTotal(cart));
+                        mAdapter.notifyDataSetChanged();
 
                         Toast.makeText(getActivity(), "Item removed from cart", Toast.LENGTH_SHORT).show();
                     }
@@ -117,7 +122,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
     @Override
     public void onResume(){
         super.onResume();
-        dbHandler.getItemsInTrolley(this);
+        dbHandler.getItemsInLocalTrolley(this);
     }
 }
 

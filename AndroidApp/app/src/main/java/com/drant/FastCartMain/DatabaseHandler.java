@@ -28,10 +28,12 @@ public class DatabaseHandler {
     private static DatabaseHandler instance = null;
     private FirebaseFirestore db;
     ListenerRegistration correctItemListener;
+    ListenerRegistration itemsChangeListener;
     WriteBatch batch;
 
     Item currentItem;
     ArrayList<Item> itemList;
+//    Boolean updating = false;
 
 //    private DocumentReference productDocRef;
 
@@ -229,6 +231,9 @@ public class DatabaseHandler {
 
     // update firebase to start rpi weight-checking
     private void startScanning(FirebaseCallback firebaseCallback, DocumentReference trolleyDocRef, ArrayList<DocumentReference> itemDocuments) {
+        if (itemDocuments.isEmpty()) {
+            itemDocuments = null;
+        }
         // create write batch to update firebase accordingly
         batch = db.batch();
         batch.update(trolleyDocRef, "items", itemDocuments);
@@ -349,34 +354,36 @@ public class DatabaseHandler {
 
     /* Getters to get firebase data at the start */
 
-    void getItemsInFirebaseTrolley(UpdateUserCallback updateUserCallback) {
-        // get trolley document reference from userObject
-        DocumentReference trolleyDocRef = User.getInstance().getTrolleyDoc();
-        // update firebase accordingly
-        trolleyDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) document.get("items");
-                        userObject.setItemDocuments(itemDocuments);
-                        itemList = new ArrayList<Item>();
-                        for (DocumentReference itemDocRef : itemDocuments) {
-                            getSingleFirebaseItem(itemDocRef);
-                        }
-                        updateUserCallback.updateLocalItems(itemList);
-                    } else {
-                        Log.d(TAG, "No such document");
-                        updateUserCallback.updateLocalItems(null);
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                    updateUserCallback.updateLocalItems(null);
-                }
-            }
-        });
-    }
+//    void getItemsInFirebaseTrolley(UpdateUserCallback updateUserCallback) {
+//        // get trolley document reference from userObject
+//        DocumentReference trolleyDocRef = User.getInstance().getTrolleyDoc();
+//        // update firebase accordingly
+//        trolleyDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+//                if (task.isSuccessful()) {
+//                    DocumentSnapshot document = task.getResult();
+//                    if (document.exists()) {
+//                        ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) document.get("items");
+//                        userObject.setItemDocuments(itemDocuments);
+//                        itemList = new ArrayList<Item>();
+//                        if (itemDocuments != null) {
+//                            for (DocumentReference itemDocRef : itemDocuments) {
+//                                getSingleFirebaseItem(itemDocRef);
+//                            }
+//                        }
+//                        updateUserCallback.updateLocalItems(itemList);
+//                    } else {
+//                        Log.d(TAG, "No such document");
+//                        updateUserCallback.updateLocalItems(null);
+//                    }
+//                } else {
+//                    Log.d(TAG, "get failed with ", task.getException());
+//                    updateUserCallback.updateLocalItems(null);
+//                }
+//            }
+//        });
+//    }
 
     void getSingleFirebaseItem (DocumentReference itemDocRef) {
         itemDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -402,31 +409,34 @@ public class DatabaseHandler {
 
     /* Listeners to sync local updates wirh firebase*/
 
-    void listenForItems(FirebaseCallback firebaseCallback) {
+    void listenForItemChanges(UpdateUserCallback updateUserCallback) {
         DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
         // attach listener to listen for change in correct_item field
-        correctItemListener = trolleyDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        itemsChangeListener = trolleyDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot snapshot,
                                 @Nullable FirebaseFirestoreException e) {
                 if (e != null) {
-                    firebaseCallback.itemValidationCallback(null);
-//                    Log.i("console", "Listen failed.", e);
+                    Log.i("console", "Listen failed.", e);
                     return;
                 }
                 if (snapshot != null && snapshot.exists()) {
-//                    Log.i("console", "Current data: " + snapshot.getData());
-                    Boolean itemValidationStatus = snapshot.getBoolean("correct_item");
-                    firebaseCallback.itemValidationCallback(itemValidationStatus);
-                    if (itemValidationStatus) {
-                        // detach listener
-                        correctItemListener.remove();
-                        // reset fields to idle state
-                        resetTrolleyScanningStatus(trolleyDocRef);
+                    if (batch == null) {
+                        Log.i("console", "Change made");
+                        ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) snapshot.get("items");
+                        userObject.setItemDocuments(itemDocuments);
+                        itemList = new ArrayList<Item>();
+                        if (itemDocuments != null) {
+                            for (DocumentReference itemDocRef : itemDocuments) {
+                                getSingleFirebaseItem(itemDocRef);
+                            }
+                        }
+                        updateUserCallback.updateLocalItems(itemList);
+                    } else {
+                        batch = null;
                     }
                 } else {
-//                    Log.i("console", "Current data: null");
-                    firebaseCallback.itemValidationCallback(null);
+                    Log.i("console", "Current data: null");
                 }
             }
         });

@@ -38,8 +38,8 @@ public class User implements UpdateUserCallback {
         this.userId = userId;
         this.setUserDoc();
         // TODO: Hardcoded - REMOVE
-        this.setTrolleyId("gjDLnPSnMAul7MR8dBaI");
-        dbHandler.getItemsInFirebaseTrolley(User.this);
+        this.setTrolleyId("ZZafaKzVTvmlreT99wBL");
+        dbHandler.listenForItemChanges(User.this);
 
         Log.i("console", this.trolleyId);
     }
@@ -90,27 +90,6 @@ public class User implements UpdateUserCallback {
         return this.itemDocuments;
     }
 
-//    User(String userId){
-//        this.setUserId(userId);
-//    }
-
-//    User(String user_id, String trolley_id){
-//        this.setUser_id(user_id);
-//        this.setTrolley_id(trolley_id);
-//        this.items = getItemsFromDB();
-//    }
-//
-//    User(String user_id, String trolley_id, ArrayList<Item> items){
-//        this.setUser_id(user_id);
-//        this.setTrolley_id(trolley_id);
-//        this.setItems(items);
-//    }
-
-//    ArrayList getItemsFromDB(){
-//        ArrayList itemsList = new ArrayList<Item>();
-//        return this.itemsList;
-//    }
-
     public BigDecimal getCartTotal(){
         BigDecimal total = new BigDecimal("0.00");
 
@@ -124,6 +103,7 @@ public class User implements UpdateUserCallback {
     @Override
     public void updateLocalItems(ArrayList<Item> itemList){//ArrayList<Item> Items, ArrayList<DocumentReference> ItemDocs) {
         Log.i("console", "update local items");
+        Log.i("console", itemList.toString());
         this.setItems(itemList);
     }
 }

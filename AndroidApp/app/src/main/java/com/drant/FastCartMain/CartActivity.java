@@ -1,15 +1,11 @@
 package com.drant.FastCartMain;
 
-import android.app.ListActivity;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class CartActivity extends Fragment implements FirebaseCallback {
 
@@ -97,6 +92,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
             @Override
             public void onClick(View view){
                 AlertDialog alertCheckout = new AlertDialog.Builder(getActivity()).create();
+                alertCheckout.setIcon(R.drawable.greentick);
                 alertCheckout.setTitle("Checkout Success");
                 alertCheckout.setMessage("Thank you for shopping with us.");
                 alertCheckout.show();

@@ -5,8 +5,9 @@
   <color name="primary_darker">#CC1D1D</color> -->
   <color name="primary">#ff5794</color>
   <color name="primary_dark">#E12929</color>
-  <color name="primary_darker">#1dd6d6</color>
-  <color name="accent">#00726f</color>
+  <color name="primary_darker">#6f121e</color>
+  <color name="accent">#FFFFFF</color>
+  <color name = "lightpink">#dda7bb</color>
 
   <color name="black">#000000</color>
   <color name="jet">#222222</color>

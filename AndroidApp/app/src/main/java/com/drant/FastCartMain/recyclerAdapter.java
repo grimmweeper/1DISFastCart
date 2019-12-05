@@ -87,6 +87,8 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.Exampl
         return "Cart Total: $" + sum.toString();
     }
 
+
+
     public void addItem(Item item){
         mCart.add(item);
         notifyDataSetChanged();

@@ -30,7 +30,6 @@
         <item name="android:textColorHint">@color/iron</item>
 
         <item name="colorButtonNormal">@color/primary_darker</item>
-        <item name="colorButtonNormal">@color/primary_darker</item>
     </style>
 
     <style name="AppTheme.Dark.Dialog" parent="Theme.AppCompat.Dialog">

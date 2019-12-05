@@ -150,9 +150,9 @@ public class CartActivity extends Fragment implements FirebaseCallback {
                 alertCheckout.setMessage("Thank you for shopping with us.");
                 alertCheckout.show();
 
-                mAdapter.clearCart();
-                cartTotal.setText(getCartTotal(cart));
-                dbHandler.checkOut();
+//                mAdapter.clearCart();
+//                cartTotal.setText(getCartTotal(cart));
+//                dbHandler.checkOut();
             }
         });
 

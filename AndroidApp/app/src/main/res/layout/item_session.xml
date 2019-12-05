@@ -6,7 +6,7 @@
     android:layout_margin="8dp"
     android:orientation="vertical"
     app:cardCornerRadius="2dp"
-    app:cardElevation="6dp">
+    app:cardElevation="0dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:padding="1dp"
             android:textAllCaps="true"
-            android:textColor="#000000"
+            android:textColor="@color/darkcherry"
             android:textSize="25sp"
             android:textStyle="bold" />
 
@@ -30,7 +30,7 @@
             android:layout_below="@id/txtDate"
             android:fontFamily="@font/fredoka_one"
             android:padding="1dp"
-            android:textColor="#A7A6A6"
+            android:textColor="@color/darkpink"
             android:textSize="18sp" />
 
 
@@ -39,7 +39,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/txtLocation"
-            android:layout_marginLeft="10dp"
             android:layout_marginBottom="15dp"
             android:orientation="vertical" />
 
@@ -50,9 +49,10 @@
             android:fontFamily="@font/fredoka_one"
             android:layout_below="@id/verticalRecycler"
             android:padding="1dp"
+            android:layout_marginTop="10dp"
             android:textSize="25sp"
             android:textStyle="bold"
-            android:textColor="#DA2929"
+            android:textColor="@color/darkpink"
             android:gravity="right"/>
 
         <View
@@ -61,10 +61,8 @@
             android:layout_height="1dp"
             android:layout_below="@+id/verticalRecycler"
             android:layout_marginBottom="5dp"
-            android:background="#31C7C7CC" />
+            android:background="@color/darkpink" />
 
 
     </RelativeLayout>
-
-
 </androidx.cardview.widget.CardView>

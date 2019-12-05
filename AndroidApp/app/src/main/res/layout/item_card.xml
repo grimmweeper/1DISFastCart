@@ -5,9 +5,9 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     android:orientation="vertical"
-    app:cardCornerRadius="2dp"
-    app:cardElevation="6dp"
-    app:cardBackgroundColor="@color/greypink">
+    app:cardCornerRadius="5dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/white">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -21,7 +21,7 @@
             android:layout_toRightOf="@+id/imgSrc"
             android:padding="5dp"
             android:textAllCaps="true"
-            android:textColor="#000000"
+            android:textColor="@color/darkcherry"
             android:textSize="20sp"
             android:textStyle="bold|italic" />
 
@@ -33,6 +33,7 @@
             android:layout_below="@id/txtName"
             android:layout_toRightOf="@+id/imgSrc"
             android:gravity="bottom|right"
+            android:textColor="@color/darkcherry"
             android:padding="7dp"
             android:textSize="20sp"
             android:textStyle="bold" />

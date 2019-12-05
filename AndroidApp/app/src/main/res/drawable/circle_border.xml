@@ -3,8 +3,8 @@
     android:shape="oval">
 
     <stroke
-        android:width="2dp"
-        android:color="@color/circleBorder" />
+        android:width="3dp"
+        android:color="@color/darkcherry" />
 
 
 

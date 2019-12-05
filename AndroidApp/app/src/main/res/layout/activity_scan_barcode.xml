@@ -23,6 +23,15 @@
         android:textColor="@color/grey1"
         android:textSize="40sp"
         android:textStyle="bold" />
+    <TextView
+        android:id="@+id/instructions"
+        android:fontFamily="@font/fredoka_one"
+        android:textColor="@color/grey2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:text="-"
+        android:textSize="20sp"/>
 
     <RelativeLayout
         android:layout_width="match_parent"

@@ -84,6 +84,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
         super.onResume();
         surfaceView=view.findViewById(R.id.surfaceView);
         TextView welcomeMsg= view.findViewById(R.id.welcomeMsg);
+        TextView instructions = view.findViewById(R.id.instructions);
         TextView txtBarcodeValue=view.findViewById(R.id.txtBarcodeValue);
         scanTime = System.currentTimeMillis();
 
@@ -213,6 +214,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                     if (snapshot.getData().get("trolley") == null) {
                         Log.d("Firestore", "No Trolley Detected");
                         welcomeMsg.setText("Scanning for Trolley QR");
+                        instructions.setText("Scan QR code to unlock Trolley");
 
                         cameraSource = new CameraSource.Builder(getActivity(), qrDetector)
                                 .setRequestedPreviewSize(1920, 1080)
@@ -223,7 +225,8 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                     //If a trolley exists, initiate barcode scanner
                     else {
                         Log.d("Firestore", "Trolley " + snapshot.getData().get("trolley"));
-                        welcomeMsg.setText("Scanning for Item Barcodes");
+                        welcomeMsg.setText("Scanning for Item");
+                        instructions.setText("Scan Item Barcode within square to add item");
 
                         cameraSource = new CameraSource.Builder(getActivity(), barcodeDetector)
                                 .setRequestedPreviewSize(1920, 1080)

@@ -55,6 +55,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
     AlertDialog.Builder dialogBuilder;
     AlertDialog alertDialog;
     SurfaceView surfaceView;
+    private Boolean scanStatus;
     private Long scanTime;
 
     private CameraSource cameraSource;
@@ -82,10 +83,11 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
     @Override
     public void onResume() {
         super.onResume();
+        scanStatus=true;
+        scanTime = System.currentTimeMillis();
         surfaceView=view.findViewById(R.id.surfaceView);
         TextView welcomeMsg= view.findViewById(R.id.welcomeMsg);
         TextView txtBarcodeValue=view.findViewById(R.id.txtBarcodeValue);
-        scanTime = System.currentTimeMillis();
 
         // Initialize Firebase + Firestore
         mAuth = FirebaseAuth.getInstance();
@@ -93,10 +95,8 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
 
         //Profile Filling
         String uid = mAuth.getCurrentUser().getUid();
-        welcomeMsg.setText(uid);
 
         //Definitions for barcode and qr scanners
-
         BarcodeDetector qrDetector = new BarcodeDetector.Builder(getActivity())
                 .setBarcodeFormats(256)//QR_CODE)
                 .build();
@@ -108,14 +108,14 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                if (barcodes.size() != 0 && System.currentTimeMillis()>scanTime+2500) {
+                if (barcodes.size() != 0 && scanStatus && System.currentTimeMillis()>scanTime+2500) {
                     txtBarcodeValue.post(new Runnable() {
                         @Override
                         public void run() {
                             cart_id = barcodes.valueAt(0).displayValue;
 
                             //Throttle
-                            scanTime = System.currentTimeMillis();
+                            scanStatus = false;
 
                             //Vibrate
                             Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
@@ -138,6 +138,8 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                                             progressDialog.dismiss();
                                             Toast.makeText(getActivity(),"Trolley Added",Toast.LENGTH_SHORT).show();
                                             //TODO check for cart id before putting
+                                            scanStatus=true;
+                                            scanTime = System.currentTimeMillis() - 1000;
                                         }
                                     })
                                     .addOnFailureListener(new OnFailureListener() {
@@ -146,6 +148,8 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                                             progressDialog.dismiss();
                                             Log.w("Firestore", "Error adding document", e);
                                             Toast.makeText(getActivity(),"Trolley Issue",Toast.LENGTH_SHORT).show();
+                                            scanStatus=true;
+                                            scanTime = System.currentTimeMillis() - 1000;
                                         }
                                     });
                         }
@@ -165,13 +169,13 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                if (barcodes.size() != 0 && System.currentTimeMillis()>scanTime+2500) {
+                if (barcodes.size() != 0 && scanStatus && System.currentTimeMillis()>scanTime+2500) {
                     txtBarcodeValue.post(new Runnable() {
                         @Override
                         public void run() {
                             product_id = barcodes.valueAt(0).displayValue;
                             //Throttle
-                            scanTime = System.currentTimeMillis();
+                            scanStatus = false;
 
                             //Vibrate
                             Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
@@ -257,6 +261,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
         progressDialog.dismiss();
         if (item == null) {
             Toast.makeText(getContext(), "Product not registered in database", Toast.LENGTH_SHORT).show();
+            scanStatus = true;
             scanTime = System.currentTimeMillis() - 1000;
         } else {
             product_label = item.getName();
@@ -309,38 +314,26 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
         dialogBuilder.setView(layoutView);
         alertDialog = dialogBuilder.create();
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        scanTime = System.currentTimeMillis();
+        alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();
 
         //TODO: Make productButton cancel current addition to cart
         productButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                dbHandler.cancelOperation(ScanItemFragment.this, true);
                 alertDialog.dismiss();
                 Toast.makeText(getActivity(), "Removed Item From Cart", Toast.LENGTH_SHORT).show();
             }
         });
 
-        //Runnable to dismiss alert dialog
-        final Runnable closeDialog = new Runnable() {
-            @Override
-            public void run() {
-                if (alertDialog.isShowing()) {
-                    alertDialog.dismiss();
-                }
-            }
-        };
-
-        //Handler to execute ^runnable after delay, closes further thread callbacks
-        final Handler handler = new Handler();
         alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                handler.removeCallbacks(closeDialog);
-                scanTime = System.currentTimeMillis()-2500;
+                scanStatus = true;
+                scanTime = System.currentTimeMillis() - 1000;
             }
         });
-        handler.postDelayed(closeDialog, 2000);
     }
 
 

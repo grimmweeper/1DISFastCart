@@ -17,8 +17,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.drant.FastCartMain.ui.scanitem.ScanItemFragment;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
@@ -54,6 +52,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
             Toast.makeText(getActivity(), "Item removed from cart", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

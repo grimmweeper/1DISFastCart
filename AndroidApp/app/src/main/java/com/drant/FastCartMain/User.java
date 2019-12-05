@@ -36,10 +36,6 @@ public class User implements UpdateUserCallback {
 
     void setUserId(String userId) {
         this.userId = userId;
-        this.setUserDoc();
-        // TODO: Hardcoded - REMOVE
-//        this.setTrolleyId("ZZafaKzVTvmlreT99wBL");
-        this.setTrolleyId("luoqitrolley");
         Log.i("console", this.trolleyId);
     }
 
@@ -55,7 +51,7 @@ public class User implements UpdateUserCallback {
         return this.userDocRef;
     }
 
-    void setTrolleyId(String trolleyId) {
+    public void setTrolleyId(String trolleyId) {
         this.trolleyId = trolleyId;
         this.setTrolleyDoc();
     }

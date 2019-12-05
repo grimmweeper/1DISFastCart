@@ -33,8 +33,7 @@ import com.drant.FastCartMain.Item;
 import com.drant.FastCartMain.R;
 import com.drant.FastCartMain.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
@@ -47,13 +46,10 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
+import static com.drant.FastCartMain.NavActivity.userObject;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.ArrayList;
-
-import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class ScanItemFragment extends Fragment implements FirebaseCallback {
     AlertDialog.Builder dialogBuilder;
@@ -142,6 +138,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                                                 progressDialog.dismiss();
                                                 Toast.makeText(getActivity(),"Trolley Added",Toast.LENGTH_SHORT).show();
                                                 dbHandler.linkTrolleyAndUser(uid,cart_id);
+                                                userObject.setTrolleyId(cart_id);
                                                 scanStatus=true;
                                                 scanTime = System.currentTimeMillis() - 1000;
                                             } else {

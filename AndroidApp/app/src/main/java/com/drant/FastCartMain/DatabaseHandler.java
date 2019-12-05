@@ -96,7 +96,6 @@ public class DatabaseHandler {
         // get document references based on user id and trolley id
         DocumentReference trolleyDocRef = this.db.collection("trolleys").document(trolleyId);
         DocumentReference userDocRef = this.db.collection("users").document(userId);
-
         // call functions to link user and trolley
         linkingFunction(userDocRef, trolleyDocRef, "trolley");
         linkingFunction(trolleyDocRef, userDocRef, "user");

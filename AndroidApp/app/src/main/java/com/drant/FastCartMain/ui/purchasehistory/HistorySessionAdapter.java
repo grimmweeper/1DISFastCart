@@ -82,7 +82,7 @@ public class HistorySessionAdapter extends RecyclerView.Adapter<HistorySessionAd
         void setDetails(HistorySession historySession) {
             txtLocation.setText(historySession.getLocation());
             txtDate.setText(historySession.getDate());
-            txtTotalPrice.setText(String.format(Locale.US, "Total: -$%s", historySession.getTotalprice()));
+            txtTotalPrice.setText(String.format(Locale.US, "Total: $%s", historySession.getTotalprice()));
 
 
         }

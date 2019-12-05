@@ -20,11 +20,12 @@ public class NavActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     static User userObject;
 
-    final Fragment fragment1 = new ProfileFragment();
+    final Fragment fragment1 = new CartActivity();
     final Fragment fragment2 = new ScanItemFragment();
-    final Fragment fragment3 = new CartActivity();
+    final Fragment fragment3 = new ProfileFragment();
+
     final FragmentManager fm = getSupportFragmentManager();
-    Fragment active = fragment3;
+    Fragment active = fragment1;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -38,9 +39,9 @@ public class NavActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        fm.beginTransaction().add(R.id.main_container, fragment1, "1").hide(fragment1).commit();
+        fm.beginTransaction().add(R.id.main_container, fragment1, "1").commit();
         fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
-        fm.beginTransaction().add(R.id.main_container,fragment3, "3").commit();
+        fm.beginTransaction().add(R.id.main_container, fragment3, "3").hide(fragment3).commit();
 
     }
 
@@ -64,7 +65,7 @@ public class NavActivity extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.navigation_profile:
+                case R.id.navigation_checkout:
                     fm.beginTransaction().hide(active).detach(active).attach(fragment1).show(fragment1).commit();
                     active = fragment1;
                     fragment2.onPause();
@@ -76,7 +77,7 @@ public class NavActivity extends AppCompatActivity {
                     fragment2.onResume();
                     return true;
 
-                case R.id.navigation_checkout:
+                case R.id.navigation_profile:
                     fm.beginTransaction().hide(active).detach(active).attach(fragment3).show(fragment3).commit();
                     active = fragment3;
                     fragment2.onPause();

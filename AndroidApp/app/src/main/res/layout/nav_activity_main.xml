@@ -6,7 +6,8 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".NavActivity">
+    tools:context=".NavActivity"
+    app:startDestination="@id/navigation_checkout">
 
     <!-- Appbar -->
     <com.google.android.material.appbar.AppBarLayout

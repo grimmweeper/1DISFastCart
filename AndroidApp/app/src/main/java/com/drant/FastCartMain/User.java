@@ -36,7 +36,6 @@ public class User implements UpdateUserCallback {
 
     void setUserId(String userId) {
         this.userId = userId;
-        Log.i("console", this.trolleyId);
     }
 
     String getUserId() {
@@ -52,6 +51,7 @@ public class User implements UpdateUserCallback {
     }
 
     public void setTrolleyId(String trolleyId) {
+        Log.i("Firestore", "Trolley Id: " + trolleyId);
         this.trolleyId = trolleyId;
         this.setTrolleyDoc();
     }
@@ -99,7 +99,6 @@ public class User implements UpdateUserCallback {
 
     @Override
     public void updateLocalItems(ArrayList<Item> itemList){//ArrayList<Item> Items, ArrayList<DocumentReference> ItemDocs) {
-        Log.i("console", "update local items");
         Log.i("console", itemList.toString());
         this.setItems(itemList);
     }

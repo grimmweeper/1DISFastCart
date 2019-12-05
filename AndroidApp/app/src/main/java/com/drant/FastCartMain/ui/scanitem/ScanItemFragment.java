@@ -231,11 +231,27 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                                 .build();
                     }
 
-                    //If a trolley exists, initiate barcode scanner
+                    //If a trolley exists, initiate barcode scanner and set trolley id
                     else {
-                        Log.d("Firestore", "Trolley " + snapshot.getData().get("trolley"));
+                        Log.d("Firestore", "Trolley " + snapshot.get("trolley"));
                         welcomeMsg.setText("Scanning for Item");
                         instructions.setText("Scan Item Barcode within square to add item");
+                        DocumentReference trolleyRef = (DocumentReference) snapshot.get("trolley");
+                        trolleyRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if (task.getResult().exists()) {
+                                        userObject.setTrolleyId(task.getResult().getId());
+                                        Log.d("Firestore", ""+ task.getResult().getId());
+                                    } else {
+                                        Log.d("Firestore", "No such document");
+                                    }
+                                } else {
+                                    Log.d("Firestore", "get failed with ", task.getException());
+                                }
+                            }
+                        });
 
                         cameraSource = new CameraSource.Builder(getActivity(), barcodeDetector)
                                 .setRequestedPreviewSize(1920, 1080)

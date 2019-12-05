@@ -29,9 +29,9 @@
         </activity>
         <activity android:name="com.drant.FastCartMain.LoginActivity" android:theme="@style/AppTheme.Dark" />
         <activity android:name="com.drant.FastCartMain.SignupActivity" android:theme="@style/AppTheme.Dark" />
-        <activity android:name="com.drant.FastCartMain.ScannedBarcodeActivity" android:theme="@style/AppTheme.Dark" />
         <activity android:name="com.drant.FastCartMain.CartActivity" android:theme="@style/AppTheme.Dark"/>
         <activity android:name="com.drant.FastCartMain.NavActivity" android:theme="@style/AppTheme.Dark"/>
+        <activity android:name="com.drant.FastCartMain.ui.purchasehistory.HistorySessionActivity" android:theme="@style/AppTheme.Dark"/>
 
 
         <meta-data

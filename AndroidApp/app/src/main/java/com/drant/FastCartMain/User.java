@@ -37,7 +37,7 @@ public class User implements UpdateUserCallback {
         this.setUserDoc();
         // TODO: Hardcoded - REMOVE
 //        this.setTrolleyId("ZZafaKzVTvmlreT99wBL");
-        this.setTrolleyId("ZZafaKzVTvmlreT99wBL");
+        this.setTrolleyId("luoqitrolley");
         Log.i("console", this.trolleyId);
     }
 

@@ -70,7 +70,9 @@ public class CartActivity extends Fragment implements FirebaseCallback {
 
         if(illopStatus) {
 //            alertIllop = new AlertDialog.Builder(getActivity()).create();
-            alertIllop.setTitle("Please return to the cart's previous state");
+            alertIllop.setIcon(R.drawable.warning);
+            alertIllop.setTitle("Warning");
+            alertIllop.setMessage("Please return to the cart's previous state");
             //alertIllop.setMessage("Thank you for shopping with us.");
             alertIllop.show();
             alertIllop.setCancelable(false);

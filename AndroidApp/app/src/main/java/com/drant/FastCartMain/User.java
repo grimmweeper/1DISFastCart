@@ -53,7 +53,7 @@ public class User implements UpdateUserCallback {
         return this.userDocRef;
     }
 
-    void setTrolleyId(String trolleyId) {
+    public void setTrolleyId(String trolleyId) {
         this.trolleyId = trolleyId;
         this.setTrolleyDoc();
     }

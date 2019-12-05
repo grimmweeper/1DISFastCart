@@ -108,6 +108,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
 
                 mAdapter.clearCart();
                 cartTotal.setText(getCartTotal(cart));
+                dbHandler.checkOut();
             }
         });
 
@@ -121,6 +122,18 @@ public class CartActivity extends Fragment implements FirebaseCallback {
         }
 
         return "Cart Total: $" + sum.toString();
+    }
+
+    @Override
+    public void onAttach(Context context){
+        super.onAttach(getContext());
+        dbHandler.getItemsInLocalTrolley(this);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        dbHandler.getItemsInLocalTrolley(this);
     }
 
     @Override

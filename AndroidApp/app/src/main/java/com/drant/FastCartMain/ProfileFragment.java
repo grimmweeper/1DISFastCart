@@ -10,13 +10,14 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.drant.FastCartMain.ui.purchasehistory.HistorySessionActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
-import static com.drant.FastCartMain.FirebaseCallback.dbHandler;
-import static com.drant.FastCartMain.MainActivity.userObject;
+import static com.drant.FastCartMain.NavActivity.userObject;
 
 public class ProfileFragment extends Fragment {
     Button logout;
+    Button purchasehistory;
     private FirebaseAuth firebaseAuth;
 
     public ProfileFragment() {
@@ -44,6 +45,15 @@ public class ProfileFragment extends Fragment {
                 firebaseAuth.signOut();
                 getActivity().finish();
                 startActivity(new Intent(getActivity(), LoginActivity.class));
+            }
+        });
+
+        purchasehistory = (Button) view.findViewById(R.id.purchasehistory);
+        purchasehistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), HistorySessionActivity.class);
+                startActivity(intent);
             }
         });
 

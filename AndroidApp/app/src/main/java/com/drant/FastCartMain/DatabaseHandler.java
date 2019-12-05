@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.ContentValues.TAG;
-import static com.drant.FastCartMain.MainActivity.userObject;
+import static com.drant.FastCartMain.NavActivity.userObject;
 
 public class DatabaseHandler {
     private static DatabaseHandler instance = null;
@@ -55,7 +55,12 @@ public class DatabaseHandler {
     }
 
     DocumentReference saveTrolleyDocument(String trolleyId){
-        return db.collection("trolleys").document(trolleyId);
+        if (trolleyId != null) {
+            return db.collection("trolleys").document(trolleyId);
+        } else {
+            return null;
+        }
+
     }
 
     /* Base Firebase functions*/
@@ -355,6 +360,7 @@ public class DatabaseHandler {
     /* Getters to get firebase data at the start */
 
 //    void getItemsInFirebaseTrolley(UpdateUserCallback updateUserCallback) {
+//        Log.i("console", "init get");
 //        // get trolley document reference from userObject
 //        DocumentReference trolleyDocRef = User.getInstance().getTrolleyDoc();
 //        // update firebase accordingly
@@ -412,34 +418,36 @@ public class DatabaseHandler {
     void listenForItemChanges(UpdateUserCallback updateUserCallback) {
         DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
         // attach listener to listen for change in correct_item field
-        itemsChangeListener = trolleyDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot snapshot,
-                                @Nullable FirebaseFirestoreException e) {
-                if (e != null) {
-                    Log.i("console", "Listen failed.", e);
-                    return;
-                }
-                if (snapshot != null && snapshot.exists()) {
-                    if (batch == null) {
-                        Log.i("console", "Change made");
-                        ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) snapshot.get("items");
-                        userObject.setItemDocuments(itemDocuments);
-                        itemList = new ArrayList<Item>();
-                        if (itemDocuments != null) {
-                            for (DocumentReference itemDocRef : itemDocuments) {
-                                getSingleFirebaseItem(itemDocRef);
-                            }
-                        }
-                        updateUserCallback.updateLocalItems(itemList);
-                    } else {
-                        batch = null;
+        if (trolleyDocRef != null) {
+            itemsChangeListener = trolleyDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot snapshot,
+                                    @Nullable FirebaseFirestoreException e) {
+                    if (e != null) {
+                        Log.i("console", "Listen failed.", e);
+                        return;
                     }
-                } else {
-                    Log.i("console", "Current data: null");
+                    if (snapshot != null && snapshot.exists()) {
+                        if (batch == null) {
+                            Log.i("console", "Change made");
+                            ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) snapshot.get("items");
+                            userObject.setItemDocuments(itemDocuments);
+                            itemList = new ArrayList<Item>();
+                            if (itemDocuments != null) {
+                                for (DocumentReference itemDocRef : itemDocuments) {
+                                    getSingleFirebaseItem(itemDocRef);
+                                }
+                            }
+                            updateUserCallback.updateLocalItems(itemList);
+                        } else {
+                            batch = null;
+                        }
+                    } else {
+                        Log.i("console", "Current data: null");
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 }
 

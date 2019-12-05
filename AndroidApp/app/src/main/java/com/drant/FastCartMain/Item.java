@@ -1,17 +1,10 @@
 package com.drant.FastCartMain;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import com.google.firebase.firestore.DocumentReference;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.URL;
-import java.net.URLConnection;
 
 public class Item {
     private String name;
@@ -21,7 +14,7 @@ public class Item {
     private DocumentReference itemDocRef;
     private Bitmap itemImage;
 
-    Item(String name, String price, String imageRef, DocumentReference itemDocRef){
+    public Item(String name, String price, String imageRef, DocumentReference itemDocRef){
         this.name = name;
         this.price = new BigDecimal(price);
         this.imageRef = imageRef;

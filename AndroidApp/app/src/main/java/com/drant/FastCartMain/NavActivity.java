@@ -2,6 +2,7 @@ package com.drant.FastCartMain;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -12,42 +13,50 @@ import androidx.fragment.app.FragmentManager;
 import com.drant.FastCartMain.ui.scanitem.ScanItemFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class NavActivity extends AppCompatActivity {
-
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth mAuth;
+    static User userObject;
 
     final Fragment fragment1 = new ProfileFragment();
     final Fragment fragment2 = new ScanItemFragment();
     final Fragment fragment3 = new CartActivity();
     final FragmentManager fm = getSupportFragmentManager();
-    Fragment active = fragment1;
+    Fragment active = fragment3;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Initialize Firebase + Auth Listeners
+        mAuth = FirebaseAuth.getInstance();
+
         setContentView(R.layout.nav_activity_main);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        fm.beginTransaction().add(R.id.main_container, fragment3, "3").hide(fragment3).commit();
+        fm.beginTransaction().add(R.id.main_container, fragment1, "1").hide(fragment1).commit();
         fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
-        fm.beginTransaction().add(R.id.main_container,fragment1, "1").commit();
+        fm.beginTransaction().add(R.id.main_container,fragment3, "3").commit();
 
-        // Initialize Firebase + Auth Listeners
-        mAuth = FirebaseAuth.getInstance();
-        authListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                if (firebaseAuth.getCurrentUser() == null) {
-                    startActivity(new Intent(NavActivity.this, LoginActivity.class));
-                    finish();
-                }
-            }
-        };
+    }
 
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            Log.d("FireAuth", "UID: " + user.getUid());
+            userObject = User.getInstance();
+            userObject.setUserId(user.getUid());
+        } else {
+            Log.d("FireAuth", "no user found");
+            startActivity(new Intent(NavActivity.this, LoginActivity.class));
+            finish();
+        }
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener

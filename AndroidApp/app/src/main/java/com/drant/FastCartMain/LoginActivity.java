@@ -30,9 +30,7 @@ import butterknife.ButterKnife;
 
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
-    private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
-    User userObject;
 
 //    DatabaseHandler dbHandler = DatabaseHandler.getInstance();
 
@@ -84,7 +82,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void login() {
-        Log.d(TAG, "Login Sequence Start");
+        Log.d("LoginActivity", "Login Sequence Start");
 
         String email = _userText.getText().toString();
         String password = _passwordText.getText().toString();
@@ -122,19 +120,17 @@ public class LoginActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
                         // Sign in success, move to main activity
-                        Log.d(TAG, "signInWithEmail:success");
+                        Log.d("LoginActivity", "signInWithEmail:success");
                         FirebaseUser user = mAuth.getCurrentUser();
                         String uid = user.getUid();
-                        userObject = User.getInstance();
-                        userObject.setUserId(uid);
-                        Intent intent = new Intent(LoginActivity.this,MainActivity.class);
+                        Intent intent = new Intent(LoginActivity.this,NavActivity.class);
                         startActivity(intent);
                         Toast.makeText(getBaseContext(), "Login successful", Toast.LENGTH_SHORT).show();
                         _loginButton.setEnabled(true);
                         progressDialog.dismiss();
                     } else {
                         // Sign in fails
-                        Log.w(TAG, "signInWithEmail:failure", task.getException());
+                        Log.w("LoginActivity", "signInWithEmail:failure", task.getException());
                         Toast.makeText(getBaseContext(), "Invalid username or password", Toast.LENGTH_SHORT).show();
                         _loginButton.setEnabled(true);
                         progressDialog.dismiss();
@@ -142,6 +138,8 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
     }
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -154,11 +152,6 @@ public class LoginActivity extends AppCompatActivity {
                 this.finish();
             }
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        // Disable going back to the MainActivity
     }
 
 }

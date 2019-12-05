@@ -11,11 +11,12 @@
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Your Cart"
+        android:fontFamily="@font/fredoka_one"
         android:paddingLeft="8dp"
+        android:text="Your Cart"
+        android:textColor="@color/darkcherry"
         android:textSize="36sp"
-        android:textColor="@color/grey1"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview"
@@ -30,22 +31,26 @@
         android:id="@+id/cartTotal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginRight="0dp"
-        android:textSize="34sp"
         android:layout_above="@id/checkoutbtn"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="12dp"
+        android:fontFamily="@font/fredoka_one"
         android:text="Cart Total"
         android:textColor="@color/grey2"
-        android:textStyle="bold"/>
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
     <Button
         android:id="@+id/checkoutbtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:fontFamily="@font/open_sans_bold"
+        android:layout_marginRight="8dp"
+        android:layout_marginLeft="8dp"
         android:text="Proceed to checkout"
-        android:textColor="@color/accent">
-    </Button>
+        android:textColor="@color/accent"></Button>
 
 </RelativeLayout>

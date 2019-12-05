@@ -15,61 +15,62 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/grad"
-        android:id="@+id/header">
-
         <RelativeLayout
-            android:id="@+id/imgUser"
-            android:layout_width="wrap_content"
+            android:id="@+id/header"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_centerHorizontal="true"
-            android:background="@drawable/circle_border"
-            >
+            android:background="@drawable/grad">
 
-            <ImageView
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_margin="9dp"
-                android:adjustViewBounds="true"
-                android:background="@drawable/circle"
-                android:scaleType="centerInside"
-                android:padding="3dp"
-                android:src="@drawable/detectivepikachu"
+            <RelativeLayout
+                android:id="@+id/imgUser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/circle_border">
 
-                />
+                <ImageView
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_margin="9dp"
+                    android:adjustViewBounds="true"
+                    android:background="@drawable/circle"
+                    android:padding="3dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/detectivepikachu"
+
+                    />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/imgUser"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="15sp"
+                android:fontFamily="@font/fredoka_one"
+                android:text="Detective Pikachu"
+                android:textColor="@color/white"
+                android:textSize="32sp" />
+
+            <!--        android:fontFamily="sana-serif-light"-->
+            <Button
+                android:id="@+id/edit_profile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/user_name"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="7dp"
+                android:fontFamily="@font/open_sans"
+                android:minHeight="0dp"
+                android:text="Edit Profile"
+                android:textColor="@color/black"
+                android:textSize="12sp" />
+
         </RelativeLayout>
 
-        <TextView
-            android:id="@+id/user_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/imgUser"
-            android:layout_centerHorizontal="true"
-            android:text="Detective Pikachu"
-            android:fontFamily="sana-serif-light"
-            android:layout_marginTop="15sp"
-            android:textColor="@color/white"
-            android:textSize="32sp"
-            />
-        <TextView
-            android:id="@+id/edit_profile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/user_name"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="10sp"
-            android:fontFamily="sans-serif"
-            android:text="edit profile"
-            android:textColor="@color/black"
-            android:textSize="14sp" />
-
-    </RelativeLayout>
-
-    <RelativeLayout
+        <RelativeLayout
         android:paddingTop="20dp"
         android:layout_below="@id/header"
         android:layout_width="match_parent"
@@ -79,57 +80,59 @@
 
         <Button
             android:id="@+id/purchasehistory"
-            android:textColor="@color/accent"
             android:layout_width="350dp"
             android:layout_height="wrap_content"
-            android:text="Purchase History"
             android:layout_centerHorizontal="true"
-            >
-        </Button>
+            android:fontFamily="@font/open_sans_bold"
+            android:text="Purchase History"
+            android:textColor="@color/accent"></Button>
+
         <Button
             android:id="@+id/paymentmethod"
-            android:textColor="@color/accent"
             android:layout_width="350dp"
             android:layout_height="wrap_content"
-            android:text="Payment Method"
-            android:layout_weight="1"
             android:layout_below="@+id/purchasehistory"
             android:layout_centerHorizontal="true"
-            >
-        </Button>
+            android:layout_weight="1"
+            android:fontFamily="@font/open_sans_bold"
+            android:text="Payment Method"
+            android:textColor="@color/accent"></Button>
+
         <Button
             android:id="@+id/myvouchers"
-            android:textColor="@color/accent"
             android:layout_width="350dp"
             android:layout_height="wrap_content"
-            android:text="My Vouchers"
-            android:layout_weight="1"
             android:layout_below="@+id/paymentmethod"
-            android:layout_centerHorizontal="true">
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1"
+            android:fontFamily="@font/open_sans_bold"
+            android:text="My Vouchers"
+            android:textColor="@color/accent">
 
         </Button>
 
         <Button
             android:id="@+id/settings"
-            android:textColor="@color/accent"
             android:layout_width="350dp"
             android:layout_height="wrap_content"
             android:layout_below="@+id/myvouchers"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="0dp"
             android:layout_weight="1"
-            android:text="Settings"></Button>
+            android:fontFamily="@font/open_sans_bold"
+            android:text="Settings"
+            android:textColor="@color/accent"></Button>
 
         <Button
-            android:layout_marginTop="100dp"
-            android:textColor="@color/accent"
-            android:layout_below="@id/settings"
             android:id="@+id/logout_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/settings"
             android:layout_centerHorizontal="true"
+            android:layout_marginTop="100dp"
+            android:fontFamily="@font/open_sans_bold"
             android:text="Logout"
-            ></Button>
+            android:textColor="@color/accent"></Button>
 
     </RelativeLayout>
 

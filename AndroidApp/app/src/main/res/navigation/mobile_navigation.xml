@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_profile">
+    app:startDestination="@+id/navigation_checkout">
 
     <fragment
-        android:id="@+id/navigation_profile"
-        android:name="com.drant.FastCartMain.ProfileFragment"
-        android:label="@string/title_profile"
-        tools:layout="@layout/activity_profile" />
+        android:id="@+id/navigation_checkout"
+        android:name="com.drant.FastCartMain.CartActivity"
+        android:label="@string/title_checkout"
+        tools:layout="@layout/activity_cart" />
 
     <fragment
         android:id="@+id/navigation_scanitem"
@@ -18,8 +18,8 @@
         tools:layout="@layout/activity_scan_barcode" />
 
     <fragment
-        android:id="@+id/navigation_checkout"
-        android:name="com.drant.FastCartMain.CartActivity"
-        android:label="@string/title_checkout"
-        tools:layout="@layout/activity_cart" />
+        android:id="@+id/navigation_profile"
+        android:name="com.drant.FastCartMain.ProfileFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/activity_profile"/>
 </navigation>

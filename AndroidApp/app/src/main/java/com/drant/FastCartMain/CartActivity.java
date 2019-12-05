@@ -1,5 +1,6 @@
 package com.drant.FastCartMain;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +21,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
+import static com.drant.FastCartMain.MainActivity.userObject;
+
 public class CartActivity extends Fragment implements FirebaseCallback {
 
     private static final String TAG = "CartActivityFragment";
@@ -31,19 +34,24 @@ public class CartActivity extends Fragment implements FirebaseCallback {
     Button buttonAdd;
     Button buttonCheckout;
 
+
     //start w empty cart to fill
     ArrayList<Item> cart = new ArrayList<Item>();
 
     @Override
     public void onItemCallback(Item item){
         Log.i("console", "item callback");
+//        mAdapter.addItem(item);
+//        cartTotal.setText(mAdapter.getTotalPrice());
     }
 
     @Override
     public void displayItemsCallback(ArrayList<Item> items) {
-        Log.i("console", "display callback");
+//        Log.i("console", "display callback");
         mAdapter.displayItems(items);
-        cartTotal.setText(getCartTotal(items));
+//        cartTotal.setText(getCartTotal(items));
+        cartTotal.setText(mAdapter.getTotalPrice());
+//        cart.addAll(items);
     }
 
     @Override
@@ -62,6 +70,9 @@ public class CartActivity extends Fragment implements FirebaseCallback {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
 
+        cartTotal = view.findViewById(R.id.cartTotal);
+//        cartTotal.setText(mAdapter.getTotalPrice());
+
         ItemTouchHelper.SimpleCallback simpleCallback =
                 new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
                     @Override
@@ -76,7 +87,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
                         recyclerAdapter.ExampleViewHolder itemViewHolder = (recyclerAdapter.ExampleViewHolder) viewHolder;
                         int position = itemViewHolder.getAdapterPosition();
                         mAdapter.removeItem(position);
-                        cartTotal.setText(getCartTotal(cart));
+                        cartTotal.setText(mAdapter.getTotalPrice());
 
                         Toast.makeText(getActivity(), "Item removed from cart", Toast.LENGTH_SHORT).show();
                     }
@@ -84,8 +95,6 @@ public class CartActivity extends Fragment implements FirebaseCallback {
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
-
-        cartTotal = view.findViewById(R.id.cartTotal);
 
         buttonCheckout = (Button) view.findViewById(R.id.checkoutbtn);
         buttonCheckout.setOnClickListener(new View.OnClickListener(){
@@ -98,7 +107,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
                 alertCheckout.show();
 
                 mAdapter.clearCart();
-                cartTotal.setText(getCartTotal(cart));
+                cartTotal.setText(mAdapter.getTotalPrice());
             }
         });
 
@@ -115,9 +124,27 @@ public class CartActivity extends Fragment implements FirebaseCallback {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(getContext());
+        Log.i("sum", "attach");
+        Log.i("console", "display callback");
+        dbHandler.getItemsInTrolley(CartActivity.this);
+    }
+
+    @Override
+    public void onCreate(Bundle bundle) {
+        super.onCreate(bundle);
+        Log.i("sum", "attach");
+        Log.i("console", "display callback");
+        dbHandler.getItemsInTrolley(CartActivity.this);
+    }
+    @Override
     public void onResume(){
         super.onResume();
+        Log.i("sum", "resume");
         dbHandler.getItemsInTrolley(this);
+//        cartTotal.setText(mAdapter.getTotalPrice());
+
     }
 }
 

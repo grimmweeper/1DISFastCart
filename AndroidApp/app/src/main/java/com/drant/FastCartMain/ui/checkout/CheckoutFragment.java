@@ -37,6 +37,7 @@ public class CheckoutFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.activity_cart,container,false);
+        Log.i("sum", "oncreateview");
         return view;
 
         /** notificationsViewModel =

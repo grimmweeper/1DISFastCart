@@ -32,7 +32,7 @@
         android:layout_marginRight="0dp"
         android:textSize="34sp"
         android:layout_above="@id/checkoutbtn"
-        android:text="Cart Total"
+        android:text="yo"
         android:textStyle="bold"/>
 
     <Button

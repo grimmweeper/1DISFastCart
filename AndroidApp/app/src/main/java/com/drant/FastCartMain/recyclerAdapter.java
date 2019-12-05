@@ -1,5 +1,6 @@
 package com.drant.FastCartMain;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.ExampleViewHolder> {
@@ -24,7 +26,6 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.Exampl
             mImageView = itemView.findViewById(R.id.imageView);
             mTextView1 = itemView.findViewById(R.id.Line1);
             mTextView2 = itemView.findViewById(R.id.Line2);
-
         }
     }
 
@@ -68,6 +69,20 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.Exampl
 
     public void clearCart(){
         mCart.clear();
+        notifyDataSetChanged();
+    }
+
+    public String getTotalPrice(){
+        BigDecimal sum = new BigDecimal(0);
+        for (Item i: mCart){
+            sum = sum.add(i.getPrice());
+            Log.i("sum", sum.toString());
+        }
+        return "Cart Total: $" + sum.toString();
+    }
+
+    public void addItem(Item item){
+        mCart.add(item);
         notifyDataSetChanged();
     }
 

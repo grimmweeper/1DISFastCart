@@ -73,7 +73,7 @@ public class User {
         this.items = items;
     }
 
-    ArrayList<Item> getItems() {
+    public ArrayList<Item> getItems() {
         return this.items;
     }
 

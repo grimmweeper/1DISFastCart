@@ -7,6 +7,8 @@ import com.google.firebase.firestore.DocumentReference;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
+import androidx.appcompat.app.AlertDialog;
+
 public class User implements UpdateUserCallback {
     private String userId;
     private DocumentReference userDocRef;

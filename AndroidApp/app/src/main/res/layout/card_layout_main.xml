@@ -5,7 +5,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="4dp"
     android:layout_marginBottom="4dp"
-    app:cardBackgroundColor="@color/lightpink">
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    app:cardBackgroundColor="@color/grey">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -15,8 +17,8 @@
 
         <ImageView
             android:id="@+id/imageView"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
             android:padding="2dp">
         </ImageView>
 
@@ -24,26 +26,29 @@
             android:id="@+id/Line1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Line 1"
-            android:textSize="20sp"
-            android:textStyle="bold"
             android:layout_alignParentTop="true"
             android:layout_toEndOf="@+id/imageView"
-            android:layout_toRightOf="@id/imageView">
-        </TextView>
+            android:layout_toRightOf="@id/imageView"
+            android:fontFamily="@font/open_sans_bold"
+            android:layout_marginLeft="8dp"
+            android:text="Line 1"
+            android:textSize="20sp"
+            android:textColor="@color/grey1"
+            android:textStyle="bold"></TextView>
 
         <TextView
             android:id="@+id/Line2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Line 2"
-            android:textSize="15sp"
-            android:layout_toEndOf="@id/imageView"
-            android:layout_toRightOf="@id/imageView"
             android:layout_below="@+id/Line1"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
-            >
+            android:layout_toEndOf="@id/imageView"
+            android:layout_toRightOf="@id/imageView"
+            android:fontFamily="@font/open_sans"
+            android:textColor="@color/grey1"
+            android:text="Line 2"
+            android:textSize="15sp">
 
         </TextView>
 

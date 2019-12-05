@@ -4,14 +4,13 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:layout_marginTop="40dp">
+    android:layout_marginTop="30dp">
 
     <TextView
         android:id="@+id/txtBarcodeValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"/>
-
 
     <TextView
         android:id="@+id/welcomeMsg"
@@ -26,28 +25,29 @@
         android:textStyle="bold" />
 
 
-        <FrameLayout
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="20dp">
+
+        <SurfaceView
+            android:id="@+id/surfaceView"
             android:layout_width="match_parent"
-            android:layout_height="500dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginTop="40dp"
-            android:layout_marginRight="40dp"
-            android:layout_marginBottom="40dp">
-
-            <SurfaceView
-                android:id="@+id/surfaceView"
-                android:layout_width="match_parent"
-                android:layout_height="500dp"/>
+            android:layout_height="match_parent"/>
 
 
-            <com.airbnb.lottie.LottieAnimationView
-                android:layout_width="700dp"
-                android:layout_height="700dp"
-                android:layout_gravity="center"
-                app:lottie_autoPlay="true"
-                app:lottie_loop="true"
-                app:lottie_rawRes="@raw/scan" />
-        </FrameLayout>
+        <com.airbnb.lottie.LottieAnimationView
+            android:layout_width="700dp"
+            android:layout_height="700dp"
+            android:layout_gravity="center"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/scan" />
+    </FrameLayout>
 
     <TextView
         android:id="@+id/instructions"
@@ -58,6 +58,7 @@
         android:gravity="center"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
+        android:layout_marginBottom="10dp"
         android:text="-"
         android:textSize="18sp"/>
 

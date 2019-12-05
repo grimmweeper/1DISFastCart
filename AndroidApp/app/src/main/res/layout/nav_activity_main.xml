@@ -6,13 +6,10 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
     tools:context=".NavActivity"
     app:startDestination="@id/navigation_checkout">
 
-
     <!-- Fragments Container -->
-
     <include
         layout="@layout/content_main"
         android:layout_width="match_parent"

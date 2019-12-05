@@ -30,6 +30,7 @@ public class DatabaseHandler {
     ListenerRegistration correctItemListener;
     ListenerRegistration itemsChangeListener;
     WriteBatch batch;
+    Boolean ListenRemove;
 
     Item currentItem;
     ArrayList<Item> itemList;
@@ -187,6 +188,7 @@ public class DatabaseHandler {
         // get product document reference from barcode
         DocumentReference itemDocRef = itemToRemove.getItemDocRef();
         // call method to update firebase accordingly
+//        listenForCorrectItem(firebaseCallback, itemDocRef);
         removeItemFromCart(firebaseCallback, itemDocRef);
         ArrayList<Item> newItemList = userObject.getItems();
         newItemList.remove(itemToRemove);
@@ -253,7 +255,7 @@ public class DatabaseHandler {
     }
 
     // listen for correct item status from firebase
-    private void listenForCorrectItem(final FirebaseCallback firebaseCallback, DocumentReference trolleyDocRef) {
+    public void listenForCorrectItem(final FirebaseCallback firebaseCallback, DocumentReference trolleyDocRef) {
         // attach listener to listen for change in correct_item field
         correctItemListener = trolleyDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -271,6 +273,7 @@ public class DatabaseHandler {
                     if (itemValidationStatus) {
                         // detach listener
                         correctItemListener.remove();
+
                         // reset fields to idle state
                         resetTrolleyScanningStatus(trolleyDocRef);
                     }

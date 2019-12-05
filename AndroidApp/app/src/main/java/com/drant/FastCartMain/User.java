@@ -38,9 +38,8 @@ public class User implements UpdateUserCallback {
         this.userId = userId;
         this.setUserDoc();
         // TODO: Hardcoded - REMOVE
-        this.setTrolleyId("ZZafaKzVTvmlreT99wBL");
-        dbHandler.listenForItemChanges(User.this);
-
+//        this.setTrolleyId("ZZafaKzVTvmlreT99wBL");
+        this.setTrolleyId("gjDLnPSnMAul7MR8dBaI");
         Log.i("console", this.trolleyId);
     }
 
@@ -67,6 +66,8 @@ public class User implements UpdateUserCallback {
 
     private void setTrolleyDoc() {
         this.trolleyDocRef = dbHandler.saveTrolleyDocument(this.trolleyId);
+        dbHandler.listenForItemChanges(User.this);
+//        dbHandler.getItemsInFirebaseTrolley(User.this);
     }
 
     DocumentReference getTrolleyDoc() {
@@ -78,7 +79,7 @@ public class User implements UpdateUserCallback {
         this.items = items;
     }
 
-    ArrayList<Item> getItems() {
+    public ArrayList<Item> getItems() {
         return this.items;
     }
 

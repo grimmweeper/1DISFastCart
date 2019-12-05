@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 
 public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.ExampleViewHolder> {
@@ -72,8 +73,24 @@ public class recyclerAdapter extends RecyclerView.Adapter<recyclerAdapter.Exampl
         Item itemAtPos = mCart.get(position);
         return itemAtPos;
     }
+
     public void clearCart(){
         mCart.clear();
+        notifyDataSetChanged();
+    }
+
+    public String getTotalPrice(){
+        BigDecimal sum = new BigDecimal(0);
+        for (Item i: mCart){
+            sum = sum.add(i.getPrice());
+        }
+        return "Cart Total: $" + sum.toString();
+    }
+
+
+
+    public void addItem(Item item){
+        mCart.add(item);
         notifyDataSetChanged();
     }
 

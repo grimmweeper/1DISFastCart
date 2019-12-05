@@ -79,8 +79,8 @@ public class CartActivity extends Fragment implements FirebaseCallback {
                         int position = itemViewHolder.getAdapterPosition();
                         Item item = mAdapter.getItemAtPos(position);
                         dbHandler.removeItemFromCart(CartActivity.this, item);
-                        cartTotal.setText(getCartTotal(cart));
                         mAdapter.notifyDataSetChanged();
+                        cartTotal.setText(mAdapter.getTotalPrice());
 
                         Toast.makeText(getActivity(), "Item removed from cart", Toast.LENGTH_SHORT).show();
                     }
@@ -103,6 +103,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
 
                 mAdapter.clearCart();
                 cartTotal.setText(getCartTotal(cart));
+                dbHandler.checkOut();
             }
         });
 
@@ -116,6 +117,18 @@ public class CartActivity extends Fragment implements FirebaseCallback {
         }
 
         return "Cart Total: $" + sum.toString();
+    }
+
+    @Override
+    public void onAttach(Context context){
+        super.onAttach(getContext());
+        dbHandler.getItemsInLocalTrolley(this);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        dbHandler.getItemsInLocalTrolley(this);
     }
 
     @Override

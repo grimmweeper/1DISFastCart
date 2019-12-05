@@ -18,7 +18,7 @@ public class NavActivity extends AppCompatActivity {
     final Fragment fragment2 = new ScanItemFragment();
     final Fragment fragment3 = new CartActivity();
     final FragmentManager fm = getSupportFragmentManager();
-    Fragment active = fragment1;
+    Fragment active = fragment3;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -28,9 +28,9 @@ public class NavActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        fm.beginTransaction().add(R.id.main_container, fragment3, "3").hide(fragment3).commit();
+        fm.beginTransaction().add(R.id.main_container, fragment1, "1").hide(fragment1).commit();
         fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
-        fm.beginTransaction().add(R.id.main_container,fragment1, "1").commit();
+        fm.beginTransaction().add(R.id.main_container,fragment3, "3").commit();
 
     }
 

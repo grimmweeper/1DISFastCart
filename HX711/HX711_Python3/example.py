@@ -2,11 +2,20 @@
 import RPi.GPIO as GPIO  # import GPIO
 from hx711 import HX711  # import the class HX711
 
+# Firebase Imports
+from firebase_admin import credentials, firestore
+import firebase_admin
+import random
+
+#########################################################################################################
+## SETUP PHASE (DO NOT TOUCH)
+#########################################################################################################
+
 try:
     GPIO.setmode(GPIO.BCM)  # set GPIO pin mode to BCM numbering
     # Create an object hx which represents your real hx711 chip
     # Required input parameters are only 'dout_pin' and 'pd_sck_pin'
-    hx = HX711(dout_pin=17, pd_sck_pin=27)
+    hx = HX711(dout_pin=9, pd_sck_pin=11)
     # measure tare and save the value as offset for current channel
     # and gain selected. That means channel A and gain 128
     err = hx.zero()
@@ -47,14 +56,42 @@ try:
     else:
         raise ValueError('Cannot calculate mean value. Try debug mode. Variable reading:', reading)
 
+#########################################################################################################
+## READING PHASE (SIMPLY EDIT FROM HERE!)
+#########################################################################################################
+
+    # initialize firebase stuffs
+    cred = credentials.Certificate('firebase_key.json')
+    firebase_admin.initialize_app(cred)
+    db = firestore.client()
+
+    # trolley ID - hardcoded for now
+    trolley_id = "0000"
+    trolleys = db.collection(u'trolleys')
+    trolley = trolleys.document(trolley_id).get().to_dict()
+    is_unlocked = trolley['unlocked']
+
     # Read data several times and return mean value
     # subtracted by offset and converted by scale ratio to
     # desired units. In my case in grams.
     print("Now, I will read data in infinite loop. To exit press 'CTRL + C'")
     input('Press Enter to begin reading')
     print('Current weight on the scale in grams is: ')
-    while True:
-        print(hx.get_weight_mean(1), 'g')
+
+    running_weight = hx.get_weight_mean(20)
+
+    while is_unlocked:
+        start_scanning = trolley['start_scanning']
+        print(hx.get_weight_mean(20), 'g')
+        if start_scanning:
+            print("start_scanning signal received! Scanning now...")
+            # if weight change drastically:
+            if (hx.get_weight_mean(20) - running_weight) >= 100
+                print("Drastic increase detected!")
+                weight = hx.get_weight_mean(20)
+                print(weight, 'g')
+                trolleys.document(trolley_id).set({f'item': weight}, merge=True)
+
 
 except (KeyboardInterrupt, SystemExit):
     print('Bye :)')

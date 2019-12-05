@@ -79,7 +79,10 @@ public class CartActivity extends Fragment implements FirebaseCallback {
                         recyclerAdapter.ExampleViewHolder itemViewHolder = (recyclerAdapter.ExampleViewHolder) viewHolder;
                         int position = itemViewHolder.getAdapterPosition();
                         Item item = mAdapter.getItemAtPos(position);
+
+
                         dbHandler.removeItemFromCart(CartActivity.this, item);
+
                         cartTotal.setText(getCartTotal(cart));
                         mAdapter.notifyDataSetChanged();
 

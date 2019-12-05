@@ -14,6 +14,7 @@
         android:text="Your Cart"
         android:paddingLeft="8dp"
         android:textSize="36sp"
+        android:textColor="@color/grey1"
         android:textStyle="bold"/>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -33,6 +34,7 @@
         android:textSize="34sp"
         android:layout_above="@id/checkoutbtn"
         android:text="Cart Total"
+        android:textColor="@color/grey2"
         android:textStyle="bold"/>
 
     <Button
@@ -42,7 +44,8 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:text="Proceed to checkout">
+        android:text="Proceed to checkout"
+        android:textColor="@color/accent">
     </Button>
 
 </RelativeLayout>

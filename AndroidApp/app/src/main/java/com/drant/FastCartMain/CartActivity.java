@@ -1,15 +1,11 @@
 package com.drant.FastCartMain;
 
-import android.app.ListActivity;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,11 +17,8 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.drant.FastCartMain.ui.scanitem.ScanItemFragment;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class CartActivity extends Fragment implements FirebaseCallback {
 
@@ -60,6 +53,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
         }
     }
 
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_cart, container, false);
@@ -85,8 +79,8 @@ public class CartActivity extends Fragment implements FirebaseCallback {
                         int position = itemViewHolder.getAdapterPosition();
                         Item item = mAdapter.getItemAtPos(position);
                         dbHandler.removeItemFromCart(CartActivity.this, item);
-                        cartTotal.setText(getCartTotal(cart));
                         mAdapter.notifyDataSetChanged();
+                        cartTotal.setText(mAdapter.getTotalPrice());
 
                         Toast.makeText(getActivity(), "Item removed from cart", Toast.LENGTH_SHORT).show();
                     }
@@ -102,6 +96,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
             @Override
             public void onClick(View view){
                 AlertDialog alertCheckout = new AlertDialog.Builder(getActivity()).create();
+                alertCheckout.setIcon(R.drawable.greentick);
                 alertCheckout.setTitle("Checkout Success");
                 alertCheckout.setMessage("Thank you for shopping with us.");
                 alertCheckout.show();

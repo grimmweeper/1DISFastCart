@@ -17,7 +17,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        app:srcCompat="@drawable/rice" />
+        app:srcCompat="@drawable/placeholder" />
 
     <TextView
         android:id="@+id/productLabel"

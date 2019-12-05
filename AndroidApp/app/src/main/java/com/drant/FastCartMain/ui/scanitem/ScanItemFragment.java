@@ -71,6 +71,17 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
     private String cart_id="CART_ID";
     private static final int REQUEST_CAMERA_PERMISSION = 201;
 
+    @Override
+    public void itemValidationCallback(Boolean correctItem){
+        if (correctItem) {
+            alertDialog.dismiss();
+            Toast.makeText(getActivity(), "Added Item to Cart", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void checkIllopCallback(Boolean illopStatus){};
+
     View view;
     ViewGroup container;
 
@@ -284,13 +295,6 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
         }
     }
 
-    @Override
-    public void itemValidationCallback(Boolean correctItem){
-        if (correctItem) {
-            alertDialog.dismiss();
-            Toast.makeText(getActivity(), "Added Item to Cart", Toast.LENGTH_SHORT).show();
-        }
-    }
 
     @Override
     public void displayItemsCallback(ArrayList<Item> items){}

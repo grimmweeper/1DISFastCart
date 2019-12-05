@@ -29,8 +29,11 @@ public class DatabaseHandler {
     private FirebaseFirestore db;
     ListenerRegistration correctItemListener;
     ListenerRegistration itemsChangeListener;
+    ListenerRegistration illoplistener;
     WriteBatch batch;
     Boolean ListenRemove;
+//    Boolean illopListener;
+    Boolean illopStatus;
 
     Item currentItem;
     ArrayList<Item> itemList;
@@ -276,6 +279,54 @@ public class DatabaseHandler {
                 }
             });
         }
+
+    // Listen for ILLOP status from firebase
+    public void listenForIllop(final FirebaseCallback illopCallback) {
+//        final DocumentReference trolleyDocRef = db.collection("trolleys").document("gjDLnPSnMAul7MR8dBaI");
+        Log.i("console", userObject.toString());
+        DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
+        if (trolleyDocRef != null) {
+            illoplistener = trolleyDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(DocumentSnapshot snapshot, FirebaseFirestoreException e) {
+                    if (e != null) {
+//                    illopCallback.checkIllopCallback(null);
+//                    Log.i("console", "Listen failed.", e);
+                        return;
+                    }
+                    if (snapshot != null && snapshot.exists()) {
+//                    Log.i("console", "Current data: " + snapshot.getData());
+//                    Boolean illopStatus = true;
+                        illopStatus = snapshot.getBoolean("illop");
+                        Log.i("console", "Current data: " + illopStatus);
+                        illopCallback.checkIllopCallback(illopStatus);
+//                        batch = db.batch();
+//                        batch.update(trolleyDocRef, "illop", false);
+//                        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<Void> task) {
+//                                Log.i("console", "Set ILLOP to false");
+//                            }
+//                        });
+//                    }
+
+//                    if (illopStatus) {
+//
+//                        batch = db.batch();
+//                        batch.update(trolleyDocRef, "illop", false);
+//                        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<Void> task) {
+//                                Log.i("console", "Set ILLOP to false");
+//                            }
+//                        });
+//                    }}
+                    }
+                }
+            });
+        }
+
+    }
 
     // listen for correct item status from firebase
     public void listenForCorrectItem(final FirebaseCallback firebaseCallback, DocumentReference trolleyDocRef) {

@@ -11,6 +11,8 @@ import java.lang.annotation.Documented;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
+import androidx.appcompat.app.AlertDialog;
+
 public class User implements UpdateUserCallback {
     private String userId;
     private DocumentReference userDocRef;
@@ -36,6 +38,10 @@ public class User implements UpdateUserCallback {
 
     void setUserId(String userId) {
         this.userId = userId;
+        this.setUserDoc();
+        // TODO: Hardcoded - REMOVE
+        this.setTrolleyId("ZZafaKzVTvmlreT99wBL");
+        //this.setTrolleyId("gjDLnPSnMAul7MR8dBaI");
         Log.i("console", this.trolleyId);
     }
 
@@ -103,4 +109,6 @@ public class User implements UpdateUserCallback {
         Log.i("console", itemList.toString());
         this.setItems(itemList);
     }
+
+
 }

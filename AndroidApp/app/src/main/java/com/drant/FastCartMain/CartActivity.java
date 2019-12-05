@@ -21,6 +21,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
+import static com.drant.FastCartMain.NavActivity.userObject;
+
 public class CartActivity extends Fragment implements FirebaseCallback {
 
     private static final String TAG = "CartActivityFragment";
@@ -30,6 +32,9 @@ public class CartActivity extends Fragment implements FirebaseCallback {
     private RecyclerView.LayoutManager mLayoutManager;
     TextView cartTotal;
     Button buttonCheckout;
+    AlertDialog alertIllop;
+
+    boolean safecheck = false;
 
     View view;
     ViewGroup container;
@@ -57,6 +62,29 @@ public class CartActivity extends Fragment implements FirebaseCallback {
         }
     }
 
+    @Override
+    public void checkIllopCallback(Boolean illopStatus){
+        Log.i("console","Illop:" + illopStatus.toString());
+        Log.i("console","Safecheck"+ String.valueOf(safecheck));
+        Log.i("console", alertIllop + "sth");
+
+        if(illopStatus) {
+//            alertIllop = new AlertDialog.Builder(getActivity()).create();
+            alertIllop.setTitle("Please return to the cart's previous state");
+            //alertIllop.setMessage("Thank you for shopping with us.");
+            alertIllop.show();
+            alertIllop.setCancelable(false);
+            alertIllop.setCanceledOnTouchOutside(false);
+            safecheck = true;
+            Log.i("console", "safecheck = true");
+
+        } else if (alertIllop.isShowing()) {
+//        } else if (!illopStatus && safecheck) {
+            alertIllop.dismiss();
+            safecheck = false;
+        }
+    }
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup containerGroup, @Nullable Bundle savedInstanceState) {
@@ -74,6 +102,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
 
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
+        alertIllop = new AlertDialog.Builder(getContext()).create();
 
         ItemTouchHelper.SimpleCallback simpleCallback =
                 new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -139,12 +168,41 @@ public class CartActivity extends Fragment implements FirebaseCallback {
     @Override
     public void onAttach(Context context){
         super.onAttach(getContext());
+        dbHandler.getItemsInLocalTrolley(this);
+        try {
+            dbHandler.listenForIllop(this);
+            Log.i("console", "attach");
+        } catch (Exception e) {
+            Log.i("console", e.toString());
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        dbHandler.getItemsInLocalTrolley(this);
+        try {
+            dbHandler.listenForIllop(this);
+            Log.i("console", "start");
+        } catch (Exception e) {
+            Log.i("console", e.toString());
+        }
+//        dbHandler.listenForIllop(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
         dbHandler.getItemsInLocalTrolley(this);
+//        dbHandler.listenForIllop(this);
+
+        try {
+            dbHandler.listenForIllop(this);
+            Log.i("console", "resume");
+        } catch (Exception e) {
+            Log.i("console", e.toString());
+        }
+
     }
 }
 

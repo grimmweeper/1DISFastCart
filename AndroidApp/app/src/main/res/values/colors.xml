@@ -3,11 +3,14 @@
   <!-- <color name="primary">#E43F3F</color>
   <color name="primary_dark">#E12929</color>
   <color name="primary_darker">#CC1D1D</color> -->
-  <color name="primary">#ff5794</color>
-  <color name="primary_dark">#E12929</color>
-  <color name="primary_darker">#6f121e</color>
-  <color name="accent">#FFFFFF</color>
+  <color name="primary">#fff0e8</color>
+  <color name="primary_dark">#fff0e8</color>
+  <color name="primary_darker">#ffdbcf</color>
+  <color name="accent">#442C2E</color>
   <color name = "lightpink">#dda7bb</color>
+  <color name="grey2">#424242</color>
+  <color name = "grey1">#616161</color>
+  <color name = "darkpink">#EF9A9A</color>
 
   <color name="black">#000000</color>
   <color name="jet">#222222</color>

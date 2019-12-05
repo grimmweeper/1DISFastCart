@@ -99,7 +99,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
         //Set data
         productLabel.setText(product_label);
         productDesc.setText(product_desc);
-        new DownloadImageTask(productImage).execute(product_image);
+        new DownloadImageTask(productImage, null).execute(product_image);
 
         dialogBuilder.setView(layoutView);
         alertDialog = dialogBuilder.create();

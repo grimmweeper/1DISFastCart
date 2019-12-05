@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,6 +29,7 @@ public class CartActivity extends Fragment {
     private RecyclerView.LayoutManager mLayoutManager;
     TextView cartTotal;
     Button buttonAdd;
+    Button buttonCheckout;
 
     //hardcoded array to get items from (button accesses these items)
     Item item1 = new Item("Apple", "1.50", R.drawable.ic_android);
@@ -71,9 +73,9 @@ public class CartActivity extends Fragment {
                         cartTotal.setText(getCartTotal(cart));
 
                         Toast.makeText(getActivity(), "Item removed from cart", Toast.LENGTH_SHORT).show();
-
                     }
                 };
+
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
 
@@ -97,6 +99,21 @@ public class CartActivity extends Fragment {
                 cartTotal.setText(getCartTotal(cart));
             }
         });
+
+        buttonCheckout = (Button) view.findViewById(R.id.checkoutbtn);
+        buttonCheckout.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                AlertDialog alertCheckout = new AlertDialog.Builder(getActivity()).create();
+                alertCheckout.setTitle("Checkout Success");
+                alertCheckout.setMessage("Thank you for shopping with us.");
+                alertCheckout.show();
+
+
+            }
+        });
+
+
 
 
 

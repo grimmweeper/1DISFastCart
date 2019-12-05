@@ -58,16 +58,19 @@ public class NavActivity extends AppCompatActivity {
                 case R.id.navigation_profile:
                     fm.beginTransaction().hide(active).show(fragment1).commit();
                     active = fragment1;
+                    fragment2.onPause();
                     return true;
 
                 case R.id.navigation_scanitem:
                     fm.beginTransaction().hide(active).show(fragment2).commit();
                     active = fragment2;
+                    fragment2.onResume();
                     return true;
 
                 case R.id.navigation_checkout:
                     fm.beginTransaction().hide(active).show(fragment3).commit();
                     active = fragment3;
+                    fragment2.onPause();
                     return true;
             }
             return false;

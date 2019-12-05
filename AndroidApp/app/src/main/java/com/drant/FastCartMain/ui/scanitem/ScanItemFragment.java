@@ -30,7 +30,10 @@ import androidx.fragment.app.Fragment;
 
 import com.drant.FastCartMain.DownloadImageTask;
 import com.drant.FastCartMain.R;
+import com.drant.FastCartMain.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
@@ -45,6 +48,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class ScanItemFragment extends Fragment {
@@ -65,25 +70,24 @@ public class ScanItemFragment extends Fragment {
     private String cart_id="CART_ID";
     private static final int REQUEST_CAMERA_PERMISSION = 201;
 
-    private BarcodeDetector barcodeDetector;
-    private BarcodeDetector qrDetector;
-    private BarcodeDetector currentDetector;
+    View view;
+    ViewGroup container;
 
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_scan_barcode, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup containerGroup, Bundle savedInstanceState) {
+        container = containerGroup;
+        view = inflater.inflate(R.layout.activity_scan_barcode, container, false);
         return view;
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        SurfaceView surfaceView=view.findViewById(R.id.surfaceView);
+    public void onResume() {
+        super.onResume();
+        surfaceView=view.findViewById(R.id.surfaceView);
         TextView welcomeMsg= view.findViewById(R.id.welcomeMsg);
         TextView txtBarcodeValue=view.findViewById(R.id.txtBarcodeValue);
         scanTime = System.currentTimeMillis();
 
         // Initialize Firebase + Firestore
-        mAuth = FirebaseAuth.getInstance();
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
@@ -92,9 +96,67 @@ public class ScanItemFragment extends Fragment {
         welcomeMsg.setText(uid);
 
         //Definitions for barcode and qr scanners
-        barcodeDetector = new BarcodeDetector.Builder(getActivity())
+        BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(getActivity())
                 .setBarcodeFormats(1|2|4|5|8|32|64|128|512|1024)//ONLY_BAR_CODE)
                 .build();
+
+        BarcodeDetector qrDetector = new BarcodeDetector.Builder(getActivity())
+                .setBarcodeFormats(256)//QR_CODE)
+                .build();
+
+        qrDetector.setProcessor(new Detector.Processor<Barcode>() {
+            @Override
+            public void release() {
+            }
+
+            @Override
+            public void receiveDetections(Detector.Detections<Barcode> detections) {
+                final SparseArray<Barcode> barcodes = detections.getDetectedItems();
+                if (barcodes.size() != 0 && System.currentTimeMillis()>scanTime+2500) {
+                    txtBarcodeValue.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            cart_id = barcodes.valueAt(0).displayValue;
+
+                            //Throttle
+                            scanTime = System.currentTimeMillis();
+
+                            //Vibrate
+                            Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+                            v.vibrate(200);
+
+                            //Progress
+                            final ProgressDialog progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Light_Dialog);
+                            progressDialog.setIndeterminate(true);
+                            progressDialog.setMessage("Finding Trolley...");
+                            progressDialog.show();
+
+                            Map<String, Object> data = new HashMap<>();
+                            data.put("trolley", cart_id);
+
+                            db.collection("users").document(uid).set(data)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d("Firestore", "Trolley Added");
+                                        progressDialog.dismiss();
+                                        Toast.makeText(getActivity(),"Trolley Added",Toast.LENGTH_SHORT).show();
+                                        //TODO check for cart id before putting
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        progressDialog.dismiss();
+                                        Log.w("Firestore", "Error adding document", e);
+                                        Toast.makeText(getActivity(),"Trolley Issue",Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                        }
+                    });
+                }
+            }
+        });
 
         barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
             @Override
@@ -124,6 +186,7 @@ public class ScanItemFragment extends Fragment {
 
 
                             //Get Firestore Data
+//                            dbHandler.addItemToCart(ScanItemFragment.this, product_id);
                             DocumentReference docRef = db.collection("products").document(product_id);
                             docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -157,34 +220,6 @@ public class ScanItemFragment extends Fragment {
                 }
             }
         });
-        qrDetector = new BarcodeDetector.Builder(getActivity())
-                .setBarcodeFormats(256)//QR_CODE)
-                .build();
-
-        qrDetector.setProcessor(new Detector.Processor<Barcode>() {
-            @Override
-            public void release() {
-            }
-
-            @Override
-            public void receiveDetections(Detector.Detections<Barcode> detections) {
-                final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                if (barcodes.size() != 0 && System.currentTimeMillis()>scanTime+2500) {
-                    txtBarcodeValue.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            product_id = barcodes.valueAt(0).displayValue;
-                            //Throttle
-                            scanTime = System.currentTimeMillis();
-
-                            //Vibrate
-                            Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-                            v.vibrate(200);
-                        }
-                    });
-                }
-            }
-        });
 
         DocumentReference docRef = db.collection("users").document(uid);
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -199,94 +234,61 @@ public class ScanItemFragment extends Fragment {
                     //Stop the current camera
                     try {
                         cameraSource.stop();
-                    } catch (NullPointerException ex1) { ex1.printStackTrace(); }
+                    } catch (NullPointerException ex1) {
+                        ex1.printStackTrace();
+                    }
 
                     //If a trolley does not exist, initiate QR scanner
-                    if (snapshot.getData().get("trolley")==null){
+                    if (snapshot.getData().get("trolley") == null) {
                         Log.d("Firestore", "No Trolley Detected");
                         welcomeMsg.setText("Scanning for Trolley QR");
-                        currentDetector=qrDetector;
 
-                        cameraSource = new CameraSource.Builder(getActivity(), currentDetector)
+                        cameraSource = new CameraSource.Builder(getActivity(), qrDetector)
                                 .setRequestedPreviewSize(1920, 1080)
                                 .setAutoFocusEnabled(true) //you should add this feature
                                 .build();
-
-                        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
-                            @Override
-                            public void surfaceCreated(SurfaceHolder holder) {
-                                try {
-                                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                                        cameraSource.start(surfaceView.getHolder());
-                                    } else {
-                                        ActivityCompat.requestPermissions(getActivity(), new
-                                                String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            @Override
-                            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                            }
-
-                            @Override
-                            public void surfaceDestroyed(SurfaceHolder holder) {
-                                cameraSource.stop();
-                            }
-                        });
                     }
 
                     //If a trolley exists, initiate barcode scanner
                     else {
                         Log.d("Firestore", "Trolley " + snapshot.getData().get("trolley"));
                         welcomeMsg.setText("Scanning for Item Barcodes");
-                        currentDetector=barcodeDetector;
 
-                        cameraSource = new CameraSource.Builder(getActivity(), currentDetector)
+                        cameraSource = new CameraSource.Builder(getActivity(), barcodeDetector)
                                 .setRequestedPreviewSize(1920, 1080)
                                 .setAutoFocusEnabled(true) //you should add this feature
                                 .build();
-
-                        surfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
-                            @Override
-                            public void surfaceCreated(SurfaceHolder holder) {
-                                try {
-                                    if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                                        cameraSource.start(surfaceView.getHolder());
-                                    } else {
-                                        ActivityCompat.requestPermissions(getActivity(), new
-                                                String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            @Override
-                            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                            }
-
-                            @Override
-                            public void surfaceDestroyed(SurfaceHolder holder) {
-                                cameraSource.stop();
-                            }
-                        });
                     }
+
+                    Utils.delay(100, new Utils.DelayCallback() {
+                        @Override
+                        public void afterDelay() {
+                            try {
+                                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                                    cameraSource.start(surfaceView.getHolder());
+                                } else {
+                                    ActivityCompat.requestPermissions(getActivity(), new
+                                            String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+                                }
+                            } catch (IOException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    });
                 }
             }
         });
     }
 
-//    private void initialiseScanner() {
-//
-//    }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onPause() {
+        super.onPause();
+        try {
+            cameraSource.release();
+        } catch (NullPointerException ex1) { ex1.printStackTrace(); }
     }
+
 
     private void showAlertDialog(int layout) {
         //Builds and inflates the dialog into view

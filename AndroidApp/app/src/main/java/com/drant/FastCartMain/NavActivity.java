@@ -18,7 +18,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class NavActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth mAuth;
-    static User userObject;
+    public static User userObject;
 
     final Fragment fragment1 = new CartActivity();
     final Fragment fragment2 = new ScanItemFragment();

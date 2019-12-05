@@ -75,9 +75,7 @@ public class DatabaseHandler {
 
     // updating trolley and user links
     private void linkingFunction(DocumentReference mainDocRef, DocumentReference linkedDocRef, String fieldToUpdate) {
-        mainDocRef
-                .update(fieldToUpdate, linkedDocRef)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+        mainDocRef.update(fieldToUpdate, linkedDocRef).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.i("console", "Trolley has been successfully added to User!");
@@ -92,7 +90,7 @@ public class DatabaseHandler {
     }
 
     // linking trolley and user
-    void linkTrolleyAndUser(String userId, String trolleyId){
+    public void linkTrolleyAndUser(String userId, String trolleyId){
         // saves trolley doc to userObject
         userObject.setTrolleyId(trolleyId);
         // get document references based on user id and trolley id
@@ -105,7 +103,7 @@ public class DatabaseHandler {
     }
 
     // unlink trolley and user
-    void unlinkTrolleyAndUser(String userId, String trolleyId) {
+    public void unlinkTrolleyAndUser(String userId, String trolleyId) {
         // set trolleyDocRef as null
         userObject.setTrolleyId(null);
         // get document references based on user id and trolley id
@@ -121,8 +119,6 @@ public class DatabaseHandler {
     public void addItemToCart(final FirebaseCallback firebaseCallback, String barcode){
         // get product document reference from barcode
         DocumentReference productDocRef = db.collection("products").document(barcode);
-        // call method to update firebase accordingly
-        addItemToCart(firebaseCallback, productDocRef);
         // get item information from firebase to display information
         productDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -130,6 +126,8 @@ public class DatabaseHandler {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
+                        // call method to update firebase accordingly
+                        addItemToCart(firebaseCallback, productDocRef);
                         Log.i("console", "adding1");
                         String name = document.getString("name");
                         String price = document.getDouble("price").toString();
@@ -419,10 +417,11 @@ public class DatabaseHandler {
 //        });
 //    }
 
-    void getSingleFirebaseItem (DocumentReference itemDocRef) {
+    private void getSingleFirebaseItem (DocumentReference itemDocRef,ArrayList<Item> itemList) {
         itemDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                Log.d("getSingleFirebaseItem", "Called");
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
@@ -451,27 +450,25 @@ public class DatabaseHandler {
                 @Override
                 public void onEvent(@Nullable DocumentSnapshot snapshot,
                                     @Nullable FirebaseFirestoreException e) {
+                    Log.i("ItemsListener", "Listening...");
                     if (e != null) {
-                        Log.i("console", "Listen failed.", e);
+                        Log.i("ItemsListener", "Listen failed.", e);
                         return;
                     }
                     if (snapshot != null && snapshot.exists()) {
                         if (batch == null) {
-                            Log.i("console", "Change made");
-                            ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) snapshot.get("items");
-                            userObject.setItemDocuments(itemDocuments);
-                            itemList = new ArrayList<Item>();
-                            if (itemDocuments != null) {
-                                for (DocumentReference itemDocRef : itemDocuments) {
-                                    getSingleFirebaseItem(itemDocRef);
-                                }
-                            }
-                            updateUserCallback.updateLocalItems(itemList);
-                        } else {
-                            batch = null;
-                        }
-                    } else {
-                        Log.i("console", "Current data: null");
+                                ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) snapshot.get("items");
+                                if (itemDocuments!=null) {
+                                    Log.i("ItemsListener", itemDocuments.toString());
+                                    userObject.setItemDocuments(itemDocuments);
+
+                                    itemList = new ArrayList<Item>();
+                                    for (DocumentReference itemDocRef : itemDocuments) {
+                                        getSingleFirebaseItem(itemDocRef,itemList);
+                                    }
+                                    updateUserCallback.updateLocalItems(itemList);
+                            } else Log.i("ItemsListener", "No items in cart");
+                        } else { batch = null; }
                     }
                 }
             });

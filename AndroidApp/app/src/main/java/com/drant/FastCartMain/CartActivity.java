@@ -31,6 +31,9 @@ public class CartActivity extends Fragment implements FirebaseCallback {
     TextView cartTotal;
     Button buttonCheckout;
 
+    View view;
+    ViewGroup container;
+
     //start w empty cart to fill
     ArrayList<Item> cart = new ArrayList<Item>();
 
@@ -56,8 +59,15 @@ public class CartActivity extends Fragment implements FirebaseCallback {
 
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_cart, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup containerGroup, @Nullable Bundle savedInstanceState) {
+        container = containerGroup;
+        view = inflater.inflate(R.layout.activity_cart, container, false);
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerview);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mAdapter = new recyclerAdapter(cart);
@@ -115,7 +125,6 @@ public class CartActivity extends Fragment implements FirebaseCallback {
             }
         });
 
-        return view;
     }
 
     public String getCartTotal(ArrayList<Item> cart){
@@ -130,17 +139,10 @@ public class CartActivity extends Fragment implements FirebaseCallback {
     @Override
     public void onAttach(Context context){
         super.onAttach(getContext());
-        dbHandler.getItemsInLocalTrolley(this);
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        dbHandler.getItemsInLocalTrolley(this);
-    }
-
-    @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         dbHandler.getItemsInLocalTrolley(this);
     }

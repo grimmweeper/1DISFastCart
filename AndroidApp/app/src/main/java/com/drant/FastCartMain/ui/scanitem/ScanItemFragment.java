@@ -32,8 +32,9 @@ import com.drant.FastCartMain.FirebaseCallback;
 import com.drant.FastCartMain.Item;
 import com.drant.FastCartMain.R;
 import com.drant.FastCartMain.Utils;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnCompleteListener;
+
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
@@ -45,16 +46,16 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
+import static com.drant.FastCartMain.NavActivity.userObject;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.ArrayList;
 
 public class ScanItemFragment extends Fragment implements FirebaseCallback {
     AlertDialog.Builder dialogBuilder;
     AlertDialog alertDialog;
     SurfaceView surfaceView;
+    private Boolean scanStatus;
     private Long scanTime;
 
     private CameraSource cameraSource;
@@ -82,11 +83,12 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
     @Override
     public void onResume() {
         super.onResume();
+        scanStatus=true;
+        scanTime = System.currentTimeMillis();
         surfaceView=view.findViewById(R.id.surfaceView);
         TextView welcomeMsg= view.findViewById(R.id.welcomeMsg);
         TextView instructions = view.findViewById(R.id.instructions);
         TextView txtBarcodeValue=view.findViewById(R.id.txtBarcodeValue);
-        scanTime = System.currentTimeMillis();
 
         // Initialize Firebase + Firestore
         mAuth = FirebaseAuth.getInstance();
@@ -94,10 +96,8 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
 
         //Profile Filling
         String uid = mAuth.getCurrentUser().getUid();
-        welcomeMsg.setText(uid);
 
         //Definitions for barcode and qr scanners
-
         BarcodeDetector qrDetector = new BarcodeDetector.Builder(getActivity())
                 .setBarcodeFormats(256)//QR_CODE)
                 .build();
@@ -109,14 +109,14 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                if (barcodes.size() != 0 && System.currentTimeMillis()>scanTime+2500) {
+                if (barcodes.size() != 0 && scanStatus && System.currentTimeMillis()>scanTime+2500) {
                     txtBarcodeValue.post(new Runnable() {
                         @Override
                         public void run() {
                             cart_id = barcodes.valueAt(0).displayValue;
 
                             //Throttle
-                            scanTime = System.currentTimeMillis();
+                            scanStatus = false;
 
                             //Vibrate
                             Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
@@ -128,27 +128,36 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                             progressDialog.setMessage("Finding Trolley...");
                             progressDialog.show();
 
-                            Map<String, Object> data = new HashMap<>();
-                            data.put("trolley", cart_id);
-
-                            db.collection("users").document(uid).set(data)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.d("Firestore", "Trolley Added");
-                                            progressDialog.dismiss();
-                                            Toast.makeText(getActivity(),"Trolley Added",Toast.LENGTH_SHORT).show();
-                                            //TODO check for cart id before putting
+                            if (cart_id.matches("[A-Za-z0-9]+")) {
+                                DocumentReference docRef = db.collection("trolleys").document(cart_id);
+                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            if (task.getResult().exists()) {
+                                                progressDialog.dismiss();
+                                                Toast.makeText(getActivity(),"Trolley Added",Toast.LENGTH_SHORT).show();
+                                                dbHandler.linkTrolleyAndUser(uid,cart_id);
+                                                userObject.setTrolleyId(cart_id);
+                                                scanStatus=true;
+                                                scanTime = System.currentTimeMillis() - 1000;
+                                            } else {
+                                                progressDialog.dismiss();
+                                                Toast.makeText(getActivity(),"Trolley Not Found",Toast.LENGTH_SHORT).show();
+                                                scanStatus=true;
+                                                scanTime = System.currentTimeMillis() - 1000;
+                                            }
+                                        } else {
+                                            Log.d("Firestore", "get failed with ", task.getException());
                                         }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            progressDialog.dismiss();
-                                            Log.w("Firestore", "Error adding document", e);
-                                            Toast.makeText(getActivity(),"Trolley Issue",Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                                    }
+                                });
+                            } else {
+                                progressDialog.dismiss();
+                                Toast.makeText(getActivity(),"QR Code Issue",Toast.LENGTH_SHORT).show();
+                                scanStatus=true;
+                                scanTime = System.currentTimeMillis() - 1000;
+                            }
                         }
                     });
                 }
@@ -166,13 +175,13 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
             @Override
             public void receiveDetections(Detector.Detections<Barcode> detections) {
                 final SparseArray<Barcode> barcodes = detections.getDetectedItems();
-                if (barcodes.size() != 0 && System.currentTimeMillis()>scanTime+2500) {
+                if (barcodes.size() != 0 && scanStatus && System.currentTimeMillis()>scanTime+2500) {
                     txtBarcodeValue.post(new Runnable() {
                         @Override
                         public void run() {
                             product_id = barcodes.valueAt(0).displayValue;
                             //Throttle
-                            scanTime = System.currentTimeMillis();
+                            scanStatus = false;
 
                             //Vibrate
                             Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
@@ -222,11 +231,27 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                                 .build();
                     }
 
-                    //If a trolley exists, initiate barcode scanner
+                    //If a trolley exists, initiate barcode scanner and set trolley id
                     else {
-                        Log.d("Firestore", "Trolley " + snapshot.getData().get("trolley"));
+                        Log.d("Firestore", "Trolley " + snapshot.get("trolley"));
                         welcomeMsg.setText("Scanning for Item");
                         instructions.setText("Scan Item Barcode within square to add item");
+                        DocumentReference trolleyRef = (DocumentReference) snapshot.get("trolley");
+                        trolleyRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    if (task.getResult().exists()) {
+                                        userObject.setTrolleyId(task.getResult().getId());
+                                        Log.d("Firestore", ""+ task.getResult().getId());
+                                    } else {
+                                        Log.d("Firestore", "No such document");
+                                    }
+                                } else {
+                                    Log.d("Firestore", "get failed with ", task.getException());
+                                }
+                            }
+                        });
 
                         cameraSource = new CameraSource.Builder(getActivity(), barcodeDetector)
                                 .setRequestedPreviewSize(1920, 1080)
@@ -260,6 +285,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
         progressDialog.dismiss();
         if (item == null) {
             Toast.makeText(getContext(), "Product not registered in database", Toast.LENGTH_SHORT).show();
+            scanStatus = true;
             scanTime = System.currentTimeMillis() - 1000;
         } else {
             product_label = item.getName();
@@ -312,38 +338,26 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
         dialogBuilder.setView(layoutView);
         alertDialog = dialogBuilder.create();
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        scanTime = System.currentTimeMillis();
+        alertDialog.setCanceledOnTouchOutside(false);
         alertDialog.show();
 
         //TODO: Make productButton cancel current addition to cart
         productButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                dbHandler.cancelOperation(ScanItemFragment.this, true);
                 alertDialog.dismiss();
                 Toast.makeText(getActivity(), "Removed Item From Cart", Toast.LENGTH_SHORT).show();
             }
         });
 
-        //Runnable to dismiss alert dialog
-        final Runnable closeDialog = new Runnable() {
-            @Override
-            public void run() {
-                if (alertDialog.isShowing()) {
-                    alertDialog.dismiss();
-                }
-            }
-        };
-
-        //Handler to execute ^runnable after delay, closes further thread callbacks
-        final Handler handler = new Handler();
         alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialog) {
-                handler.removeCallbacks(closeDialog);
-                scanTime = System.currentTimeMillis()-2500;
+                scanStatus = true;
+                scanTime = System.currentTimeMillis() - 1000;
             }
         });
-        handler.postDelayed(closeDialog, 2000);
     }
 
 

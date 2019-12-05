@@ -209,21 +209,22 @@ public class DatabaseHandler {
                         ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) document.get("items");
                         itemDocuments.remove(itemDocRef);
                         trolleyDocRef
-                            .update("removed_item", itemDocRef)
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.i("console", "Removing item...");
-                                    startScanning(firebaseCallback, trolleyDocRef, itemDocuments);
-                                    userObject.setItemDocuments(itemDocuments);
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.i("console", "Error removing item.", e);
-                                }
-                            });
+                                .update("removed_item", itemDocRef)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.i("console", "Removing item...");
+                                        DocumentReference itemToRemove = itemDocRef;
+                                        startScanning(firebaseCallback, trolleyDocRef, itemDocuments, itemToRemove);
+                                        userObject.setItemDocuments(itemDocuments);
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.i("console", "Error removing item.", e);
+                                    }
+                                });
                     } else {
                         Log.d(TAG, "No such document");
                         firebaseCallback.displayItemsCallback(null);
@@ -243,7 +244,9 @@ public class DatabaseHandler {
         }
         // create write batch to update firebase accordingly
         batch = db.batch();
-        batch.update(trolleyDocRef, "items", itemDocuments);
+
+        // batch.update(trolleyDocRef, "items", itemDocuments);
+        batch.update(trolleyDocRef, "product_id", itemDocuments.get(itemDocuments.size() - 1));
         batch.update(trolleyDocRef, "scanning", true);
         batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -253,6 +256,28 @@ public class DatabaseHandler {
             }
         });
     }
+
+        // overloaded method (remove now uses this, has 4th param (itemToRemove)
+        private void startScanning(FirebaseCallback firebaseCallback, DocumentReference trolleyDocRef,
+                ArrayList<DocumentReference> itemDocuments, DocumentReference itemToRemove) {
+            if (itemDocuments.isEmpty()) {
+                itemDocuments = null;
+            }
+            // create write batch to update firebase accordingly
+            batch = db.batch();
+
+            // batch.update(trolleyDocRef, "items", itemDocuments);
+            batch.update(trolleyDocRef, "removed_item", itemToRemove);
+
+            batch.update(trolleyDocRef, "scanning", true);
+            batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    listenForCorrectItem(firebaseCallback, trolleyDocRef);
+                    Log.i("console", "Scanning...");
+                }
+            });
+        }
 
     // listen for correct item status from firebase
     public void listenForCorrectItem(final FirebaseCallback firebaseCallback, DocumentReference trolleyDocRef) {

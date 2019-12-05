@@ -75,9 +75,7 @@ public class DatabaseHandler {
 
     // updating trolley and user links
     private void linkingFunction(DocumentReference mainDocRef, DocumentReference linkedDocRef, String fieldToUpdate) {
-        mainDocRef
-                .update(fieldToUpdate, linkedDocRef)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+        mainDocRef.update(fieldToUpdate, linkedDocRef).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.i("console", "Trolley has been successfully added to User!");
@@ -92,12 +90,13 @@ public class DatabaseHandler {
     }
 
     // linking trolley and user
-    void linkTrolleyAndUser(String userId, String trolleyId){
+    public void linkTrolleyAndUser(String userId, String trolleyId){
         // saves trolley doc to userObject
         userObject.setTrolleyId(trolleyId);
         // get document references based on user id and trolley id
         DocumentReference trolleyDocRef = this.db.collection("trolleys").document(trolleyId);
         DocumentReference userDocRef = this.db.collection("users").document(userId);
+
         // call functions to link user and trolley
         linkingFunction(userDocRef, trolleyDocRef, "trolley");
         linkingFunction(trolleyDocRef, userDocRef, "user");
@@ -105,7 +104,7 @@ public class DatabaseHandler {
     }
 
     // unlink trolley and user
-    void unlinkTrolleyAndUser(String userId, String trolleyId) {
+    public void unlinkTrolleyAndUser(String userId, String trolleyId) {
         // set trolleyDocRef as null
         userObject.setTrolleyId(null);
         // get document references based on user id and trolley id

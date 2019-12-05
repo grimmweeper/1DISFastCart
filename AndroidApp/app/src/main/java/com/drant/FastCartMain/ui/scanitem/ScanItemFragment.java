@@ -32,8 +32,10 @@ import com.drant.FastCartMain.FirebaseCallback;
 import com.drant.FastCartMain.Item;
 import com.drant.FastCartMain.R;
 import com.drant.FastCartMain.Utils;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
@@ -50,6 +52,8 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
+
+import static androidx.constraintlayout.widget.Constraints.TAG;
 
 public class ScanItemFragment extends Fragment implements FirebaseCallback {
     AlertDialog.Builder dialogBuilder;
@@ -128,31 +132,35 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                             progressDialog.setMessage("Finding Trolley...");
                             progressDialog.show();
 
-                            Map<String, Object> data = new HashMap<>();
-                            data.put("trolley", cart_id);
-
-                            db.collection("users").document(uid).set(data)
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Log.d("Firestore", "Trolley Added");
-                                            progressDialog.dismiss();
-                                            Toast.makeText(getActivity(),"Trolley Added",Toast.LENGTH_SHORT).show();
-                                            //TODO check for cart id before putting
-                                            scanStatus=true;
-                                            scanTime = System.currentTimeMillis() - 1000;
+                            if (cart_id.matches("[A-Za-z0-9]+")) {
+                                DocumentReference docRef = db.collection("trolleys").document(cart_id);
+                                docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            if (task.getResult().exists()) {
+                                                progressDialog.dismiss();
+                                                Toast.makeText(getActivity(),"Trolley Added",Toast.LENGTH_SHORT).show();
+                                                dbHandler.linkTrolleyAndUser(uid,cart_id);
+                                                scanStatus=true;
+                                                scanTime = System.currentTimeMillis() - 1000;
+                                            } else {
+                                                progressDialog.dismiss();
+                                                Toast.makeText(getActivity(),"Trolley Not Found",Toast.LENGTH_SHORT).show();
+                                                scanStatus=true;
+                                                scanTime = System.currentTimeMillis() - 1000;
+                                            }
+                                        } else {
+                                            Log.d("Firestore", "get failed with ", task.getException());
                                         }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            progressDialog.dismiss();
-                                            Log.w("Firestore", "Error adding document", e);
-                                            Toast.makeText(getActivity(),"Trolley Issue",Toast.LENGTH_SHORT).show();
-                                            scanStatus=true;
-                                            scanTime = System.currentTimeMillis() - 1000;
-                                        }
-                                    });
+                                    }
+                                });
+                            } else {
+                                progressDialog.dismiss();
+                                Toast.makeText(getActivity(),"QR Code Issue",Toast.LENGTH_SHORT).show();
+                                scanStatus=true;
+                                scanTime = System.currentTimeMillis() - 1000;
+                            }
                         }
                     });
                 }

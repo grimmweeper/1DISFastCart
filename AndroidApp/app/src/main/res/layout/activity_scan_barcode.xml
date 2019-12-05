@@ -17,6 +17,7 @@
         android:fontFamily="@font/coustard"
         android:gravity="center"
         android:text="Welcome"
+        android:textColor="@color/grey1"
         android:textSize="40sp"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"

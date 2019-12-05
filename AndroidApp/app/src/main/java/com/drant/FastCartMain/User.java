@@ -1,58 +1,93 @@
 package com.drant.FastCartMain;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
+
+import com.google.firebase.firestore.DocumentReference;
+
+import java.io.InputStream;
+import java.lang.annotation.Documented;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-public class User {
-    private String user_id;
-    private String trolley_id;
-    private ArrayList<Item> items;
+public class User implements UpdateUserCallback {
+    private String userId;
+    private DocumentReference userDocRef;
+    private String trolleyId;
+    private DocumentReference trolleyDocRef;
+    private ArrayList<Item> items = new ArrayList<Item>();
+    private ArrayList<DocumentReference> itemDocuments = new ArrayList<DocumentReference>();
 
-    private void setUser_id(String user_id) {
-        this.user_id = user_id;
+    private static User user = new User();
+//    private User user;
+//    private DocumentReference productDocRef;
+
+//    private User(){
+//        // Access a Cloud Firestore instance from your Activity
+//        user = user.getInstance();
+//    }
+
+    public static User getInstance() {
+        return user;
     }
 
-    private String getUser_id() {
-        return user_id;
+    DatabaseHandler dbHandler = DatabaseHandler.getInstance();
+
+    void setUserId(String userId) {
+        this.userId = userId;
+        this.setUserDoc();
+        // TODO: Hardcoded - REMOVE
+        this.setTrolleyId("ZZafaKzVTvmlreT99wBL");
+        dbHandler.listenForItemChanges(User.this);
+
+        Log.i("console", this.trolleyId);
     }
 
-    private void setTrolley_id(String trolley_id) {
-        this.trolley_id = trolley_id;
+    String getUserId() {
+        return this.userId;
     }
 
-    private String getTrolley_id() {
-        return trolley_id;
+    private void setUserDoc() {
+        this.userDocRef = dbHandler.saveUserDocument(this.userId);
     }
 
-    private void setItems(ArrayList<Item> items) {
+    DocumentReference getUserDoc() {
+        return this.userDocRef;
+    }
+
+    void setTrolleyId(String trolleyId) {
+        this.trolleyId = trolleyId;
+        this.setTrolleyDoc();
+    }
+
+    String getTrolleyId() {
+        return this.trolleyId;
+    }
+
+    private void setTrolleyDoc() {
+        this.trolleyDocRef = dbHandler.saveTrolleyDocument(this.trolleyId);
+    }
+
+    DocumentReference getTrolleyDoc() {
+        return this.trolleyDocRef;
+    }
+
+    void setItems(ArrayList<Item> items) {
+        //dbHandler.getItemsInFirebaseTrolley(User.this);
         this.items = items;
     }
 
-    private ArrayList<Item> getItems() {
-        return items;
+    ArrayList<Item> getItems() {
+        return this.items;
     }
 
-    User(String user_id){
-        this.setUser_id(user_id);
-        this.setTrolley_id(trolley_id);
-        this.items = getItemsFromDB();
+    public void setItemDocuments(ArrayList<DocumentReference> itemDocuments) {
+        this.itemDocuments = itemDocuments;
     }
 
-    User(String user_id, String trolley_id){
-        this.setUser_id(user_id);
-        this.setTrolley_id(trolley_id);
-        this.items = getItemsFromDB();
-    }
-
-    User(String user_id, String trolley_id, ArrayList<Item> items){
-        this.setUser_id(user_id);
-        this.setTrolley_id(trolley_id);
-        this.setItems(items);
-    }
-
-    ArrayList getItemsFromDB(){
-        ArrayList itemsList = new ArrayList<Item>();
-        return itemsList;
+    public ArrayList<DocumentReference> getItemDocuments() {
+        return this.itemDocuments;
     }
 
     public BigDecimal getCartTotal(){
@@ -63,5 +98,12 @@ public class User {
             total = total.add(i.getPrice());
         }
         return total;
+    }
+
+    @Override
+    public void updateLocalItems(ArrayList<Item> itemList){//ArrayList<Item> Items, ArrayList<DocumentReference> ItemDocs) {
+        Log.i("console", "update local items");
+        Log.i("console", itemList.toString());
+        this.setItems(itemList);
     }
 }

@@ -56,19 +56,19 @@ public class NavActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_profile:
-                    fm.beginTransaction().hide(active).show(fragment1).commit();
+                    fm.beginTransaction().hide(active).detach(active).attach(fragment1).show(fragment1).commit();
                     active = fragment1;
                     fragment2.onPause();
                     return true;
 
                 case R.id.navigation_scanitem:
-                    fm.beginTransaction().hide(active).show(fragment2).commit();
+                    fm.beginTransaction().hide(active).detach(active).attach(fragment2).show(fragment2).commit();
                     active = fragment2;
                     fragment2.onResume();
                     return true;
 
                 case R.id.navigation_checkout:
-                    fm.beginTransaction().hide(active).show(fragment3).commit();
+                    fm.beginTransaction().hide(active).detach(active).attach(fragment3).show(fragment3).commit();
                     active = fragment3;
                     fragment2.onPause();
                     return true;

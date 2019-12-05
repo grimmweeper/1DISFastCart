@@ -13,7 +13,6 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
-import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,12 +28,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.drant.FastCartMain.DownloadImageTask;
+import com.drant.FastCartMain.FirebaseCallback;
+import com.drant.FastCartMain.Item;
 import com.drant.FastCartMain.R;
 import com.drant.FastCartMain.Utils;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.barcode.Barcode;
@@ -50,15 +49,16 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ArrayList;
 
-
-public class ScanItemFragment extends Fragment {
+public class ScanItemFragment extends Fragment implements FirebaseCallback {
     AlertDialog.Builder dialogBuilder;
     AlertDialog alertDialog;
     SurfaceView surfaceView;
     private Long scanTime;
 
     private CameraSource cameraSource;
+    ProgressDialog progressDialog;
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
@@ -96,14 +96,10 @@ public class ScanItemFragment extends Fragment {
         welcomeMsg.setText(uid);
 
         //Definitions for barcode and qr scanners
-        BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(getActivity())
-                .setBarcodeFormats(1|2|4|5|8|32|64|128|512|1024)//ONLY_BAR_CODE)
-                .build();
 
         BarcodeDetector qrDetector = new BarcodeDetector.Builder(getActivity())
                 .setBarcodeFormats(256)//QR_CODE)
                 .build();
-
         qrDetector.setProcessor(new Detector.Processor<Barcode>() {
             @Override
             public void release() {
@@ -126,7 +122,7 @@ public class ScanItemFragment extends Fragment {
                             v.vibrate(200);
 
                             //Progress
-                            final ProgressDialog progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Light_Dialog);
+                            progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Light_Dialog);
                             progressDialog.setIndeterminate(true);
                             progressDialog.setMessage("Finding Trolley...");
                             progressDialog.show();
@@ -135,29 +131,32 @@ public class ScanItemFragment extends Fragment {
                             data.put("trolley", cart_id);
 
                             db.collection("users").document(uid).set(data)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d("Firestore", "Trolley Added");
-                                        progressDialog.dismiss();
-                                        Toast.makeText(getActivity(),"Trolley Added",Toast.LENGTH_SHORT).show();
-                                        //TODO check for cart id before putting
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        progressDialog.dismiss();
-                                        Log.w("Firestore", "Error adding document", e);
-                                        Toast.makeText(getActivity(),"Trolley Issue",Toast.LENGTH_SHORT).show();
-                                    }
-                                });
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Log.d("Firestore", "Trolley Added");
+                                            progressDialog.dismiss();
+                                            Toast.makeText(getActivity(),"Trolley Added",Toast.LENGTH_SHORT).show();
+                                            //TODO check for cart id before putting
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            progressDialog.dismiss();
+                                            Log.w("Firestore", "Error adding document", e);
+                                            Toast.makeText(getActivity(),"Trolley Issue",Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                         }
                     });
                 }
             }
         });
 
+        BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(getActivity())
+                .setBarcodeFormats(1|2|4|5|8|32|64|128|512|1024)//ONLY_BAR_CODE)
+                .build();
         barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
             @Override
             public void release() {
@@ -179,42 +178,14 @@ public class ScanItemFragment extends Fragment {
                             v.vibrate(200);
 
                             //Progress
-                            final ProgressDialog progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Light_Dialog);
+                            progressDialog = new ProgressDialog(getActivity(), R.style.AppTheme_Light_Dialog);
                             progressDialog.setIndeterminate(true);
                             progressDialog.setMessage("Finding Product...");
                             progressDialog.show();
 
 
                             //Get Firestore Data
-//                            dbHandler.addItemToCart(ScanItemFragment.this, product_id);
-                            DocumentReference docRef = db.collection("products").document(product_id);
-                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot document = task.getResult();
-                                        if (document.exists() && document.contains("name") && document.contains("price") && document.contains("img")) {
-                                            product_label=document.getData().get("name").toString();
-
-                                            DecimalFormat df2 = new DecimalFormat("#.00");
-                                            product_desc="$"+ df2.format(document.getData().get("price"));
-                                            product_image=document.getData().get("img").toString();
-
-                                            //Build and view
-                                            progressDialog.dismiss();
-                                            showAlertDialog(R.layout.product_dialog);
-                                        } else {
-                                            progressDialog.dismiss();
-                                            Toast.makeText(getActivity(),"Product Issue",Toast.LENGTH_SHORT).show();
-                                            scanTime = System.currentTimeMillis()-1000;
-                                        }
-                                    } else {
-                                        progressDialog.dismiss();
-                                        Log.d("Firebase", "get failed with ", task.getException());
-                                        scanTime = System.currentTimeMillis()-1000;
-                                    }
-                                }
-                            });
+                            dbHandler.addItemToCart(ScanItemFragment.this, product_id);
                         }
                     });
                 }
@@ -282,13 +253,42 @@ public class ScanItemFragment extends Fragment {
 
 
     @Override
+    public void onItemCallback(Item item) {
+        progressDialog.dismiss();
+        if (item == null) {
+            Toast.makeText(getContext(), "Product not registered in database", Toast.LENGTH_SHORT).show();
+            scanTime = System.currentTimeMillis() - 1000;
+        } else {
+            product_label = item.getName();
+
+            DecimalFormat df2 = new DecimalFormat("#.00");
+            product_desc = "$" + df2.format(item.getPrice());
+            product_image = item.getImageRef();
+
+            // TODO: alertDialog to only disappear when item has been validated
+            //Build and view
+            showAlertDialog(R.layout.product_dialog);
+        }
+    }
+
+    @Override
+    public void itemValidationCallback(Boolean correctItem){
+        if (correctItem) {
+            alertDialog.dismiss();
+            Toast.makeText(getActivity(), "Added Item to Cart", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void displayItemsCallback(ArrayList<Item> items){}
+
+    @Override
     public void onPause() {
         super.onPause();
         try {
             cameraSource.release();
         } catch (NullPointerException ex1) { ex1.printStackTrace(); }
     }
-
 
     private void showAlertDialog(int layout) {
         //Builds and inflates the dialog into view
@@ -304,7 +304,7 @@ public class ScanItemFragment extends Fragment {
         //Set data
         productLabel.setText(product_label);
         productDesc.setText(product_desc);
-        new DownloadImageTask(productImage).execute(product_image);
+        new DownloadImageTask(productImage, null).execute(product_image);
 
         dialogBuilder.setView(layoutView);
         alertDialog = dialogBuilder.create();
@@ -342,4 +342,6 @@ public class ScanItemFragment extends Fragment {
         });
         handler.postDelayed(closeDialog, 2000);
     }
+
+
 }

@@ -1,6 +1,7 @@
 package com.drant.FastCartMain;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,9 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 
-public class CartActivity extends Fragment {
+public class CartActivity extends Fragment implements FirebaseCallback {
 
     private static final String TAG = "CartActivityFragment";
 
@@ -28,20 +28,30 @@ public class CartActivity extends Fragment {
     private recyclerAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     TextView cartTotal;
-    Button buttonAdd;
     Button buttonCheckout;
-
-    //hardcoded array to get items from (button accesses these items)
-    Item item1 = new Item("Apple", "1.50", R.drawable.ic_android);
-    Item item2 = new Item("Orange", "0.90", R.drawable.ic_android);
-    Item item3 = new Item("Grapes", "4.75", R.drawable.ic_android);
-    ArrayList<Item> items = new ArrayList<>(Arrays.asList(item1, item2, item3));
 
     //start w empty cart to fill
     ArrayList<Item> cart = new ArrayList<Item>();
 
+    @Override
+    public void onItemCallback(Item item){
+        Log.i("console", "item callback");
+    }
 
-    int clickCounter=0;
+    @Override
+    public void displayItemsCallback(ArrayList<Item> items) {
+        Log.i("console", "display callback");
+        mAdapter.displayItems(items);
+        cartTotal.setText(getCartTotal(items));
+    }
+
+    @Override
+    public void itemValidationCallback(Boolean validItem){
+//        Log.i("console", "valid callback");
+        if (validItem) {
+            Toast.makeText(getActivity(), "Item removed from cart", Toast.LENGTH_SHORT).show();
+        }
+    }
 
 
     @Override
@@ -53,8 +63,6 @@ public class CartActivity extends Fragment {
 
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
-
-
 
         ItemTouchHelper.SimpleCallback simpleCallback =
                 new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -69,8 +77,10 @@ public class CartActivity extends Fragment {
                     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
                         recyclerAdapter.ExampleViewHolder itemViewHolder = (recyclerAdapter.ExampleViewHolder) viewHolder;
                         int position = itemViewHolder.getAdapterPosition();
-                        mAdapter.removeItem(position);
+                        Item item = mAdapter.getItemAtPos(position);
+                        dbHandler.removeItemFromCart(CartActivity.this, item);
                         cartTotal.setText(getCartTotal(cart));
+                        mAdapter.notifyDataSetChanged();
 
                         Toast.makeText(getActivity(), "Item removed from cart", Toast.LENGTH_SHORT).show();
                     }
@@ -80,42 +90,21 @@ public class CartActivity extends Fragment {
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
 
         cartTotal = view.findViewById(R.id.cartTotal);
-        buttonAdd =(Button) view.findViewById(R.id.addBtn);
-
-        buttonAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (clickCounter < 3) {
-                    mAdapter.addItem(items.get(clickCounter));
-                    clickCounter += 1;
-                } else {
-                    clickCounter = 0;
-                    mAdapter.addItem(items.get(clickCounter));
-                    clickCounter += 1;
-                }
-
-                // setting cart total to footer
-                cartTotal.setText(getCartTotal(cart));
-            }
-        });
 
         buttonCheckout = (Button) view.findViewById(R.id.checkoutbtn);
         buttonCheckout.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
                 AlertDialog alertCheckout = new AlertDialog.Builder(getActivity()).create();
+                alertCheckout.setIcon(R.drawable.greentick);
                 alertCheckout.setTitle("Checkout Success");
                 alertCheckout.setMessage("Thank you for shopping with us.");
                 alertCheckout.show();
 
-
+                mAdapter.clearCart();
+                cartTotal.setText(getCartTotal(cart));
             }
         });
-
-
-
-
 
         return view;
     }
@@ -127,6 +116,12 @@ public class CartActivity extends Fragment {
         }
 
         return "Cart Total: $" + sum.toString();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        dbHandler.getItemsInLocalTrolley(this);
     }
 }
 

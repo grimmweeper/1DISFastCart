@@ -38,7 +38,7 @@
                 android:background="@drawable/circle"
                 android:scaleType="centerInside"
                 android:padding="3dp"
-                android:src="@drawable/weeping"
+                android:src="@drawable/detectivepikachu"
 
                 />
         </RelativeLayout>
@@ -49,7 +49,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/imgUser"
             android:layout_centerHorizontal="true"
-            android:text="Kuah Wee Ping"
+            android:text="Detective Pikachu"
             android:fontFamily="sana-serif-light"
             android:layout_marginTop="15sp"
             android:textColor="@color/white"

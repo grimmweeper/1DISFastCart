@@ -8,6 +8,7 @@
     android:clickable="true"
     android:focusable="true"
     android:focusableInTouchMode="true"
+    android:background="@color/darkcherry"
     android:fitsSystemWindows="true">
 
     <LinearLayout
@@ -95,6 +96,7 @@
             android:layout_marginTop="24dp"
             android:layout_marginBottom="24dp"
             android:padding="12dp"
+            android:background="#50FFFFFF"
             android:text="Create Account"/>
 
         <TextView android:id="@+id/link_login"

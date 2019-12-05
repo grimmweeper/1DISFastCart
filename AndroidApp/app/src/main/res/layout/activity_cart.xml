@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".CartActivity"
-    android:layout_above="@+id/navigation">
+    android:layout_above="@+id/navigation"
+    android:orientation="vertical"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:layout_marginTop="40dp"
+    android:layout_marginBottom="20dp">
 
     <TextView
         android:id="@+id/header"
@@ -14,43 +18,41 @@
         android:fontFamily="@font/fredoka_one"
         android:paddingLeft="8dp"
         android:text="Your Cart"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:textColor="@color/darkcherry"
-        android:textSize="36sp"
+        android:textSize="40sp"
         android:textStyle="bold" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/header"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="20dp"
         android:padding="4dp"
-        android:scrollbars="vertical"
-        android:layout_marginBottom="80dp"/>
+        android:scrollbars="vertical" />
 
     <TextView
         android:id="@+id/cartTotal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/checkoutbtn"
-        android:layout_marginRight="8dp"
-        android:layout_marginLeft="12dp"
-        android:fontFamily="@font/fredoka_one"
-        android:text="Cart Total"
-        android:textColor="@color/grey2"
-        android:textSize="24sp"
+        android:fontFamily="@font/open_sans_bold"
+        android:text="Cart Total: "
+        android:textColor="@color/darkcherry"
+        android:layout_marginBottom="8dp"
+        android:textSize="28sp"
         android:textStyle="bold" />
 
     <Button
         android:id="@+id/checkoutbtn"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentBottom="true"
+        android:layout_height="60dp"
         android:fontFamily="@font/open_sans_bold"
-        android:layout_marginRight="8dp"
-        android:layout_marginLeft="8dp"
-        android:text="Proceed to checkout"
-        android:textColor="@color/accent"></Button>
+        android:text="Checkout"
+        android:textSize="20dp"
+        android:background="@drawable/roundedbutton2"
+        android:textColor="@color/white"/>
 
-</RelativeLayout>
+</LinearLayout>

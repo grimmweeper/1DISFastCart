@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -19,124 +18,126 @@
             android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/grad">
+            android:background="@color/darkcherry">
 
-            <RelativeLayout
+            <FrameLayout
                 android:id="@+id/imgUser"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="40dp"
-                android:background="@drawable/circle_border">
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_centerHorizontal="true">
+
+                <com.airbnb.lottie.LottieAnimationView
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:scaleType="centerCrop"
+                    android:layout_gravity="center"
+                    app:lottie_autoPlay="true"
+                    app:lottie_rawRes="@raw/confetti"
+                    app:lottie_loop="true"/>
 
                 <ImageView
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
                     android:layout_margin="9dp"
                     android:adjustViewBounds="true"
+                    android:layout_gravity="center"
                     android:background="@drawable/circle"
                     android:padding="3dp"
                     android:scaleType="centerInside"
-                    android:src="@drawable/detectivepikachu"
-
-                    />
-            </RelativeLayout>
-
-            <TextView
-                android:id="@+id/user_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/imgUser"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="15sp"
-                android:fontFamily="@font/fredoka_one"
-                android:text="Detective Pikachu"
-                android:textColor="@color/white"
-                android:textSize="32sp" />
-
-            <!--        android:fontFamily="sana-serif-light"-->
-            <Button
-                android:id="@+id/edit_profile"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/user_name"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="7dp"
-                android:fontFamily="@font/open_sans"
-                android:minHeight="0dp"
-                android:text="Edit Profile"
-                android:textColor="@color/black"
-                android:textSize="12sp" />
-
+                    android:src="@drawable/detectivepikachu" />
+            </FrameLayout>
         </RelativeLayout>
 
-        <RelativeLayout
-        android:paddingTop="20dp"
-        android:layout_below="@id/header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/features"
-        android:paddingBottom="100dp">
-
-        <Button
-            android:id="@+id/purchasehistory"
-            android:layout_width="350dp"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:fontFamily="@font/open_sans_bold"
-            android:text="Purchase History"
-            android:textColor="@color/accent"></Button>
-
-        <Button
-            android:id="@+id/paymentmethod"
-            android:layout_width="350dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/purchasehistory"
-            android:layout_centerHorizontal="true"
-            android:layout_weight="1"
-            android:fontFamily="@font/open_sans_bold"
-            android:text="Payment Method"
-            android:textColor="@color/accent"></Button>
-
-        <Button
-            android:id="@+id/myvouchers"
-            android:layout_width="350dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/paymentmethod"
-            android:layout_centerHorizontal="true"
-            android:layout_weight="1"
-            android:fontFamily="@font/open_sans_bold"
-            android:text="My Vouchers"
-            android:textColor="@color/accent">
-
-        </Button>
-
-        <Button
-            android:id="@+id/settings"
-            android:layout_width="350dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/myvouchers"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="0dp"
-            android:layout_weight="1"
-            android:fontFamily="@font/open_sans_bold"
-            android:text="Settings"
-            android:textColor="@color/accent"></Button>
-
-        <Button
-            android:id="@+id/logout_button"
+        <TextView
+            android:id="@+id/user_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/settings"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="100dp"
-            android:fontFamily="@font/open_sans_bold"
-            android:text="Logout"
-            android:textColor="@color/accent"></Button>
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="15sp"
+            android:fontFamily="@font/fredoka_one"
+            android:text="Detective Pikachu"
+            android:textColor="@color/black"
+            android:textSize="32sp" />
 
-    </RelativeLayout>
+<!--        <Button-->
+<!--            android:id="@+id/edit_profile"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_gravity="center_horizontal"-->
+<!--            android:layout_marginTop="7dp"-->
+<!--            android:fontFamily="@font/open_sans"-->
+<!--            android:minHeight="0dp"-->
+<!--            android:text="Edit Profile"-->
+<!--            android:textColor="@color/black"-->
+<!--            android:textSize="12sp" />-->
 
+        <RelativeLayout
+            android:id="@+id/features"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/header"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp">
 
+            <Button
+                android:id="@+id/purchasehistory"
+                android:layout_width="350dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:fontFamily="@font/open_sans_bold"
+                android:text="Purchase History"
+                android:textSize="18dp"
+                android:textColor="@color/accent" />
 
+            <Button
+                android:id="@+id/paymentmethod"
+                android:layout_width="350dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/purchasehistory"
+                android:layout_centerHorizontal="true"
+                android:layout_weight="1"
+                android:fontFamily="@font/open_sans_bold"
+                android:text="Payment Method"
+                android:textSize="18dp"
+                android:textColor="@color/accent" />
+
+            <Button
+                android:id="@+id/myvouchers"
+                android:layout_width="350dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/paymentmethod"
+                android:layout_centerHorizontal="true"
+                android:layout_weight="1"
+                android:fontFamily="@font/open_sans_bold"
+                android:text="My Vouchers"
+                android:textSize="18dp"
+                android:textColor="@color/accent" />
+
+            <Button
+                android:id="@+id/settings"
+                android:layout_width="350dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/myvouchers"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="0dp"
+                android:layout_weight="1"
+                android:fontFamily="@font/open_sans_bold"
+                android:text="Settings"
+                android:textSize="18dp"
+                android:textColor="@color/accent" />
+
+            <Button
+                android:id="@+id/logout_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/settings"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="31dp"
+                android:fontFamily="@font/open_sans_bold"
+                android:text="Logout"
+                android:textSize="18dp"
+                android:padding="20dp"
+                android:textColor="@color/accent" />
+        </RelativeLayout>
     </LinearLayout>
-</ScrollView>
+</RelativeLayout>

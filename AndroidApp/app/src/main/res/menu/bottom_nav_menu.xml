@@ -5,17 +5,18 @@
 
     <item
         android:id="@+id/navigation_checkout"
-        android:icon="@drawable/checkout"
+        android:icon="@drawable/ic_cart"
         android:title="@string/title_checkout" />
 
     <item
         android:id="@+id/navigation_scanitem"
-        android:icon="@drawable/camera"
+        android:icon="@drawable/ic_barcode"
         android:title="@string/title_scanitem" />
+
 
     <item
         android:id="@+id/navigation_profile"
-        android:icon="@drawable/profile"
+        android:icon="@drawable/ic_profile"
         android:title="@string/title_profile" />
 
 </menu>

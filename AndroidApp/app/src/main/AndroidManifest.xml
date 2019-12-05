@@ -28,8 +28,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.drant.FastCartMain.LoginActivity" android:theme="@style/AppTheme.Dark" />
-        <activity android:name="com.drant.FastCartMain.SignupActivity" android:theme="@style/AppTheme.Dark" />
+        <activity android:name="com.drant.FastCartMain.LoginActivity" android:theme="@style/Theme.Design.NoActionBar" />
+        <activity android:name="com.drant.FastCartMain.SignupActivity" android:theme="@style/Theme.Design.NoActionBar" />
         <activity android:name="com.drant.FastCartMain.CartActivity" android:theme="@style/AppTheme.Dark"/>
         <activity android:name="com.drant.FastCartMain.ui.purchasehistory.HistorySessionActivity" android:theme="@style/AppTheme.Dark"/>
 

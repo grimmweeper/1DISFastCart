@@ -1,13 +1,9 @@
 package com.drant.FastCartMain;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.google.firebase.firestore.DocumentReference;
 
-import java.io.InputStream;
-import java.lang.annotation.Documented;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
@@ -39,7 +35,7 @@ public class User implements UpdateUserCallback {
         this.setUserDoc();
         // TODO: Hardcoded - REMOVE
 //        this.setTrolleyId("ZZafaKzVTvmlreT99wBL");
-        this.setTrolleyId("luoqitrolley");
+        this.setTrolleyId("ZZafaKzVTvmlreT99wBL");
         Log.i("console", this.trolleyId);
     }
 

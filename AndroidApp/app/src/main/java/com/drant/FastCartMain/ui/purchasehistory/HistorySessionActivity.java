@@ -2,6 +2,7 @@ package com.drant.FastCartMain.ui.purchasehistory;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -20,11 +21,13 @@ public class HistorySessionActivity extends AppCompatActivity{
     private ArrayList<HistorySession> historyList;
     private ArrayList<Item> cartArrayList;
     private ArrayList<Item> cartArrayList2;
+    private ImageView backbuton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_histsess);
+
         initView();
 
         //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -52,29 +55,29 @@ public class HistorySessionActivity extends AppCompatActivity{
 
     private void createListData() {
         //First recyclerview
-        Item cart = new Item("Pokka Green Tea", new BigDecimal(0.90).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.750).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
+        Item cart = new Item("if Coconut Water", new BigDecimal(1.6).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.750).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
         cartArrayList.add(cart);
-        cart = new Item("Chips", new BigDecimal(2.40).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.500).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
+        cart = new Item("Ruffles", new BigDecimal(2.40).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.500).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
         cartArrayList.add(cart);
         cart = new Item("Oreo", new BigDecimal(0.90).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.750).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
         cartArrayList.add(cart);
-        cart = new Item("Mamee", new BigDecimal(2.40).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.500).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
+        cart = new Item("IndoMee", new BigDecimal(2.40).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.500).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
         cartArrayList.add(cart);
 
-        HistorySession sess1 = new HistorySession(cartArrayList,"Bedok Mall", "01-DEC-19",new BigDecimal(2.40).setScale(2,BigDecimal.ROUND_HALF_UP));
+        HistorySession sess1 = new HistorySession(cartArrayList,"Bedok Mall", "01-DEC-19",new BigDecimal(7.3).setScale(2,BigDecimal.ROUND_HALF_UP));
         historyList.add(sess1);
 
         //Second recyclerview
-        cart = new Item("Fisherman", new BigDecimal(0.90).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.750).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
+        cart = new Item("Fisherman's Friend Lemon", new BigDecimal(1.95).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.750).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
         cartArrayList2.add(cart);
-        cart = new Item("$50k coconut water", new BigDecimal(2.40).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.500).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
+        cart = new Item("if Coconut Water", new BigDecimal(1.6).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.500).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
         cartArrayList2.add(cart);
-        cart = new Item("Some sweets", new BigDecimal(0.90).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.750).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
+        cart = new Item("Ribena", new BigDecimal(1.70).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.750).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
         cartArrayList2.add(cart);
-        cart = new Item("???", new BigDecimal(2.40).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.500).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
+        cart = new Item("Cup Noodles Tom Yum", new BigDecimal(2.40).setScale(2,BigDecimal.ROUND_HALF_UP).toString(), new BigDecimal(0.500).setScale(3,BigDecimal.ROUND_HALF_UP).toString(), null);
         cartArrayList2.add(cart);
 
-        HistorySession sess2 = new HistorySession(cartArrayList2,"Tampines 1", "04-DEC-19",new BigDecimal(15.40).setScale(2,BigDecimal.ROUND_HALF_UP));
+        HistorySession sess2 = new HistorySession(cartArrayList2,"Tampines 1", "04-DEC-19",new BigDecimal(7.65).setScale(2,BigDecimal.ROUND_HALF_UP));
         historyList.add(sess2);
 
         adapter.notifyDataSetChanged();

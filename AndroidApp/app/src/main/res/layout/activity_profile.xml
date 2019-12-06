@@ -58,7 +58,7 @@
             android:layout_margin="8dp"
             android:text="Purchase History"
             android:textSize="18dp"
-            android:background="@drawable/roundedbutton3" />
+            android:background="@drawable/roundedbutton2" />
 
         <Button
             android:id="@+id/paymentmethod"
@@ -69,7 +69,7 @@
             android:fontFamily="@font/open_sans_bold"
             android:text="Payment Method"
             android:textSize="18dp"
-            android:background="@drawable/roundedbutton3" />
+            android:background="@drawable/roundedbutton2" />
 
         <Button
             android:id="@+id/myvouchers"
@@ -80,7 +80,7 @@
             android:fontFamily="@font/open_sans_bold"
             android:text="My Vouchers"
             android:textSize="18dp"
-            android:background="@drawable/roundedbutton3" />
+            android:background="@drawable/roundedbutton2" />
 
         <Button
             android:id="@+id/settings"
@@ -92,7 +92,7 @@
             android:fontFamily="@font/open_sans_bold"
             android:text="Settings"
             android:textSize="18dp"
-            android:background="@drawable/roundedbutton3" />
+            android:background="@drawable/roundedbutton2" />
 
         <Button
             android:id="@+id/logout_button"
@@ -104,6 +104,6 @@
             android:text="Logout"
             android:textSize="18dp"
             android:padding="20dp"
-            android:background="@drawable/roundedbutton3" />
+            android:background="@drawable/roundedbutton2"/>
 
 </LinearLayout>

@@ -28,6 +28,8 @@ import com.google.firebase.auth.FirebaseUser;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.drant.FastCartMain.NavActivity.userObject;
+
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private static final int REQUEST_SIGNUP = 0;
@@ -123,6 +125,7 @@ public class LoginActivity extends AppCompatActivity {
                         Log.d("LoginActivity", "signInWithEmail:success");
                         FirebaseUser user = mAuth.getCurrentUser();
                         String uid = user.getUid();
+                        userObject.setUserId(uid);
                         Intent intent = new Intent(LoginActivity.this,NavActivity.class);
                         startActivity(intent);
                         Toast.makeText(getBaseContext(), "Login successful", Toast.LENGTH_SHORT).show();

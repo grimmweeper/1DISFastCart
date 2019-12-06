@@ -35,10 +35,11 @@ public class User implements UpdateUserCallback {
     void setUserId(String userId) {
         this.userId = userId;
         this.setUserDoc();
+        Log.i("console", this.userId);
         // TODO: Hardcoded - REMOVE
 //        this.setTrolleyId("ZZafaKzVTvmlreT99wBL");
-        this.setTrolleyId("luoqitrolley");
-        Log.i("console", this.trolleyId);
+//        this.setTrolleyId("luoqitrolley");
+//        Log.i("console", this.trolleyId);
     }
 
     String getUserId() {

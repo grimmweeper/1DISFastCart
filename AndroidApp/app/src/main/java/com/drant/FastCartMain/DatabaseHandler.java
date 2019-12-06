@@ -429,8 +429,9 @@ public class DatabaseHandler {
                 Log.i("console", "Checkout successful");
             }
         });
-        userObject.setItems(null);
-        userObject.setItemDocuments(null);
+        unlinkTrolleyAndUser(userObject.getUserId(), userObject.getTrolleyId());
+        userObject.setItems(new ArrayList<Item>());
+        userObject.setItemDocuments(new ArrayList<DocumentReference>());
         userObject.setTrolleyId(null);
     }
 

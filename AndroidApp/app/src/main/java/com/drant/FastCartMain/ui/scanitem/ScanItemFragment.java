@@ -214,6 +214,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
         });
 
         DocumentReference docRef = db.collection("users").document(uid);
+        Log.i("console", "user id: " + uid.toString());
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot snapshot,

@@ -28,13 +28,9 @@ import com.google.firebase.auth.FirebaseUser;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.drant.FastCartMain.NavActivity.userObject;
-
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private static final int REQUEST_SIGNUP = 0;
-
-//    DatabaseHandler dbHandler = DatabaseHandler.getInstance();
 
     @BindView(R.id.input_user) EditText _userText;
     @BindView(R.id.input_password) EditText _passwordText;

@@ -8,7 +8,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Vibrator;
 import android.util.Log;
 import android.util.SparseArray;
@@ -31,6 +30,7 @@ import com.drant.FastCartMain.DownloadImageTask;
 import com.drant.FastCartMain.FirebaseCallback;
 import com.drant.FastCartMain.Item;
 import com.drant.FastCartMain.R;
+import com.drant.FastCartMain.User;
 import com.drant.FastCartMain.Utils;
 import com.google.android.gms.tasks.OnCompleteListener;
 
@@ -46,7 +46,6 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
-import static com.drant.FastCartMain.NavActivity.userObject;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -149,7 +148,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                                                 progressDialog.dismiss();
                                                 Toast.makeText(getActivity(),"Trolley Added",Toast.LENGTH_SHORT).show();
                                                 dbHandler.linkTrolleyAndUser(uid,cart_id);
-                                                userObject.setTrolleyId(cart_id);
+                                                User.getInstance().setTrolleyId(cart_id);
                                                 scanStatus=true;
                                                 scanTime = System.currentTimeMillis() - 1000;
                                             } else {
@@ -254,7 +253,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                 if (task.isSuccessful()) {
                                     if (task.getResult().exists()) {
-                                        userObject.setTrolleyId(task.getResult().getId());
+                                        User.getInstance().setTrolleyId(task.getResult().getId());
                                         Log.d("Firestore", ""+ task.getResult().getId());
                                     } else {
                                         Log.d("Firestore", "No such document");
@@ -306,7 +305,6 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
             product_desc = "$" + df2.format(item.getPrice());
             product_image = item.getImageRef();
 
-            // TODO: alertDialog to only disappear when item has been validated
             //Build and view
             showAlertDialog(R.layout.product_dialog);
         }

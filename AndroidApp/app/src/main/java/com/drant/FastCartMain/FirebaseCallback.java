@@ -8,5 +8,4 @@ public interface FirebaseCallback{
     void itemValidationCallback(Boolean validItem);
     void onItemCallback(Item item);
     void checkIllopCallback(Boolean illopStatus);
-
 }

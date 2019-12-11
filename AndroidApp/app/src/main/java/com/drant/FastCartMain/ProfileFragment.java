@@ -13,8 +13,6 @@ import androidx.fragment.app.Fragment;
 import com.drant.FastCartMain.ui.purchasehistory.HistorySessionActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
-import static com.drant.FastCartMain.NavActivity.userObject;
-
 public class ProfileFragment extends Fragment {
     Button logout;
     Button purchasehistory;
@@ -41,7 +39,7 @@ public class ProfileFragment extends Fragment {
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                userObject = new User();
+                User.getInstance().createNewUser();
                 firebaseAuth.signOut();
                 getActivity().finish();
                 startActivity(new Intent(getActivity(), LoginActivity.class));

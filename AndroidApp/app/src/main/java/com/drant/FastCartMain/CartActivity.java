@@ -21,8 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-import static com.drant.FastCartMain.NavActivity.userObject;
-
 public class CartActivity extends Fragment implements FirebaseCallback {
 
     private static final String TAG = "CartActivityFragment";

@@ -19,7 +19,6 @@ import com.google.firebase.auth.FirebaseUser;
 public class NavActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth mAuth;
-    public static User userObject;
 
     final Fragment fragment1 = new CartActivity();
     final Fragment fragment2 = new ScanItemFragment();
@@ -56,8 +55,7 @@ public class NavActivity extends AppCompatActivity {
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
             Log.d("FireAuth", "UID: " + user.getUid());
-            userObject = User.getInstance();
-            userObject.setUserId(user.getUid());
+            User.getInstance().setUserId(user.getUid());
         } else {
             Log.d("FireAuth", "no user found");
             startActivity(new Intent(NavActivity.this, LoginActivity.class));

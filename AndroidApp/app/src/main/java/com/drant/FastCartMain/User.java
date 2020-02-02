@@ -9,6 +9,8 @@ import java.util.ArrayList;
 
 import androidx.appcompat.app.AlertDialog;
 
+import static com.drant.FastCartMain.FirebaseCallback.dbHandler;
+
 public class User implements UpdateUserCallback {
     private String userId;
     private DocumentReference userDocRef;
@@ -17,29 +19,23 @@ public class User implements UpdateUserCallback {
     private ArrayList<Item> items = new ArrayList<Item>();
     private ArrayList<DocumentReference> itemDocuments = new ArrayList<DocumentReference>();
 
-    private static User user = new User();
-//    private User user;
-//    private DocumentReference productDocRef;
+    private static User instance;
 
-//    private User(){
-//        // Access a Cloud Firestore instance from your Activity
-//        user = user.getInstance();
-//    }
-
-    public static User getInstance() {
-        return user;
+    void createNewUser() {
+        instance = new User();
     }
 
-    DatabaseHandler dbHandler = DatabaseHandler.getInstance();
+    public static User getInstance() {
+        if (instance == null) {
+            instance = new User();
+        }
+        return instance;
+    }
 
     void setUserId(String userId) {
         this.userId = userId;
         this.setUserDoc();
         Log.i("console", this.userId);
-        // TODO: Hardcoded - REMOVE
-//        this.setTrolleyId("ZZafaKzVTvmlreT99wBL");
-//        this.setTrolleyId("luoqitrolley");
-//        Log.i("console", this.trolleyId);
     }
 
     String getUserId() {
@@ -47,7 +43,7 @@ public class User implements UpdateUserCallback {
     }
 
     private void setUserDoc() {
-        this.userDocRef = dbHandler.saveUserDocument(this.userId);
+        this.userDocRef = DatabaseHandler.getInstance().saveUserDocument(this.userId);
     }
 
     DocumentReference getUserDoc() {
@@ -66,7 +62,6 @@ public class User implements UpdateUserCallback {
     private void setTrolleyDoc() {
         this.trolleyDocRef = dbHandler.saveTrolleyDocument(this.trolleyId);
         dbHandler.listenForItemChanges(User.this);
-//        dbHandler.getItemsInFirebaseTrolley(User.this);
     }
 
     DocumentReference getTrolleyDoc() {
@@ -74,7 +69,6 @@ public class User implements UpdateUserCallback {
     }
 
     void setItems(ArrayList<Item> items) {
-        //dbHandler.getItemsInFirebaseTrolley(User.this);
         this.items = items;
     }
 

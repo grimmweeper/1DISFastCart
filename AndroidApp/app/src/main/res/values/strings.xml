@@ -5,4 +5,5 @@
     <string name="title_profile">Profile</string>
     <string name="title_scanitem">Scan Item</string>
     <string name="title_checkout">Cart</string>
+    <string name="label_buy_now">Buy Now</string>
 </resources>

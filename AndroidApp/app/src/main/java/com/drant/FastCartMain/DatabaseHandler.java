@@ -9,15 +9,19 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,6 +43,9 @@ public class DatabaseHandler {
 
     Item currentItem;
     ArrayList<Item> itemList;
+    Map<String, ArrayList<Item>> mapOfLists;
+    String totalPrice;
+    Date timeOfTransaction;
 
     private DatabaseHandler(){
         // Access a Cloud Firestore instance from your Activity
@@ -535,5 +542,49 @@ public class DatabaseHandler {
             });
         }
     }
+
+    public void getShoppingHist(UpdateUserCallback updateUserCallback){
+        mapOfLists = new HashMap<String, ArrayList<Item>>();
+        CollectionReference userShoppingHistCollection = db.collection("users").document("erjaotT2n0ObxrqVRfrATEmqAJN2").collection("shopping_hist");
+        userShoppingHistCollection
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String docId = document.getId();
+                                Log.i("hist", docId);
+                                Map<String, Object> itemMap = document.getData();
+                                Log.i("hist", itemMap.toString());
+                                itemList = new ArrayList<Item>();
+                                for (Map.Entry<String, Object> entry : itemMap.entrySet()) {
+                                    if (entry.getValue() instanceof Date) {
+                                        timeOfTransaction = (Date) entry.getValue();
+                                    } else if (entry.getValue() instanceof Map) {
+                                        Log.i("hist", entry.getValue().toString());
+                                        Map<String, Object> rawData = (Map) entry.getValue();
+                                        String name = (String) rawData.get("name");
+                                        String price = rawData.get("price").toString();
+                                        String imageRef = (String) rawData.get("img");
+                                        Item item = new Item(name, price, imageRef, null);
+                                        itemList.add(item);
+                                    } else {
+                                        totalPrice = document.get("total_price").toString();
+                                        Log.i("hist", "before: " + totalPrice);
+                                    }
+                                }
+//                                mapOfLists.put(docId, itemList);
+                                updateUserCallback.updateShoppingHist(itemList, totalPrice, timeOfTransaction);
+                            }
+                            Log.i("hist", "callback: "+totalPrice);
+//                            updateUserCallback.updateShoppingHist(mapOfLists, totalPrice, timeOfTransaction);
+                        } else {
+                            Log.i("hist", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
+
 }
 

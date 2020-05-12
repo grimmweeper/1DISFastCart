@@ -6,6 +6,8 @@ import com.google.firebase.firestore.DocumentReference;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Map;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -99,5 +101,10 @@ public class User implements UpdateUserCallback {
         Log.i("console", "update local items");
         Log.i("console", itemList.toString());
         this.setItems(itemList);
+    }
+
+    @Override
+    public void updateShoppingHist(ArrayList<Item> itemList, String total_price, Date timeOfTransaction){
+        Log.i("console", "update shopping hist");
     }
 }

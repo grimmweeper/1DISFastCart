@@ -1,5 +1,7 @@
 package com.drant.FastCartMain.ui.purchasehistory;
 
+import android.util.Log;
+
 import com.drant.FastCartMain.Item;
 
 import java.math.BigDecimal;

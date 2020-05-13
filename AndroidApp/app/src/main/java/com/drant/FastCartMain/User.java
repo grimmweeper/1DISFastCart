@@ -84,6 +84,13 @@ public class User implements UpdateUserCallback {
         Log.i("items", "setting: " + instance + this.items.toString());
     }
 
+    void setItems(ArrayList<Item> items, FirebaseCallback firebaseCallback) {
+        this.items = items;
+        Log.i("items", "setting: " + instance + this.items.toString());
+        DatabaseHandler.getInstance().getItemsInLocalTrolley(firebaseCallback);
+
+    }
+
     public ArrayList<Item> getItems() {
         Log.i("items", "getting: " + instance + this.items.toString());
         return this.items;

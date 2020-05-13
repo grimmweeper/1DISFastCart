@@ -10,6 +10,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -350,6 +351,8 @@ public class DatabaseHandler {
         Log.i("console", "detach illop listener");
         if (type.equals("illop") && illoplistener != null) {
             illoplistener.remove();
+        } else if (type.equals("cart") && itemsChangeListener != null) {
+            itemsChangeListener.remove();
         }
     }
 
@@ -525,7 +528,6 @@ public class DatabaseHandler {
      */
     void listenForItemChanges(UpdateUserCallback updateUserCallback) {
         DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
-        // attach listener to listen for change in correct_item field
         if (trolleyDocRef != null) {
             itemsChangeListener = trolleyDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
                 @Override
@@ -538,20 +540,43 @@ public class DatabaseHandler {
                     }
                     if (snapshot != null && snapshot.exists()) {
                         if (batch == null) {
-                                ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) snapshot.get("items");
-                                if (itemDocuments!=null) {
-                                    Log.i("ItemsListener", itemDocuments.toString());
-                                    userObject.setItemDocuments(itemDocuments);
-                                    itemList = new ArrayList<Item>();
-                                    for (DocumentReference itemDocRef : itemDocuments) {
-                                        getSingleFirebaseItem(updateUserCallback, itemDocRef,itemList);
-                                    }
+                            ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) snapshot.get("items");
+                            if (itemDocuments!=null) {
+                                Log.i("ItemsListener", itemDocuments.toString());
+                                userObject.setItemDocuments(itemDocuments);
+                                itemList = new ArrayList<Item>();
+                                for (DocumentReference itemDocRef : itemDocuments) {
+                                    getSingleFirebaseItem(updateUserCallback, itemDocRef,itemList);
+                                }
                             } else Log.i("ItemsListener", "No items in cart");
                         } else { batch = null; }
                     }
                 }
             });
         }
+    }
+
+    public void listenForCartChanges(final FirebaseCallback firebaseCallback) {
+        if (User.getInstance().getTrolleyDoc() != null) {
+            CollectionReference itemsCollection = userObject.getTrolleyDoc().collection("items");
+            itemsChangeListener = itemsCollection.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot snapshots,
+                                    @Nullable FirebaseFirestoreException e) {
+                    if (e != null) {
+                        System.err.println("Listen failed:" + e);
+                        return;
+                    }
+
+                    ArrayList<Item> itemArrayList = new ArrayList<>();
+                    for (DocumentSnapshot documentSnapshot : snapshots) {
+                        itemArrayList.add(new Item (documentSnapshot.getData()));
+                    }
+                    User.getInstance().setItems(itemArrayList, firebaseCallback);
+                }
+            });
+        }
+
     }
 
     public void getShoppingHist(UpdateUserCallback updateUserCallback){

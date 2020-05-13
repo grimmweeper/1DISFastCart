@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 public class Item {
     private String name;
@@ -19,6 +20,12 @@ public class Item {
         this.price = new BigDecimal(price);
         this.imageRef = imageRef;
         this.itemDocRef = itemDocRef;
+    }
+
+    public Item(Map<String,Object> itemMap) {
+        this.name = (String) itemMap.get("name");
+        this.price = new BigDecimal(itemMap.get("price").toString());
+        this.imageRef = (String) itemMap.get("img");
     }
 
     public String getName() {

@@ -20,8 +20,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 
-public class CartActivity extends Fragment implements FirebaseCallback {
+public class CartActivity extends Fragment implements FirebaseCallback, UpdateUserCallback {
 
     private static final String TAG = "CartActivityFragment";
 
@@ -125,7 +126,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
                         alertRemove.show();
 
                         mAdapter.notifyDataSetChanged();
-                        dbHandler.removeItemFromCart(CartActivity.this, item);
+                        DatabaseHandler.getInstance().removeItemFromCart(CartActivity.this, item);
 
                         cartTotal.setText(mAdapter.getTotalPrice());
 
@@ -150,7 +151,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
 
                 mAdapter.clearCart();
                 cartTotal.setText(getCartTotal(cart));
-                dbHandler.checkOut();
+                DatabaseHandler.getInstance().checkOut();
             }
         });
 
@@ -168,25 +169,39 @@ public class CartActivity extends Fragment implements FirebaseCallback {
     @Override
     public void onStart() {
         super.onStart();
+        DatabaseHandler.getInstance().listenForCartChanges(this);
+
         try {
-            dbHandler.listenForIllop(this);
+            DatabaseHandler.getInstance().listenForIllop(this);
             Log.i("console", "start");
         } catch (Exception e) {
             Log.i("console", e.toString());
         }
+
+//        DatabaseHandler.getInstance().getItemsInLocalTrolley(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        dbHandler.getItemsInLocalTrolley(this);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        Log.i("console", "detaching on cart");
-        dbHandler.detachListener("illop");
+//        Log.i("console", "detaching on cart");
+        DatabaseHandler.getInstance().detachListener("illop");
+        DatabaseHandler.getInstance().detachListener("cart");
+    }
+
+    @Override
+    public void updateLocalItems(ArrayList<Item> itemList) {
+
+    }
+
+    @Override
+    public void updateShoppingHist(ArrayList<Item> itemList, String total_price, Date timeOfTransaction) {
+
     }
 }
 

@@ -76,7 +76,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
             alertIllop.setCancelable(false);
             alertIllop.setCanceledOnTouchOutside(false);
             safecheck = true;
-            Log.i("console", "safecheck = true");
+            Log.i("console", "callback for cart");
 
         } else if (alertIllop.isShowing()) {
 //        } else if (!illopStatus && safecheck) {
@@ -165,22 +165,22 @@ public class CartActivity extends Fragment implements FirebaseCallback {
         return "Cart Total: $" + sum.toString();
     }
 
-    @Override
-    public void onAttach(Context context){
-        super.onAttach(getContext());
-        dbHandler.getItemsInLocalTrolley(this);
-        try {
-            dbHandler.listenForIllop(this);
-            Log.i("console", "attach");
-        } catch (Exception e) {
-            Log.i("console", e.toString());
-        }
-    }
+//    @Override
+//    public void onAttach(Context context){
+//        super.onAttach(getContext());
+//        dbHandler.getItemsInLocalTrolley(this);
+//        try {
+//            dbHandler.listenForIllop(this);
+//            Log.i("console", "attach");
+//        } catch (Exception e) {
+//            Log.i("console", e.toString());
+//        }
+//    }
 
     @Override
     public void onStart() {
         super.onStart();
-        dbHandler.getItemsInLocalTrolley(this);
+//        dbHandler.getItemsInLocalTrolley(this);
         try {
             dbHandler.listenForIllop(this);
             Log.i("console", "start");
@@ -196,13 +196,20 @@ public class CartActivity extends Fragment implements FirebaseCallback {
         dbHandler.getItemsInLocalTrolley(this);
 //        dbHandler.listenForIllop(this);
 
-        try {
-            dbHandler.listenForIllop(this);
-            Log.i("console", "resume");
-        } catch (Exception e) {
-            Log.i("console", e.toString());
-        }
+//        try {
+//            dbHandler.listenForIllop(this);
+//            Log.i("console", "resume");
+//        } catch (Exception e) {
+//            Log.i("console", e.toString());
+//        }
 
+    }
+
+    @Override
+    public void onStop() {
+        super.onPause();
+        Log.i("console", "detaching on cart");
+        dbHandler.detachListener("illop");
     }
 }
 

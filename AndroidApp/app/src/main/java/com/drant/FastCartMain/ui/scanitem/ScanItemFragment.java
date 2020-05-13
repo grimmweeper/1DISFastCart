@@ -70,6 +70,8 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
     private String cart_id="CART_ID";
     private static final int REQUEST_CAMERA_PERMISSION = 201;
 
+    AlertDialog alertIllop;
+
     @Override
     public void itemValidationCallback(Boolean correctItem){
         if (correctItem) {
@@ -79,7 +81,25 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
     }
 
     @Override
-    public void checkIllopCallback(Boolean illopStatus){};
+    public void checkIllopCallback(Boolean illopStatus){
+        if(illopStatus) {
+//            alertIllop = new AlertDialog.Builder(getActivity()).create();
+            alertIllop.setIcon(R.drawable.warning);
+            alertIllop.setTitle("Warning");
+            alertIllop.setMessage("Please return to the cart's previous state");
+            //alertIllop.setMessage("Thank you for shopping with us.");
+            alertIllop.show();
+            alertIllop.setCancelable(false);
+            alertIllop.setCanceledOnTouchOutside(false);
+//            safecheck = true;
+            Log.i("console", "callback for scan");
+
+        } else if (alertIllop.isShowing()) {
+//        } else if (!illopStatus && safecheck) {
+            alertIllop.dismiss();
+//            safecheck = false;
+        }
+    };
 
     View view;
     ViewGroup container;
@@ -88,6 +108,22 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
         container = containerGroup;
         view = inflater.inflate(R.layout.activity_scan_barcode, container, false);
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        alertIllop = new AlertDialog.Builder(getContext()).create();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        try {
+            dbHandler.listenForIllop(this);
+            Log.i("console", "resume");
+        } catch (Exception e) {
+            Log.i("console", e.toString());
+        }
     }
 
     @Override
@@ -190,6 +226,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                         @Override
                         public void run() {
                             product_id = barcodes.valueAt(0).displayValue;
+                            Log.i("scan", product_id);
                             //Throttle
                             scanStatus = false;
 
@@ -315,11 +352,13 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
     public void displayItemsCallback(ArrayList<Item> items){}
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onStop() {
+        super.onStop();
         try {
             cameraSource.release();
         } catch (NullPointerException ex1) { ex1.printStackTrace(); }
+        Log.i("console", "detaching on scan");
+        dbHandler.detachListener("illop");
     }
 
     private void showAlertDialog(int layout) {
@@ -362,6 +401,4 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
             }
         });
     }
-
-
 }

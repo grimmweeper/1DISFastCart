@@ -20,6 +20,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -179,7 +180,7 @@ public class DatabaseHandler {
      */
     private void addItemToCart(final FirebaseCallback firebaseCallback, final DocumentReference itemToAdd){
         // get trolley document reference from userObject
-        DocumentReference trolleyDocRef = User.getInstance().getTrolleyDoc();
+        DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
         // update firebase accordingly
         trolleyDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -230,7 +231,7 @@ public class DatabaseHandler {
      * @param itemDocRef
      */
     private void removeItemFromCart(final FirebaseCallback firebaseCallback, final DocumentReference itemDocRef){
-        DocumentReference trolleyDocRef = User.getInstance().getTrolleyDoc();
+        DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
         trolleyDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -271,7 +272,7 @@ public class DatabaseHandler {
     // update firebase to start rpi weight-checking
 
     /**
-     * Purpose: s
+     * Purpose: Scan for adding of item
      * @param firebaseCallback
      * @param trolleyDocRef
      * @param itemDocuments
@@ -294,10 +295,8 @@ public class DatabaseHandler {
         });
     }
 
-        // overloaded method (remove now uses this, has 4th param (itemToRemove)
-
     /**
-     * Purpose:
+     * Purpose: Scan for removal of item
      * @param firebaseCallback
      * @param trolleyDocRef
      * @param itemDocuments
@@ -329,7 +328,7 @@ public class DatabaseHandler {
      * @param illopCallback
      */
     public void listenForIllop(final FirebaseCallback illopCallback) {
-        Log.i("console", userObject.toString());
+        Log.i("console", "attach illop listener");
         DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
         if (trolleyDocRef != null) {
             illoplistener = trolleyDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -340,13 +339,18 @@ public class DatabaseHandler {
                     }
                     if (snapshot != null && snapshot.exists()) {
                         illopStatus = snapshot.getBoolean("illop");
-                        Log.i("console", "Current data: " + illopStatus);
                         illopCallback.checkIllopCallback(illopStatus);
                     }
                 }
             });
         }
+    }
 
+    public void detachListener(String type) {
+        Log.i("console", "detach illop listener");
+        if (type.equals("illop") && illoplistener != null) {
+            illoplistener.remove();
+        }
     }
 
     /**
@@ -460,11 +464,18 @@ public class DatabaseHandler {
      * Purpose: clear fields of trolley and on local database
      */
     void checkOut() {
+        Date checkoutDate = new Date();
         DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
+        DocumentReference userShoppingHistDocRef = userObject.getUserDoc().collection("shopping_hist").document(new SimpleDateFormat("yyyymmdd").format(checkoutDate));
+        Log.i("checkout", checkoutDate.toString());
+        Log.i("checkout", userShoppingHistDocRef.toString());
         resetTrolleyScanningStatus(trolleyDocRef);
         batch = db.batch();
         batch.update(trolleyDocRef, "items", null);
         batch.update(trolleyDocRef, "running_weight", 0);
+//        batch.set(userShoppingHistDocRef, "time_of_transaction", checkoutDate);
+        Log.i("checkout", userObject.getItems().toString());
+//        batch.set(userShoppingHistDocRef, "");
         batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -544,8 +555,7 @@ public class DatabaseHandler {
     }
 
     public void getShoppingHist(UpdateUserCallback updateUserCallback){
-        mapOfLists = new HashMap<String, ArrayList<Item>>();
-        CollectionReference userShoppingHistCollection = db.collection("users").document("erjaotT2n0ObxrqVRfrATEmqAJN2").collection("shopping_hist");
+        CollectionReference userShoppingHistCollection = userObject.getUserDoc().collection("shopping_hist");
         userShoppingHistCollection
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -574,17 +584,12 @@ public class DatabaseHandler {
                                         Log.i("hist", "before: " + totalPrice);
                                     }
                                 }
-//                                mapOfLists.put(docId, itemList);
                                 updateUserCallback.updateShoppingHist(itemList, totalPrice, timeOfTransaction);
                             }
-                            Log.i("hist", "callback: "+totalPrice);
-//                            updateUserCallback.updateShoppingHist(mapOfLists, totalPrice, timeOfTransaction);
                         } else {
                             Log.i("hist", "Error getting documents: ", task.getException());
                         }
                     }
                 });
     }
-
 }
-

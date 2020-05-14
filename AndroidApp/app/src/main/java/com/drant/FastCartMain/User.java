@@ -79,10 +79,10 @@ public class User implements UpdateUserCallback {
         return this.trolleyDocRef;
     }
 
-    void setItems(ArrayList<Item> items) {
-        this.items = items;
-        Log.i("items", "setting: " + instance + this.items.toString());
-    }
+//    void setItems(ArrayList<Item> items) {
+//        this.items = items;
+//        Log.i("items", "setting: " + instance + this.items.toString());
+//    }
 
     void setItems(ArrayList<Item> items, FirebaseCallback firebaseCallback) {
         this.items = items;
@@ -123,7 +123,7 @@ public class User implements UpdateUserCallback {
         Log.i("items", "others10: " + instance + this.items.toString());
         Log.i("console", "update local items");
         Log.i("console", itemList.toString());
-        this.setItems(itemList);
+//        this.setItems(itemList);
         Log.i("items", "others10: " + instance + this.items.toString());
     }
 

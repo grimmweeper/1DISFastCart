@@ -26,6 +26,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.drant.FastCartMain.DatabaseHandler;
 import com.drant.FastCartMain.DownloadImageTask;
 import com.drant.FastCartMain.FirebaseCallback;
 import com.drant.FastCartMain.Item;
@@ -387,7 +388,8 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
         productButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dbHandler.cancelOperation(ScanItemFragment.this, true);
+//                dbHandler.cancelOperation(ScanItemFragment.this, true);
+                DatabaseHandler.getInstance().cancelAddingOperation();
                 alertDialog.dismiss();
                 Toast.makeText(getActivity(), "Removed Item From Cart", Toast.LENGTH_SHORT).show();
             }

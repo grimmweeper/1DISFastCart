@@ -126,7 +126,7 @@ public class CartActivity extends Fragment implements FirebaseCallback, UpdateUs
                         alertRemove.show();
 
                         mAdapter.notifyDataSetChanged();
-                        DatabaseHandler.getInstance().removeItemFromCart(CartActivity.this, item);
+                        DatabaseHandler.getInstance().removeItemFromCart(CartActivity.this, item.getBarcode());
 
                         cartTotal.setText(mAdapter.getTotalPrice());
 
@@ -149,7 +149,7 @@ public class CartActivity extends Fragment implements FirebaseCallback, UpdateUs
                 alertCheckout.setMessage("Thank you for shopping with us.");
                 alertCheckout.show();
 
-                mAdapter.clearCart();
+//                mAdapter.clearCart();
                 cartTotal.setText(getCartTotal(cart));
                 DatabaseHandler.getInstance().checkOut();
             }

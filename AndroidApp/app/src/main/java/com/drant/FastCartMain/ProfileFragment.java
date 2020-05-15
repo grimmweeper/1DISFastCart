@@ -16,7 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 
-public class ProfileFragment extends Fragment implements FirebaseCallback {
+public class ProfileFragment extends Fragment implements IllopCallback {
     Button logout;
     Button purchasehistory;
     private FirebaseAuth firebaseAuth;
@@ -78,21 +78,6 @@ public class ProfileFragment extends Fragment implements FirebaseCallback {
     public void onStop() {
         super.onStop();
         DatabaseHandler.getInstance().detachListener("illop");
-    }
-
-    @Override
-    public void displayItemsCallback(ArrayList<Item> items) {
-
-    }
-
-    @Override
-    public void itemValidationCallback(Boolean validItem) {
-
-    }
-
-    @Override
-    public void onItemCallback(Item item) {
-
     }
 
     @Override

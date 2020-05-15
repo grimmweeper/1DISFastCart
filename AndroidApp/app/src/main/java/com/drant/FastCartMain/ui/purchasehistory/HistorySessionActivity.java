@@ -2,7 +2,6 @@ package com.drant.FastCartMain.ui.purchasehistory;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
@@ -11,18 +10,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.drant.FastCartMain.Item;
-import com.drant.FastCartMain.LoginActivity;
 import com.drant.FastCartMain.NavActivity;
 import com.drant.FastCartMain.R;
-import com.drant.FastCartMain.UpdateUserCallback;
+import com.drant.FastCartMain.ShoppingHistCallback;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
 
-public class HistorySessionActivity extends AppCompatActivity implements UpdateUserCallback {
+public class HistorySessionActivity extends AppCompatActivity implements ShoppingHistCallback {
 
     private RecyclerView recyclerView;
     private HistorySessionAdapter adapter;
@@ -67,11 +64,6 @@ public class HistorySessionActivity extends AppCompatActivity implements UpdateU
         Intent intent = new Intent(HistorySessionActivity.this, NavActivity.class);
         startActivity(intent);
         finish();
-    }
-
-    @Override
-    public void updateLocalItems(ArrayList<Item> itemList){
-
     }
 
     @Override

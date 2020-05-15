@@ -9,14 +9,10 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.api.core.ApiFuture;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.DocumentListenOptions;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -129,7 +125,7 @@ public class DatabaseHandler {
      * @param userId
      * @param trolleyId
      */
-    public void unlinkTrolleyAndUser(String userId, String trolleyId) {
+    private void unlinkTrolleyAndUser(String userId, String trolleyId) {
         // set trolleyDocRef as null
         userObject.setTrolleyId(null);
         // get document references based on user id and trolley id
@@ -141,7 +137,7 @@ public class DatabaseHandler {
     }
 
     /**
-     * Purpose: Add items to local database
+     * Purpose: Set in motion processes needed to add items
      * @param firebaseCallback
      * @param barcode
      */
@@ -155,18 +151,13 @@ public class DatabaseHandler {
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        Log.i("console", "adding1");
-                        String name = document.getString("name");
-                        String price = document.getDouble("price").toString();
-                        String imageRef = document.getString("img");
-                        Item item = new Item(name, price, imageRef, productDocRef);
+                        Map<String,Object> itemMap = document.getData();
+                        itemMap.put("barcode", barcode);
+                        Item item = new Item(itemMap);
                         // call method to update firebase accordingly
-                        addItemToCart(firebaseCallback, item, barcode);
+                        startScanning(productDocRef, true);
+                        listenForCorrectItem(firebaseCallback, User.getInstance().getTrolleyDoc(), item, barcode, true);
                         firebaseCallback.onItemCallback(item);
-//                        currentItem = item;
-//                        ArrayList<Item> newItemList = userObject.getItems();
-//                        newItemList.add(item);
-//                        userObject.setItems(newItemList);
                     } else {
                         Log.d(TAG, "No such document");
                         firebaseCallback.onItemCallback(null);
@@ -180,65 +171,38 @@ public class DatabaseHandler {
     }
 
     /**
-     * Purpose: Overloaded method - Add item to firebase database
-     * @param firebaseCallback
+     * Purpose: Add item to Firestore
      * @param barcode
      * @param item
      */
-    private void addItemToCart(final FirebaseCallback firebaseCallback, final Item item, final String barcode){
+    private void addItemToFB(final Item item, final String barcode){
         // get trolley document reference from userObject
-        DocumentReference itemDocRef = userObject.getTrolleyDoc().collection("items").document(barcode);
+        DocumentReference trolleyItemDocRef = userObject.getTrolleyDoc().collection("items").document(barcode);
+
         // update firebase accordingly
-        itemDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        trolleyItemDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot documentSnapshot = task.getResult();
                     if (documentSnapshot.exists()) {
-                        itemDocRef.update("qty", documentSnapshot.getDouble("qty") + 1);
+                        trolleyItemDocRef.update("qty", documentSnapshot.getDouble("qty") + 1);
                     } else {
-                        itemDocRef.set(item.getFBItem(false));
+                        trolleyItemDocRef.set(item.getFBItem(false));
                     }
                 }
             }
         });
-        startScanning(firebaseCallback, itemDocRef);
-        listenForCorrectItem(firebaseCallback, User.getInstance().getTrolleyDoc());
-//        } catch ()
-
-//        collectionReference.document(barcode).update(item.getFBItem());
-//        listenForCorrectItem(firebaseCallback, User.getInstance().getTrolleyDoc());
-//        collectionReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                if (task.isSuccessful()) {
-//                    DocumentSnapshot document = task.getResult();
-//                    if (document.exists()) {
-////                        ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) document.get("items");
-//                        if (itemDocuments == null) {
-//                            itemDocuments = new ArrayList<DocumentReference>();
-//                        }
-//                        itemDocuments.add(itemToAdd);
-//                        startScanning(firebaseCallback, trolleyDocRef, itemDocuments);
-//                        userObject.setItemDocuments(itemDocuments);
-//                    } else {
-//                        Log.d(TAG, "No such document");
-//                        firebaseCallback.displayItemsCallback(null);
-//                    }
-//                } else {
-//                    Log.d(TAG, "get failed with ", task.getException());
-//                    firebaseCallback.displayItemsCallback(null);
-//                }
-//            }
-//        });
     }
 
     // remove item from cart
-
     void removeItemFromCart (final FirebaseCallback firebaseCallback, String barcode) {
+        startScanning(db.collection("products").document(barcode), false);
+        listenForCorrectItem(firebaseCallback, User.getInstance().getTrolleyDoc(), null, barcode, false);
+    }
+
+    private void removeItemFromFB(String barcode) {
         DocumentReference itemDocRef = User.getInstance().getTrolleyDoc().collection("items").document(barcode);
-        startScanningForRemoval(firebaseCallback, itemDocRef);
-//        listenForCorrectItem(firebaseCallback, User.getInstance().getTrolleyDoc());
         itemDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -260,144 +224,23 @@ public class DatabaseHandler {
     }
 
     /**
-     * Purpose: Remove item from local database
-     * @param firebaseCallback
-     * @param itemToRemove
-     */
-    void removeItemFromCart(final FirebaseCallback firebaseCallback, Item itemToRemove){
-        // get product document reference from barcode
-        DocumentReference itemDocRef = itemToRemove.getItemDocRef();
-        // call method to update firebase accordingly
-        removeItemFromCart(firebaseCallback, itemDocRef);
-        ArrayList<Item> newItemList = userObject.getItems();
-        newItemList.remove(itemToRemove);
-//        userObject.setItems(newItemList);
-    }
-
-    /**
-     * Purpose: Overloaded method - updates firebase when we remove item from cart
-     * Success: Call startScanning method to communicate with rpi
-     * @param firebaseCallback
+     * Purpose: Scan for addition of item
      * @param itemDocRef
      */
-    private void removeItemFromCart(final FirebaseCallback firebaseCallback, final DocumentReference itemDocRef){
-        DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
-        trolleyDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) document.get("items");
-                        itemDocuments.remove(itemDocRef);
-                        trolleyDocRef
-                                .update("removed_item", itemDocRef)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.i("console", "Removing item...");
-                                        DocumentReference itemToRemove = itemDocRef;
-                                        stopScanningForAdding(firebaseCallback, trolleyDocRef, itemDocuments, itemToRemove);
-                                        userObject.setItemDocuments(itemDocuments);
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.i("console", "Error removing item.", e);
-                                    }
-                                });
-                    } else {
-                        Log.d(TAG, "No such document");
-                        firebaseCallback.displayItemsCallback(null);
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                    firebaseCallback.displayItemsCallback(null);
-                }
-            }
-        });
-    }
+    private void startScanning(DocumentReference itemDocRef, Boolean forAdding) {
+        // create write batch to update firebase accordingly
+        batch = db.batch();
 
-    // update firebase to start rpi weight-checking
-
-    /**
-     * Purpose: Scan for adding of item
-     * @param firebaseCallback
-     * @param trolleyDocRef
-     * @param itemDocuments
-     */
-    private void startScanning(FirebaseCallback firebaseCallback, DocumentReference trolleyDocRef, ArrayList<DocumentReference> itemDocuments) {
-        if (itemDocuments.isEmpty()) {
-            itemDocuments = null;
+        if (forAdding) {
+            batch.update(User.getInstance().getTrolleyDoc(), "product_id", itemDocRef);
+        } else {
+            batch.update(User.getInstance().getTrolleyDoc(), "removed_item", itemDocRef);
         }
-        // create write batch to update firebase accordingly
-        batch = db.batch();
-
-        batch.update(trolleyDocRef, "product_id", itemDocuments.get(itemDocuments.size() - 1));
-        batch.update(trolleyDocRef, "scanning", true);
-        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                listenForCorrectItem(firebaseCallback, trolleyDocRef);
-                Log.i("console", "Scanning...");
-            }
-        });
-    }
-
-    private void startScanning(FirebaseCallback firebaseCallback, DocumentReference itemDocRef) {
-//        if (itemDocuments.isEmpty()) {
-//            itemDocuments = null;
-//        }
-        // create write batch to update firebase accordingly
-        batch = db.batch();
-
-        batch.update(User.getInstance().getTrolleyDoc(), "product_id", itemDocRef);
         batch.update(User.getInstance().getTrolleyDoc(), "scanning", true);
         batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                listenForCorrectItem(firebaseCallback, User.getInstance().getTrolleyDoc());
-                Log.i("console", "Scanning...");
-            }
-        });
-    }
-
-    /**
-     * Purpose: Scan for removal of item
-     * @param firebaseCallback
-     * @param trolleyDocRef
-     * @param itemDocuments
-     * @param itemToRemove
-     */
-    private void stopScanningForAdding(FirebaseCallback firebaseCallback, DocumentReference trolleyDocRef,
-                                       ArrayList<DocumentReference> itemDocuments, DocumentReference itemToRemove) {
-        if (itemDocuments.isEmpty()) {
-            itemDocuments = null;
-        }
-        // create write batch to update firebase accordingly
-        batch = db.batch();
-
-        batch.update(trolleyDocRef, "removed_item", itemToRemove);
-        batch.update(trolleyDocRef, "scanning", true);
-        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                listenForCorrectItem(firebaseCallback, trolleyDocRef);
-                Log.i("console", "Scanning...");
-            }
-        });
-    }
-
-    private void startScanningForRemoval(FirebaseCallback firebaseCallback, DocumentReference itemForRemoval) {
-        // create write batch to update firebase accordingly
-        batch = db.batch();
-        batch.update(User.getInstance().getTrolleyDoc(), "removed_item", itemForRemoval);
-        batch.update(User.getInstance().getTrolleyDoc(), "scanning", true);
-        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                listenForCorrectItem(firebaseCallback, User.getInstance().getTrolleyDoc());
+//                listenForCorrectItem(firebaseCallback, User.getInstance().getTrolleyDoc());
                 Log.i("console", "Scanning...");
             }
         });
@@ -405,12 +248,12 @@ public class DatabaseHandler {
 
     /**
      * Purpose: Listen for ILLOP signal on firebase
-     * Success: Calls the checkIllopCallback, notification should appear in app to regain trolley
+     * Success: Calls the checkIllopCallback, notification should appear in app to restore trolley to previous state
      *          to previous status
      * @param illopCallback
      */
-    public void listenForIllop(final FirebaseCallback illopCallback) {
-        Log.i("console", "attach illop listener");
+    public void listenForIllop(final IllopCallback illopCallback) {
+//        Log.i("console", "attach illop listener");
         DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
         if (trolleyDocRef != null) {
             illoplistener = trolleyDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -428,6 +271,10 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+     * Purpose: Detach listeners as specified
+     * @param type
+     */
     public void detachListener(String type) {
         Log.i("console", "detach illop listener");
         if (type.equals("illop") && illoplistener != null) {
@@ -439,12 +286,17 @@ public class DatabaseHandler {
 
     /**
      * Purpose: Listens for correct_item field in firebase to be true
-     * Success: call firestoreCallback with itemValidationStatus as param
+     * Success:
+     *  - forAdding: calls addItemToFB
+     *  - !forAdding: calls removeItemFromFB
      * Error: call firestoreCallback with null as param
      * @param firebaseCallback
      * @param trolleyDocRef
+     * @param item
+     * @param barcode
+     * @param forAdding
      */
-    public void listenForCorrectItem(final FirebaseCallback firebaseCallback, DocumentReference trolleyDocRef) {
+    private void listenForCorrectItem(final FirebaseCallback firebaseCallback, DocumentReference trolleyDocRef, Item item, String barcode, Boolean forAdding) {
         // attach listener to listen for change in correct_item field
         correctItemListener = trolleyDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -462,7 +314,11 @@ public class DatabaseHandler {
                     if (itemValidationStatus) {
                         // detach listener
                         correctItemListener.remove();
-
+                        if (forAdding) {
+                            addItemToFB(item, barcode);
+                        } else {
+                            removeItemFromFB(barcode);
+                        }
                         // reset fields to idle state
                         resetTrolleyScanningStatus();
                     }
@@ -492,52 +348,22 @@ public class DatabaseHandler {
         });
     }
 
+    /**
+     * Purpose: Cancel operation to add item.
+     * Success:
+     *  - Firebase: scanning set to false
+     *  - App:      alert dialog of item disappears
+     */
     public void cancelAddingOperation() {
         correctItemListener.remove();
         resetTrolleyScanningStatus();
     }
 
     /**
-     * Purpose: Cancel add/remove operations
-     * @param firebaseCallback
-     * @param cancelAdd
-     */
-    public void cancelOperation(final FirebaseCallback firebaseCallback, Boolean cancelAdd) {
-        correctItemListener.remove();
-        DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
-        resetTrolleyScanningStatus();
-        ArrayList<DocumentReference> newItemDocuments = userObject.getItemDocuments();
-        ArrayList<Item> newItems = userObject.getItems();
-        if (cancelAdd) {
-            newItemDocuments.remove(currentItem.getItemDocRef());
-            newItems.remove(currentItem);
-        } else {
-            newItemDocuments.add(currentItem.getItemDocRef());
-            newItems.add(currentItem);
-        }
-        trolleyDocRef
-                .update("items", newItemDocuments)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.i("console", "Scanning status successfully updated.");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.i("console", "Error updating scanning status.", e);
-                    }
-                });
-//        userObject.setItems(newItems);
-        userObject.setItemDocuments(newItemDocuments);
-    }
-
-    /**
      * Purpose: Get items in local trolley
      * @param firebaseCallback
      */
-    public void getItemsInLocalTrolley (final FirebaseCallback firebaseCallback) {
+    void getItemsInLocalTrolley(final FirebaseCallback firebaseCallback) {
         Log.i("console", "getting");
         try{
             ArrayList<Item> items = userObject.getItems();
@@ -549,15 +375,12 @@ public class DatabaseHandler {
     }
 
     /**
-     * Purpose: clear fields of trolley and on local database
+     * Purpose: Move items to purchase history + reset user and trolley
      */
     void checkOut() {
         Date checkoutDate = new Date();
         DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
-//        Log.i("checkout", new SimpleDateFormat("YYYYMMdd").format(checkoutDate));
         DocumentReference userShoppingHistDocRef = userObject.getUserDoc().collection("shopping_hist").document(new SimpleDateFormat("YYYYMMdd-HHmmss").format(checkoutDate));
-//        Log.i("checkout", checkoutDate.toString());
-//        Log.i("checkout", userShoppingHistDocRef.toString());
         resetTrolleyScanningStatus();
 
         batch = db.batch();
@@ -578,7 +401,6 @@ public class DatabaseHandler {
         batch.set(userShoppingHistDocRef, shoppingHist);
         Log.i("checkout", userObject.getItems().toString());
 
-        List<String> barcodeList = new ArrayList<String>();
         trolleyDocRef.collection("items")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -604,71 +426,11 @@ public class DatabaseHandler {
     }
 
     /**
-     * Purpose: Get details on a single item on firebase
-     * @param updateUserCallback
-     * @param itemDocRef
-     * @param itemList
-     */
-    private void getSingleFirebaseItem (UpdateUserCallback updateUserCallback, DocumentReference itemDocRef,ArrayList<Item> itemList) {
-        itemDocRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                Log.d("getSingleFirebaseItem", "Called");
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        String name = document.getString("name");
-                        String price = document.getDouble("price").toString();
-                        String imageRef = document.getString("img");
-                        Item item = new Item(name, price, imageRef, itemDocRef);
-                        itemList.add(item);
-                        updateUserCallback.updateLocalItems(itemList);
-                    } else {
-                        Log.d(TAG, "No such document");
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
-            }
-        });
-    }
-
-    /**
      * Purpose: Listen for item changes in firebase (future development: admin accounts)
      * Success: Calls updateUserCallback.updateLocalItems to update local items stored
-     * @param updateUserCallback
+     * @param firebaseCallback
      */
-    void listenForItemChanges(UpdateUserCallback updateUserCallback) {
-        DocumentReference trolleyDocRef = userObject.getTrolleyDoc();
-        if (trolleyDocRef != null) {
-            itemsChangeListener = trolleyDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                @Override
-                public void onEvent(@Nullable DocumentSnapshot snapshot,
-                                    @Nullable FirebaseFirestoreException e) {
-                    Log.i("ItemsListener", "Listening...");
-                    if (e != null) {
-                        Log.i("ItemsListener", "Listen failed.", e);
-                        return;
-                    }
-                    if (snapshot != null && snapshot.exists()) {
-                        if (batch == null) {
-                            ArrayList<DocumentReference> itemDocuments = (ArrayList<DocumentReference>) snapshot.get("items");
-                            if (itemDocuments!=null) {
-                                Log.i("ItemsListener", itemDocuments.toString());
-                                userObject.setItemDocuments(itemDocuments);
-                                itemList = new ArrayList<Item>();
-                                for (DocumentReference itemDocRef : itemDocuments) {
-                                    getSingleFirebaseItem(updateUserCallback, itemDocRef,itemList);
-                                }
-                            } else Log.i("ItemsListener", "No items in cart");
-                        } else { batch = null; }
-                    }
-                }
-            });
-        }
-    }
-
-    public void listenForCartChanges(final FirebaseCallback firebaseCallback) {
+    void listenForCartChanges(final FirebaseCallback firebaseCallback) {
         if (User.getInstance().getTrolleyDoc() != null) {
             CollectionReference itemsCollection = userObject.getTrolleyDoc().collection("items");
             itemsChangeListener = itemsCollection.addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -696,7 +458,12 @@ public class DatabaseHandler {
 
     }
 
-    public void getShoppingHist(UpdateUserCallback updateUserCallback){
+    /**
+     * Purpose: Get purchase history of User.
+     * Success: Calls updateUserCallback.updateLocalItems to update local items stored
+     * @param shoppingHistCallback
+     */
+    public void getShoppingHist(ShoppingHistCallback shoppingHistCallback){
         CollectionReference userShoppingHistCollection = userObject.getUserDoc().collection("shopping_hist");
         userShoppingHistCollection
                 .get()
@@ -715,28 +482,8 @@ public class DatabaseHandler {
                                 itemList = new ArrayList<Item>();
                                 for (Map<String,Object> itemMap : (List<Map<String,Object>>) shoppingHistSession.get("items")) {
                                     itemList.add(new Item(itemMap));
-//                                    Log.i("hist", itemEntry.toString());
-//                                    Map<String,Object> itemMap = (HashMap<String, Object>) itemEntry.getValue();
-//                                    itemMap.put("barcode", itemEntry.getKey());
                                 }
-
-//                                for (Map.Entry<String, Object> entry : itemMap.entrySet()) {
-//                                    if (entry.getValue() instanceof Date) {
-//                                        timeOfTransaction = (Date) entry.getValue();
-//                                    } else if (entry.getValue() instanceof List) {
-//                                        Log.i("hist", entry.getValue().toString());
-//                                        Map<String, Object> rawData = (Map<String,Object>) entry.getValue();
-//                                        String name = (String) rawData.get("name");
-//                                        String price = rawData.get("price").toString();
-//                                        String imageRef = (String) rawData.get("img");
-//                                        Item item = new Item(name, price, imageRef, null);
-//                                        itemList.add(item);
-//                                    } else {
-//                                        totalPrice = document.get("total_price").toString();
-//                                        Log.i("hist", "before: " + totalPrice);
-//                                    }
-//                                }
-                                updateUserCallback.updateShoppingHist(itemList, totalPrice, timeOfTransaction);
+                                shoppingHistCallback.updateShoppingHist(itemList, totalPrice, timeOfTransaction);
                             }
                         } else {
                             Log.i("hist", "Error getting documents: ", task.getException());

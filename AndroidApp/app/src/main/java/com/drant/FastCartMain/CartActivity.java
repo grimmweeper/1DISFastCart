@@ -1,6 +1,5 @@
 package com.drant.FastCartMain;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,9 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 
-public class CartActivity extends Fragment implements FirebaseCallback, UpdateUserCallback {
+public class CartActivity extends Fragment implements FirebaseCallback, IllopCallback {
 
     private static final String TAG = "CartActivityFragment";
 
@@ -192,16 +190,6 @@ public class CartActivity extends Fragment implements FirebaseCallback, UpdateUs
 //        Log.i("console", "detaching on cart");
         DatabaseHandler.getInstance().detachListener("illop");
         DatabaseHandler.getInstance().detachListener("cart");
-    }
-
-    @Override
-    public void updateLocalItems(ArrayList<Item> itemList) {
-
-    }
-
-    @Override
-    public void updateShoppingHist(ArrayList<Item> itemList, String total_price, Date timeOfTransaction) {
-
     }
 }
 

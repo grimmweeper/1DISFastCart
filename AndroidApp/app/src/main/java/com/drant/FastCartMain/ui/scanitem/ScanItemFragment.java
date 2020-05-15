@@ -29,6 +29,7 @@ import androidx.fragment.app.Fragment;
 import com.drant.FastCartMain.DatabaseHandler;
 import com.drant.FastCartMain.DownloadImageTask;
 import com.drant.FastCartMain.FirebaseCallback;
+import com.drant.FastCartMain.IllopCallback;
 import com.drant.FastCartMain.Item;
 import com.drant.FastCartMain.R;
 import com.drant.FastCartMain.User;
@@ -51,7 +52,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-public class ScanItemFragment extends Fragment implements FirebaseCallback {
+public class ScanItemFragment extends Fragment implements FirebaseCallback, IllopCallback {
     AlertDialog.Builder dialogBuilder;
     AlertDialog alertDialog;
     SurfaceView surfaceView;
@@ -120,7 +121,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
     public void onStart() {
         super.onStart();
         try {
-            dbHandler.listenForIllop(this);
+            DatabaseHandler.getInstance().listenForIllop(this);
             Log.i("console", "resume");
         } catch (Exception e) {
             Log.i("console", e.toString());
@@ -184,7 +185,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                                             if (task.getResult().exists()) {
                                                 progressDialog.dismiss();
                                                 Toast.makeText(getActivity(),"Trolley Added",Toast.LENGTH_SHORT).show();
-                                                dbHandler.linkTrolleyAndUser(uid,cart_id);
+                                                DatabaseHandler.getInstance().linkTrolleyAndUser(uid,cart_id);
                                                 User.getInstance().setTrolleyId(cart_id);
                                                 scanStatus=true;
                                                 scanTime = System.currentTimeMillis() - 1000;
@@ -243,7 +244,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
 
 
                             //Get Firestore Data
-                            dbHandler.addItemToCart(ScanItemFragment.this, product_id);
+                            DatabaseHandler.getInstance().addItemToCart(ScanItemFragment.this, product_id);
                         }
                     });
                 }

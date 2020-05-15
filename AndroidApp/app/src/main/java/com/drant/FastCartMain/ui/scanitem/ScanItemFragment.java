@@ -26,8 +26,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.drant.FastCartMain.DatabaseHandler;
 import com.drant.FastCartMain.DownloadImageTask;
 import com.drant.FastCartMain.FirebaseCallback;
+import com.drant.FastCartMain.IllopCallback;
 import com.drant.FastCartMain.Item;
 import com.drant.FastCartMain.R;
 import com.drant.FastCartMain.User;
@@ -50,7 +52,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-public class ScanItemFragment extends Fragment implements FirebaseCallback {
+public class ScanItemFragment extends Fragment implements FirebaseCallback, IllopCallback {
     AlertDialog.Builder dialogBuilder;
     AlertDialog alertDialog;
     SurfaceView surfaceView;
@@ -70,6 +72,8 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
     private String cart_id="CART_ID";
     private static final int REQUEST_CAMERA_PERMISSION = 201;
 
+    AlertDialog alertIllop;
+
     @Override
     public void itemValidationCallback(Boolean correctItem){
         if (correctItem) {
@@ -79,7 +83,25 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
     }
 
     @Override
-    public void checkIllopCallback(Boolean illopStatus){};
+    public void checkIllopCallback(Boolean illopStatus){
+        if(illopStatus) {
+//            alertIllop = new AlertDialog.Builder(getActivity()).create();
+            alertIllop.setIcon(R.drawable.warning);
+            alertIllop.setTitle("Warning");
+            alertIllop.setMessage("Please return to the cart's previous state");
+            //alertIllop.setMessage("Thank you for shopping with us.");
+            alertIllop.show();
+            alertIllop.setCancelable(false);
+            alertIllop.setCanceledOnTouchOutside(false);
+//            safecheck = true;
+            Log.i("console", "callback for scan");
+
+        } else if (alertIllop.isShowing()) {
+//        } else if (!illopStatus && safecheck) {
+            alertIllop.dismiss();
+//            safecheck = false;
+        }
+    };
 
     View view;
     ViewGroup container;
@@ -88,6 +110,22 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
         container = containerGroup;
         view = inflater.inflate(R.layout.activity_scan_barcode, container, false);
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        alertIllop = new AlertDialog.Builder(getContext()).create();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        try {
+            DatabaseHandler.getInstance().listenForIllop(this);
+            Log.i("console", "resume");
+        } catch (Exception e) {
+            Log.i("console", e.toString());
+        }
     }
 
     @Override
@@ -147,7 +185,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                                             if (task.getResult().exists()) {
                                                 progressDialog.dismiss();
                                                 Toast.makeText(getActivity(),"Trolley Added",Toast.LENGTH_SHORT).show();
-                                                dbHandler.linkTrolleyAndUser(uid,cart_id);
+                                                DatabaseHandler.getInstance().linkTrolleyAndUser(uid,cart_id);
                                                 User.getInstance().setTrolleyId(cart_id);
                                                 scanStatus=true;
                                                 scanTime = System.currentTimeMillis() - 1000;
@@ -190,6 +228,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
                         @Override
                         public void run() {
                             product_id = barcodes.valueAt(0).displayValue;
+                            Log.i("scan", product_id);
                             //Throttle
                             scanStatus = false;
 
@@ -205,7 +244,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
 
 
                             //Get Firestore Data
-                            dbHandler.addItemToCart(ScanItemFragment.this, product_id);
+                            DatabaseHandler.getInstance().addItemToCart(ScanItemFragment.this, product_id);
                         }
                     });
                 }
@@ -315,11 +354,13 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
     public void displayItemsCallback(ArrayList<Item> items){}
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onStop() {
+        super.onStop();
         try {
             cameraSource.release();
         } catch (NullPointerException ex1) { ex1.printStackTrace(); }
+        Log.i("console", "detaching on scan");
+        dbHandler.detachListener("illop");
     }
 
     private void showAlertDialog(int layout) {
@@ -348,7 +389,8 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
         productButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dbHandler.cancelOperation(ScanItemFragment.this, true);
+//                dbHandler.cancelOperation(ScanItemFragment.this, true);
+                DatabaseHandler.getInstance().cancelAddingOperation();
                 alertDialog.dismiss();
                 Toast.makeText(getActivity(), "Removed Item From Cart", Toast.LENGTH_SHORT).show();
             }
@@ -362,6 +404,4 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback {
             }
         });
     }
-
-
 }

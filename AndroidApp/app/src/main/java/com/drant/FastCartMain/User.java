@@ -1,23 +1,18 @@
 package com.drant.FastCartMain;
 
-import android.util.Log;
-
 import com.google.firebase.firestore.DocumentReference;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-
-import androidx.appcompat.app.AlertDialog;
 
 import static com.drant.FastCartMain.FirebaseCallback.dbHandler;
 
-public class User implements UpdateUserCallback {
-    private String userId;
-    private DocumentReference userDocRef;
-    private String trolleyId;
-    private DocumentReference trolleyDocRef;
-    private ArrayList<Item> items = new ArrayList<Item>();
-    private ArrayList<DocumentReference> itemDocuments = new ArrayList<DocumentReference>();
+public class User {
+    private static String userId;
+    private static DocumentReference userDocRef;
+    private static String trolleyId;
+    private static DocumentReference trolleyDocRef;
+    private static ArrayList<Item> items = new ArrayList<Item>();
+    private static ArrayList<DocumentReference> itemDocuments = new ArrayList<DocumentReference>();
 
     private static User instance;
 
@@ -35,7 +30,6 @@ public class User implements UpdateUserCallback {
     void setUserId(String userId) {
         this.userId = userId;
         this.setUserDoc();
-        Log.i("console", this.userId);
     }
 
     String getUserId() {
@@ -61,43 +55,29 @@ public class User implements UpdateUserCallback {
 
     private void setTrolleyDoc() {
         this.trolleyDocRef = dbHandler.saveTrolleyDocument(this.trolleyId);
-        dbHandler.listenForItemChanges(User.this);
+//        dbHandler.listenForItemChanges(User.this);
     }
 
     DocumentReference getTrolleyDoc() {
         return this.trolleyDocRef;
     }
 
-    void setItems(ArrayList<Item> items) {
+    void setItems(ArrayList<Item> items, FirebaseCallback firebaseCallback) {
         this.items = items;
+        DatabaseHandler.getInstance().getItemsInLocalTrolley(firebaseCallback);
+
     }
 
-    public ArrayList<Item> getItems() {
+    ArrayList<Item> getItems() {
         return this.items;
     }
 
     public void setItemDocuments(ArrayList<DocumentReference> itemDocuments) {
         this.itemDocuments = itemDocuments;
+
     }
 
     public ArrayList<DocumentReference> getItemDocuments() {
         return this.itemDocuments;
-    }
-
-    public BigDecimal getCartTotal(){
-        BigDecimal total = new BigDecimal("0.00");
-
-        ArrayList<Item> userItems = this.getItems();
-        for (Item i: userItems){
-            total = total.add(i.getPrice());
-        }
-        return total;
-    }
-
-    @Override
-    public void updateLocalItems(ArrayList<Item> itemList){//ArrayList<Item> Items, ArrayList<DocumentReference> ItemDocs) {
-        Log.i("console", "update local items");
-        Log.i("console", itemList.toString());
-        this.setItems(itemList);
     }
 }

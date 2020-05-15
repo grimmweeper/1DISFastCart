@@ -1,6 +1,5 @@
 package com.drant.FastCartMain;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
-public class CartActivity extends Fragment implements FirebaseCallback {
+public class CartActivity extends Fragment implements FirebaseCallback, IllopCallback {
 
     private static final String TAG = "CartActivityFragment";
 
@@ -76,7 +75,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
             alertIllop.setCancelable(false);
             alertIllop.setCanceledOnTouchOutside(false);
             safecheck = true;
-            Log.i("console", "safecheck = true");
+            Log.i("console", "callback for cart");
 
         } else if (alertIllop.isShowing()) {
 //        } else if (!illopStatus && safecheck) {
@@ -125,7 +124,7 @@ public class CartActivity extends Fragment implements FirebaseCallback {
                         alertRemove.show();
 
                         mAdapter.notifyDataSetChanged();
-                        dbHandler.removeItemFromCart(CartActivity.this, item);
+                        DatabaseHandler.getInstance().removeItemFromCart(CartActivity.this, item.getBarcode());
 
                         cartTotal.setText(mAdapter.getTotalPrice());
 
@@ -148,9 +147,9 @@ public class CartActivity extends Fragment implements FirebaseCallback {
                 alertCheckout.setMessage("Thank you for shopping with us.");
                 alertCheckout.show();
 
-                mAdapter.clearCart();
+//                mAdapter.clearCart();
                 cartTotal.setText(getCartTotal(cart));
-                dbHandler.checkOut();
+                DatabaseHandler.getInstance().checkOut();
             }
         });
 
@@ -166,43 +165,31 @@ public class CartActivity extends Fragment implements FirebaseCallback {
     }
 
     @Override
-    public void onAttach(Context context){
-        super.onAttach(getContext());
-        dbHandler.getItemsInLocalTrolley(this);
-        try {
-            dbHandler.listenForIllop(this);
-            Log.i("console", "attach");
-        } catch (Exception e) {
-            Log.i("console", e.toString());
-        }
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
-        dbHandler.getItemsInLocalTrolley(this);
+        DatabaseHandler.getInstance().listenForCartChanges(this);
+
         try {
-            dbHandler.listenForIllop(this);
+            DatabaseHandler.getInstance().listenForIllop(this);
             Log.i("console", "start");
         } catch (Exception e) {
             Log.i("console", e.toString());
         }
-//        dbHandler.listenForIllop(this);
+
+//        DatabaseHandler.getInstance().getItemsInLocalTrolley(this);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        dbHandler.getItemsInLocalTrolley(this);
-//        dbHandler.listenForIllop(this);
+    }
 
-        try {
-            dbHandler.listenForIllop(this);
-            Log.i("console", "resume");
-        } catch (Exception e) {
-            Log.i("console", e.toString());
-        }
-
+    @Override
+    public void onStop() {
+        super.onStop();
+//        Log.i("console", "detaching on cart");
+        DatabaseHandler.getInstance().detachListener("illop");
+        DatabaseHandler.getInstance().detachListener("cart");
     }
 }
 

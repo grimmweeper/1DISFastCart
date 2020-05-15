@@ -8,15 +8,20 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.drant.FastCartMain.ui.purchasehistory.HistorySessionActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class ProfileFragment extends Fragment {
+import java.util.ArrayList;
+
+public class ProfileFragment extends Fragment implements IllopCallback {
     Button logout;
     Button purchasehistory;
     private FirebaseAuth firebaseAuth;
+
+    AlertDialog alertIllop;
 
     public ProfileFragment() {
     }
@@ -55,7 +60,38 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        alertIllop = new AlertDialog.Builder(getContext()).create();
 
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        try {
+            DatabaseHandler.getInstance().listenForIllop(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        DatabaseHandler.getInstance().detachListener("illop");
+    }
+
+    @Override
+    public void checkIllopCallback(Boolean illopStatus) {
+        if(illopStatus) {
+            alertIllop.setIcon(R.drawable.warning);
+            alertIllop.setTitle("Warning");
+            alertIllop.setMessage("Please return to the cart's previous state");
+            alertIllop.show();
+            alertIllop.setCancelable(false);
+            alertIllop.setCanceledOnTouchOutside(false);
+
+        } else if (alertIllop.isShowing()) {
+            alertIllop.dismiss();
+        }
+    }
 }

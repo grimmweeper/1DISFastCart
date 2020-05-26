@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -22,6 +23,7 @@ public class ProfileFragment extends Fragment implements IllopCallback {
     private FirebaseAuth firebaseAuth;
 
     AlertDialog alertIllop;
+    private View profileView;
 
     public ProfileFragment() {
     }
@@ -32,11 +34,15 @@ public class ProfileFragment extends Fragment implements IllopCallback {
                              ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.activity_profile, container, false);
+        TextView usernameTest = (TextView) view.findViewById(R.id.user_name);
+        usernameTest.setText(User.getInstance().getUserName());
         return view;
     }
 
     public void onViewCreated(View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
+
+
 
         firebaseAuth = FirebaseAuth.getInstance();
         logout = (Button) view.findViewById(R.id.logout_button);
@@ -67,6 +73,9 @@ public class ProfileFragment extends Fragment implements IllopCallback {
     @Override
     public void onStart() {
         super.onStart();
+
+
+
         try {
             DatabaseHandler.getInstance().listenForIllop(this);
         } catch (Exception e) {

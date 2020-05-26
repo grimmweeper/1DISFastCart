@@ -1,5 +1,6 @@
 package com.drant.FastCartMain;
 
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.util.ArrayList;
@@ -8,11 +9,13 @@ import static com.drant.FastCartMain.FirebaseCallback.dbHandler;
 
 public class User {
     private static String userId;
+    private static String userName;
     private static DocumentReference userDocRef;
     private static String trolleyId;
     private static DocumentReference trolleyDocRef;
     private static ArrayList<Item> items = new ArrayList<Item>();
     private static ArrayList<DocumentReference> itemDocuments = new ArrayList<DocumentReference>();
+    private static FirebaseUser firebaseUser;
 
     private static User instance;
 
@@ -27,17 +30,35 @@ public class User {
         return instance;
     }
 
+    void setFirebaseUser(FirebaseUser firebaseUser) {
+        this.firebaseUser = firebaseUser;
+        this.setUserId(this.getFirebaseUser().getUid());
+        this.setUserName(this.getFirebaseUser().getDisplayName());
+    }
+
+    FirebaseUser getFirebaseUser () {
+        return this.firebaseUser;
+    }
+
     void setUserId(String userId) {
         this.userId = userId;
-        this.setUserDoc();
+        this.setUserDoc(this.getUserId());
     }
 
     String getUserId() {
         return this.userId;
     }
 
-    private void setUserDoc() {
-        this.userDocRef = DatabaseHandler.getInstance().saveUserDocument(this.userId);
+    public static void setUserName(String userName) {
+        User.userName = userName;
+    }
+
+    public static String getUserName() {
+        return userName;
+    }
+
+    private void setUserDoc(String uid) {
+        this.userDocRef = DatabaseHandler.getInstance().saveUserDocument(uid);
     }
 
     DocumentReference getUserDoc() {

@@ -25,7 +25,7 @@ public class NavActivity extends AppCompatActivity {
     final Fragment fragment3 = new ProfileFragment();
 
     final FragmentManager fm = getSupportFragmentManager();
-    Fragment active = fragment1;
+    Fragment active = fragment2;
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
@@ -43,8 +43,8 @@ public class NavActivity extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        fm.beginTransaction().add(R.id.main_container, fragment1, "1").commit();
-        fm.beginTransaction().add(R.id.main_container, fragment2, "2").hide(fragment2).commit();
+        fm.beginTransaction().add(R.id.main_container, fragment1, "1").hide(fragment1).commit();
+        fm.beginTransaction().add(R.id.main_container, fragment2, "2").commit();
         fm.beginTransaction().add(R.id.main_container, fragment3, "3").hide(fragment3).commit();
 
     }
@@ -54,8 +54,8 @@ public class NavActivity extends AppCompatActivity {
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
-            Log.d("FireAuth", "UID: " + user.getUid());
-            User.getInstance().setUserId(user.getUid());
+//            Log.d("FireAuth", "UID: " + user.getUid());
+//            User.getInstance().setFirebaseUser(user);
         } else {
             Log.d("FireAuth", "no user found");
             startActivity(new Intent(NavActivity.this, LoginActivity.class));

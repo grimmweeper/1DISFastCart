@@ -58,6 +58,7 @@ AndroidApp/*.iws
 /out/
 
 # User-specific configurations
+AndroidApp/.idea/
 AndroidApp/.idea/caches/
 AndroidApp/.idea/libraries/
 AndroidApp/.idea/shelf/

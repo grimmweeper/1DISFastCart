@@ -120,8 +120,11 @@ public class LoginActivity extends AppCompatActivity {
                         // Sign in success, move to main activity
                         Log.d("LoginActivity", "signInWithEmail:success");
                         FirebaseUser user = mAuth.getCurrentUser();
-                        String uid = user.getUid();
-                        User.getInstance().setUserId(uid);
+                        User.getInstance().setFirebaseUser(user);
+
+//                        String uid = user.getUid();
+//                        Log.i("user", user.getDisplayName());
+//                        User.getInstance().setFirebaseUser(user);
                         Intent intent = new Intent(LoginActivity.this,NavActivity.class);
                         startActivity(intent);
                         Toast.makeText(getBaseContext(), "Login successful", Toast.LENGTH_SHORT).show();

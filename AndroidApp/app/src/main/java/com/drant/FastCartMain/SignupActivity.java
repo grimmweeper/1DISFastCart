@@ -150,13 +150,15 @@ public class SignupActivity extends AppCompatActivity {
                                     }
                                 });
 
+                        User.getInstance().setFirebaseUser(user);
+
                         Log.d(TAG, "createUserWithEmail:success");
 
                         Intent intent = new Intent(SignupActivity.this,NavActivity.class);
                         startActivity(intent);
                         overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
 //                        setResult(RESULT_OK, null);
-                        String uid = user.getUid();
+                        String uid = User.getInstance().getUserId();
                         dbHandler.registeringNewUser(uid); // registers user in database
                         Toast.makeText(getBaseContext(), "Account created. Please enjoy your shopping!", Toast.LENGTH_SHORT).show();
                         _signupButton.setEnabled(true);

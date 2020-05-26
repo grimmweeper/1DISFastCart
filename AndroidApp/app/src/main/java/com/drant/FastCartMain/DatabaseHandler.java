@@ -422,7 +422,7 @@ public class DatabaseHandler {
                     }
                 });
 
-        unlinkTrolleyAndUser(userObject.getUserId(), userObject.getTrolleyId());
+        unlinkTrolleyAndUser(userObject.getFirebaseUser().getUid(), userObject.getTrolleyId());
     }
 
     /**

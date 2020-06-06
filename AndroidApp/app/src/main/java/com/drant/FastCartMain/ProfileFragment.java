@@ -52,7 +52,6 @@ public class ProfileFragment extends Fragment implements IllopCallback {
             public void onClick(View v) {
                 User.getInstance().createNewUser();
                 firebaseAuth.signOut();
-                getActivity().finish();
                 startActivity(new Intent(getActivity(), LoginActivity.class));
             }
         });

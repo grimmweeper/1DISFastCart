@@ -27,6 +27,8 @@ public class NavActivity extends AppCompatActivity {
     final FragmentManager fm = getSupportFragmentManager();
     Fragment active = fragment2;
 
+//    BottomNavigationView navigation;
+
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,8 +42,6 @@ public class NavActivity extends AppCompatActivity {
 
         setContentView(R.layout.nav_activity_main);
 
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         fm.beginTransaction().add(R.id.main_container, fragment1, "1").hide(fragment1).commit();
         fm.beginTransaction().add(R.id.main_container, fragment2, "2").commit();
@@ -49,9 +49,14 @@ public class NavActivity extends AppCompatActivity {
 
     }
 
+    @Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        navigation.setSelectedItemId(R.id.navigation_scanitem);
+
         FirebaseUser user = mAuth.getCurrentUser();
         if (user != null) {
 //            Log.d("FireAuth", "UID: " + user.getUid());
@@ -67,6 +72,7 @@ public class NavActivity extends AppCompatActivity {
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            Log.i("navbar", String.valueOf(item.getItemId()));
             switch (item.getItemId()) {
                 case R.id.navigation_checkout:
                     fm.beginTransaction().hide(active).detach(active).attach(fragment1).show(fragment1).commit();
@@ -90,6 +96,7 @@ public class NavActivity extends AppCompatActivity {
         }
     };
 
+    @Override
     public void onPause() {
         super.onPause();
         if (authListener != null) {

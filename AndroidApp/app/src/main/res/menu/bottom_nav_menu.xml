@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:startDestination="@+id/navigation_checkout">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
         android:id="@+id/navigation_checkout"
@@ -12,7 +10,6 @@
         android:id="@+id/navigation_scanitem"
         android:icon="@drawable/ic_barcode"
         android:title="@string/title_scanitem" />
-
 
     <item
         android:id="@+id/navigation_profile"

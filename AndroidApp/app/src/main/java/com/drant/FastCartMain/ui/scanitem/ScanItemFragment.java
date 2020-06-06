@@ -51,6 +51,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ScanItemFragment extends Fragment implements FirebaseCallback, IllopCallback {
     AlertDialog.Builder dialogBuilder;
@@ -303,7 +304,7 @@ public class ScanItemFragment extends Fragment implements FirebaseCallback, Illo
                             }
                         });
 
-                        cameraSource = new CameraSource.Builder(getActivity(), barcodeDetector)
+                        cameraSource = new CameraSource.Builder(Objects.requireNonNull(getContext()), barcodeDetector)
                                 .setRequestedPreviewSize(1920, 1080)
                                 .setAutoFocusEnabled(true) //you should add this feature
                                 .build();

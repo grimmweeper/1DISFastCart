@@ -1,0 +1,69 @@
+ONLY NEED TO DO ONCE:
+
+virtualenv tensorenv
+cd /home/drantinire/tensorenv
+symbolic link python3 to python3.7, pip3 to pip3.7:
+sudo ln -s ~/.pyenv/versions/3.7.0/bin/python3.7 python3 -f
+sudo ln -s ~/.pyenv/versions/3.7.0/bin/pip3.7 pip3 -f
+
+
+
+
+
+source tensorenv/bin/activate
+export PYTHONPATH=$PYTHONPATH:/home/drantinire/.pyenv/versions/3.7.0/lib/python3.7/site-packages
+
+export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/slim (in model/research)
+
+
+To label images for training:
+python3 labelImg.py
+
+To run opencv (cd to object_detection):
+python3 object_cv.py
+
+
+GOOGLE CLOUD:
+(SET-UP: once)
+1) gcloud config set project fastcart-cde6e
+2) gsutil mb gs://fastcart
+
+(Start-up)
+1) export PROJECT="fastcart-cde6e"
+2) export YOUR_GCS_BUCKET="fastcart"
+3) curl -H "Authorization: Bearer $(gcloud auth print-access-token)"  \
+    https://ml.googleapis.com/v1/projects/${PROJECT}:getConfig
+4) export TPU_ACCOUNT=your-service-account (eg. export TPU_ACCOUNT=service-661724760118@cloud-tpu.iam.gserviceaccount.com)
+5) gcloud projects add-iam-policy-binding $PROJECT  \
+    --member serviceAccount:$TPU_ACCOUNT --role roles/ml.serviceAgent
+
+(uploading files into cloud storage)
+1) gsutil -m cp -r train.record gs://${YOUR_GCS_BUCKET}/data/ (in model/research/object_detection/gcp)
+2) gsutil -m cp -r test.record gs://${YOUR_GCS_BUCKET}/data/
+3) gsutil -m cp -r labelmap.pbtxt gs://${YOUR_GCS_BUCKET}/data/labelmap.pbtxt
+4) gsutil cp ssd_mobilenet_v1_0.75_depth_300x300_coco14_sync_2018_07_03/model.ckpt.* gs://${YOUR_GCS_BUCKET}/data/
+
+5) Configure pipeline.config
+6) gsutil cp ssd_mobilenet_v1_0.75_depth_quantized_300x300_pets_sync.config gs://${YOUR_GCS_BUCKET}/data/pipeline.config
+
+(Packaging)
+1) bash object_detection/dataset_tools/create_pycocotools_package.sh pycocotools
+python3 setup.py sdist
+(cd slim && python3 setup.py sdist)
+
+(Submitting job request)
+1) gcloud ml-engine jobs submit training `whoami`_object_detection_`date +%s` --job-dir=gs://${YOUR_GCS_BUCKET}/train --packages dist/object_detection-0.1.tar.gz,slim/dist/slim-0.1.tar.gz,/tmp/pycocotools/pycocotools-2.0.tar.gz --module-name object_detection.model_main --runtime-version 1.14 --python-version 3.7 --region us-central1 -- --model_dir=gs://${YOUR_GCS_BUCKET}/train --pipeline_config_path=gs://${YOUR_GCS_BUCKET}/data/pipeline.config
+
+2)gcloud ml-engine jobs submit training `whoami`_object_detection_eval_validation_`date +%s` --job-dir=gs://${YOUR_GCS_BUCKET}/train --packages dist/object_detection-0.1.tar.gz,slim/dist/slim-0.1.tar.gz,pycocotools/pycocotools-2.0.tar.gz --module-name object_detection.model_main --runtime-version 1.14 --python-version 3.7 --scale-tier BASIC_GPU --region us-central1 -- --model_dir=gs://${YOUR_GCS_BUCKET}/train --pipeline_config_path=gs://${YOUR_GCS_BUCKET}/data/pipeline.config --checkpoint_dir=gs://${YOUR_GCS_BUCKET}/train
+
+
+(Tensorboard)
+1) tensorboard --logdir=gs://fastcart/train
+
+
+
+
+
+#############################################
+
+Train with prepped models in GCP (the cats?) and see if it works

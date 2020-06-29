@@ -122,6 +122,8 @@ AndroidApp/crashlytics.properties
 AndroidApp/crashlytics-build.properties
 AndroidApp/fabric.properties
 
+
+.vscode
 ### AndroidStudio Patch ###
 
 AndroidApp/!/gradle/wrapper/gradle-wrapper.jar

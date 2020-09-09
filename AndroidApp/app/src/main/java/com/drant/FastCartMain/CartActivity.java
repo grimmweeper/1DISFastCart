@@ -1,5 +1,6 @@
 package com.drant.FastCartMain;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -141,13 +142,16 @@ public class CartActivity extends Fragment implements FirebaseCallback, IllopCal
         buttonCheckout.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
-                AlertDialog alertCheckout = new AlertDialog.Builder(getActivity()).create();
-                alertCheckout.setIcon(R.drawable.greentick);
-                alertCheckout.setTitle("Checkout Success");
-                alertCheckout.setMessage("Thank you for shopping with us.");
-                alertCheckout.show();
+//                AlertDialog alertCheckout = new AlertDialog.Builder(getActivity()).create();
+//                alertCheckout.setIcon(R.drawable.greentick);
+//                alertCheckout.setTitle("Checkout Success");
+//                alertCheckout.setMessage("Thank you for shopping with us.");
+//                alertCheckout.show();
 
 //                mAdapter.clearCart();
+                Intent in = new Intent(getActivity(),CreditCard.class);
+                startActivity(in);
+
                 cartTotal.setText(getCartTotal(cart));
                 DatabaseHandler.getInstance().checkOut();
             }

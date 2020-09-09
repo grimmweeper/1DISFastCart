@@ -50,5 +50,6 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.firebase:firebase-firestore:19.0.0'
     implementation 'com.google.api:api-common:1.9.0'
+    implementation 'com.braintreepayments:card-form:3.1.1'
 
 }

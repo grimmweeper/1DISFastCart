@@ -71,8 +71,6 @@ public class CreditCard extends AppCompatActivity {
     }
     @Override
     public void onBackPressed(){
-        Intent i = new Intent(getApplicationContext(),CartActivity.class);
-        startActivity(i);
         finish();
     }
 

@@ -1,6 +1,7 @@
 package com.drant.FastCartMain;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -70,6 +71,8 @@ public class CreditCard extends AppCompatActivity {
     }
     @Override
     public void onBackPressed(){
+        Intent i = new Intent(getApplicationContext(),CartActivity.class);
+        startActivity(i);
         finish();
     }
 

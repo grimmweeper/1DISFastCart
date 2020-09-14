@@ -82,9 +82,13 @@ public class DatabaseHandler {
      * Purpose: Register new patient into firestore
      * @param userId
      */
-    void registeringNewUser(String userId) {
+    void registeringNewUser(String userId, String name, String email) {
         Map<String, Object> data = new HashMap<>();
         data.put("trolley", null);
+        data.put("firstname",name);
+        data.put("lastname",name);
+        data.put("email",email);
+        data.put("membership",true);
         db.collection("users").document(userId).set(data);
     }
 

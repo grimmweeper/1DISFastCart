@@ -159,7 +159,7 @@ public class SignupActivity extends AppCompatActivity {
                         overridePendingTransition(R.anim.push_right_in, R.anim.push_right_out);
 //                        setResult(RESULT_OK, null);
                         String uid = User.getInstance().getUserId();
-                        dbHandler.registeringNewUser(uid); // registers user in database
+                        dbHandler.registeringNewUser(uid, name, email); // registers user in database
                         Toast.makeText(getBaseContext(), "Account created. Please enjoy your shopping!", Toast.LENGTH_SHORT).show();
                         _signupButton.setEnabled(true);
                         progressDialog.dismiss();
